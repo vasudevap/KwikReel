@@ -35,7 +35,7 @@ Separate from claims, per the playbook's *committed is not shipped* discipline.
 | Ground-truth annotations | **none** |
 | Experiment results | **none** |
 | Accepted ADRs | **none** — ADR-001 through ADR-004 are all Proposed |
-| Git history | **no commits** — see `handoff.md` |
+| Git history | Initial documentation commit `e234a12` (`Initialize project direction artifacts`); no remote or published branch — see `handoff.md` |
 
 ## Log
 

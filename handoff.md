@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated:** 2026-07-21, reconciling playbook status labels across project docs (retired the "v1.1" name in favour of the PROP-01 / MD-001 pilot framing).
+**Updated:** 2026-07-22, initial project documents committed locally; repository still has no remote.
 
 ## What is real
 
@@ -24,11 +24,11 @@ Stated plainly so it is not inferred from the volume of documentation:
 - No test corpus, no consent records, no annotations. **No media has been collected.**
 - No experiment has run. Every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded `assumed`.
 - No Engineering Specification, approved Work Order, ADP, model, benchmark run, or interface.
-- **No git commits.** The repository is initialized but empty — no commits, no branches, no remote. Every file is untracked.
+- No remote repository or published branch. The initial local commit is `e234a12` (`Initialize project direction artifacts`); the worktree is clean.
 
 ## Owner actions required
 
-1. **Make the initial commit.** A `.gitignore` now exists and excludes media, derivatives, consent records, and the synthetic-ID mapping — commit it *first*, before any media is ever placed in this folder. The repository currently has no history; one `rm` loses the work. This was not done automatically because committing is the owner's call.
+1. **Create the public remote repository.** The local repository is ready to connect and push; public-repository creation is a human-initiated, consequential external action under the governing playbook.
 2. **The Validation-stage pilot is already authorized (MD-001).** Piloting PROP-01 on this project is contingent on the ADRs below being accepted; general acceptance is a later MD-002 decision that does not gate this project now. Accepting the ADRs launches the pilot — no separate methodology decision is required here.
 3. **Gate the four ADRs.** ADR-002 (privacy) blocks corpus collection specifically — no media may be gathered before it is accepted.
 4. **Accept or revise `VALIDATION-PLAN.md`, including its pre-registered thresholds.** Thresholds must be settled before the first experiment, not after.
