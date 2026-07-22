@@ -1,0 +1,91 @@
+# ---------------------------------------------------------------------------
+# Media and personal data — NEVER COMMIT
+#
+# This project processes private family footage, frequently including children,
+# with GPS trails showing where a family sleeps. Committing any of it is
+# effectively irreversible: git history persists after deletion, and consent
+# under ADR-002 is withdrawable, which a commit makes impossible to honour.
+#
+# Governed by ADR-002 (privacy and data posture).
+# ---------------------------------------------------------------------------
+
+# Source media, any location
+*.mov
+*.MOV
+*.mp4
+*.MP4
+*.m4v
+*.avi
+*.hevc
+*.heic
+*.HEIC
+*.jpg
+*.jpeg
+*.png
+*.dng
+*.raw
+
+# Audio
+*.wav
+*.aac
+*.m4a
+*.mp3
+*.flac
+
+# Corpus, derivatives, and outputs
+corpus/
+media/
+proxies/
+keyframes/
+renders/
+output/
+out/
+*.proxy.*
+draft*.mp4
+
+# Consent records and identity mapping — PII, kept out of the repo entirely.
+# The synthetic-ID mapping is the re-identification key for the whole corpus.
+consent/
+identity-map*
+*-consent.*
+subject-map*
+
+# Annotations and ground truth (derived from private media)
+annotations/
+ground-truth/
+labels/
+
+# Held-out set — sealed until the final comparison (ADR-004)
+held-out/
+
+# Experiment run artifacts (results are summarized into EXP records, not dumped here)
+runs/
+results/
+*.analysis.json
+*.timeline.json
+
+# ---------------------------------------------------------------------------
+# Secrets
+# ---------------------------------------------------------------------------
+.env
+.env.*
+*.key
+*.pem
+credentials*
+secrets*
+
+# ---------------------------------------------------------------------------
+# Tooling
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+node_modules/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# macOS
+.DS_Store

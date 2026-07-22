@@ -1,0 +1,465 @@
+<title>Reel Agent × Atlas — Interaction Map (Projection)</title>
+<style>
+  :root{
+    --ground:#eef1f4; --paper:#fbfcfd; --paper-2:#f3f6f9; --inset:#eaeef2;
+    --ink:#16202b; --ink-2:#4a5b6c; --ink-3:#6b7b8b; --line:#d4dbe2; --line-2:#c2cbd4;
+    --local:#a65f22; --local-tint:#f7ecdf; --local-line:#e6cca9;
+    --atlas:#2f6299; --atlas-tint:#e7eef6; --atlas-line:#bcd2e7;
+    --ok:#2f7d52; --deny:#a33f34; --deny-tint:#f6e6e3; --deferred:#6a5f86; --deferred-tint:#eeebf3;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,sans-serif;
+    --mono:ui-monospace,"SF Mono","SFMono-Regular",Menlo,Consolas,monospace;
+    --sh:0 1px 2px rgba(20,32,45,.04),0 6px 20px rgba(20,32,45,.06);
+    --r:10px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0e1319; --paper:#141b23; --paper-2:#182029; --inset:#1c2530;
+      --ink:#d8e1e9; --ink-2:#93a3b1; --ink-3:#75858f; --line:#27313d; --line-2:#32404e;
+      --local:#d9a05a; --local-tint:#241a10; --local-line:#49361f;
+      --atlas:#6ea6da; --atlas-tint:#101c28; --atlas-line:#264259;
+      --ok:#5cb587; --deny:#d1685b; --deny-tint:#241413; --deferred:#a99bc6; --deferred-tint:#191622;
+      --sh:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.36);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#eef1f4; --paper:#fbfcfd; --paper-2:#f3f6f9; --inset:#eaeef2;
+    --ink:#16202b; --ink-2:#4a5b6c; --ink-3:#6b7b8b; --line:#d4dbe2; --line-2:#c2cbd4;
+    --local:#a65f22; --local-tint:#f7ecdf; --local-line:#e6cca9;
+    --atlas:#2f6299; --atlas-tint:#e7eef6; --atlas-line:#bcd2e7;
+    --ok:#2f7d52; --deny:#a33f34; --deny-tint:#f6e6e3; --deferred:#6a5f86; --deferred-tint:#eeebf3;
+    --sh:0 1px 2px rgba(20,32,45,.04),0 6px 20px rgba(20,32,45,.06);
+  }
+  :root[data-theme="dark"]{
+    --ground:#0e1319; --paper:#141b23; --paper-2:#182029; --inset:#1c2530;
+    --ink:#d8e1e9; --ink-2:#93a3b1; --ink-3:#75858f; --line:#27313d; --line-2:#32404e;
+    --local:#d9a05a; --local-tint:#241a10; --local-line:#49361f;
+    --atlas:#6ea6da; --atlas-tint:#101c28; --atlas-line:#264259;
+    --ok:#5cb587; --deny:#d1685b; --deny-tint:#241413; --deferred:#a99bc6; --deferred-tint:#191622;
+    --sh:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.36);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+    font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;}
+  .wrap{max-width:1120px;margin:0 auto;padding:clamp(20px,4vw,52px) clamp(16px,4vw,40px) 72px;}
+  .mono{font-family:var(--mono);}
+  a{color:var(--atlas);}
+
+  /* ---------- header ---------- */
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--deny);font-weight:600;display:flex;align-items:center;gap:9px;margin:0 0 14px;}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--deny);flex:none;
+    box-shadow:0 0 0 3px var(--deny-tint);}
+  h1{font-size:clamp(27px,4.4vw,42px);line-height:1.06;letter-spacing:-.022em;font-weight:680;
+    margin:0 0 16px;text-wrap:balance;max-width:20ch;}
+  .dek{font-size:clamp(15px,1.9vw,17px);color:var(--ink-2);max-width:66ch;margin:0;line-height:1.5;}
+  .dek b{color:var(--ink);font-weight:600;}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px 10px;margin:26px 0 0;padding:16px 18px;
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);}
+  .legend .lg-title{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-3);width:100%;margin-bottom:2px;}
+  .key{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);
+    font-family:var(--mono);}
+  .key .sw{width:13px;height:13px;border-radius:3px;flex:none;}
+  .key .sw.local{background:var(--local);}
+  .key .sw.atlas{background:var(--atlas);}
+  .key .sw.solid{border:1.5px solid var(--ink-2);background:transparent;}
+  .key .sw.dash{border:1.5px dashed var(--ink-2);background:transparent;}
+  .key .sw.lock{background:var(--deny);}
+
+  /* ---------- section scaffolding ---------- */
+  section{margin-top:clamp(38px,6vw,66px);}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;flex-wrap:wrap;}
+  .sec-num{font-family:var(--mono);font-size:12px;color:var(--atlas);font-weight:600;letter-spacing:.05em;}
+  h2{font-size:clamp(19px,2.6vw,25px);letter-spacing:-.014em;font-weight:650;margin:0;line-height:1.15;}
+  .sec-sub{color:var(--ink-2);font-size:14.5px;margin:8px 0 24px;max-width:70ch;}
+
+  /* ---------- the diagram ---------- */
+  .diagram-scroll{overflow-x:auto;padding-bottom:4px;}
+  .diagram{display:flex;align-items:stretch;gap:0;min-width:720px;}
+  .plane{flex:1;background:var(--paper);border:1px solid var(--line);box-shadow:var(--sh);
+    display:flex;flex-direction:column;}
+  .plane.local{border-radius:var(--r) 0 0 var(--r);border-right:none;}
+  .plane.atlas{border-radius:0 var(--r) var(--r) 0;border-left:none;}
+  .plane-hd{padding:15px 18px 13px;border-bottom:1px solid var(--line);}
+  .plane.local .plane-hd{background:linear-gradient(180deg,var(--local-tint),transparent);}
+  .plane.atlas .plane-hd{background:linear-gradient(180deg,var(--atlas-tint),transparent);}
+  .plane-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;font-weight:600;}
+  .plane.local .plane-tag{color:var(--local);}
+  .plane.atlas .plane-tag{color:var(--atlas);}
+  .plane-tag .pin{width:8px;height:8px;border-radius:50%;flex:none;}
+  .plane.local .pin{background:var(--local);}
+  .plane.atlas .pin{background:var(--atlas);}
+  .plane-title{font-size:17px;font-weight:650;margin:7px 0 2px;letter-spacing:-.01em;}
+  .plane-note{font-size:12px;color:var(--ink-3);font-family:var(--mono);}
+  .plane-body{padding:16px 18px 20px;display:flex;flex-direction:column;gap:9px;flex:1;}
+
+  .node{border:1px solid var(--line-2);border-radius:8px;padding:9px 11px;background:var(--paper-2);
+    display:flex;gap:10px;align-items:flex-start;position:relative;}
+  .node .ix{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-weight:600;
+    padding-top:1px;min-width:16px;}
+  .node .nb{flex:1;min-width:0;}
+  .node .nt{font-size:13.5px;font-weight:600;letter-spacing:-.005em;}
+  .node .nd{font-size:11.5px;color:var(--ink-3);font-family:var(--mono);line-height:1.4;margin-top:1px;}
+  .plane.local .node{border-left:2.5px solid var(--local-line);}
+  .plane.atlas .node{border-left:2.5px solid var(--atlas-line);}
+
+  .node.gate{background:transparent;border-style:dashed;border-color:var(--local);}
+  .plane.local .node.gate{border-left:2.5px dashed var(--local);}
+  .node.surface{background:var(--local-tint);border-color:var(--local-line);border-style:solid;}
+  .plane.atlas .node.surface{background:var(--atlas-tint);border-color:var(--atlas-line);}
+  .node.deny{background:var(--deny-tint);border:1px solid var(--deny);}
+  .plane.local .node.deny{border-left:2.5px solid var(--deny);}
+
+  .flowline{align-self:center;color:var(--ink-3);font-size:13px;line-height:1;margin:-2px 0;}
+
+  .chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:2.5px 7px;border-radius:20px;
+    border:1px solid;white-space:nowrap;}
+  .chip.poc{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line));background:color-mix(in srgb,var(--ok) 9%,transparent);}
+  .chip.proj{color:var(--deferred);border-color:color-mix(in srgb,var(--deferred) 45%,var(--line));background:color-mix(in srgb,var(--deferred) 10%,transparent);}
+  .chip.lock{color:var(--deny);border-color:color-mix(in srgb,var(--deny) 45%,var(--line));background:color-mix(in srgb,var(--deny) 10%,transparent);}
+  .chip.atlasc{color:var(--atlas);border-color:color-mix(in srgb,var(--atlas) 45%,var(--line));background:color-mix(in srgb,var(--atlas) 10%,transparent);}
+  .node .chip{margin-top:6px;}
+
+  /* boundary */
+  .boundary{flex:0 0 118px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    position:relative;padding:10px 6px;}
+  .boundary::before{content:"";position:absolute;top:14px;bottom:14px;left:50%;transform:translateX(-50%);
+    border-left:2px dashed var(--line-2);}
+  .b-label{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-size:10px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);background:var(--ground);
+    padding:8px 2px;font-weight:600;z-index:1;}
+  .cross{z-index:1;background:var(--paper);border:1px solid var(--line);border-radius:8px;
+    padding:8px 9px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:9px;width:100%;}
+  .cross .xr{font-family:var(--mono);font-size:10px;line-height:1.35;color:var(--ink-2);}
+  .cross .xr .ar{font-weight:700;font-size:12px;}
+  .cross .xr.out .ar{color:var(--local);}
+  .cross .xr.in .ar{color:var(--atlas);}
+  .cross .xr b{color:var(--ink);font-weight:600;}
+
+  /* ---------- two surfaces ---------- */
+  .surfaces{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .scard{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--sh);overflow:hidden;display:flex;flex-direction:column;}
+  .scard-hd{padding:16px 18px 14px;border-bottom:1px solid var(--line);}
+  .scard.local .scard-hd{border-top:3px solid var(--local);}
+  .scard.atlas .scard-hd{border-top:3px solid var(--atlas);}
+  .scard h3{margin:0;font-size:16.5px;font-weight:650;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .scard .who{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin-top:5px;}
+  .scard-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:15px;flex:1;}
+
+  .mock{font-family:var(--mono);font-size:11.5px;line-height:1.6;border-radius:8px;overflow:hidden;
+    border:1px solid var(--line-2);}
+  .mock .bar{background:var(--inset);padding:5px 10px;font-size:10px;letter-spacing:.05em;color:var(--ink-3);
+    border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px;}
+  .mock .bar .lamp{width:8px;height:8px;border-radius:50%;background:var(--line-2);flex:none;}
+  .mock .body{padding:11px 12px;background:var(--paper-2);color:var(--ink-2);white-space:pre-wrap;word-break:break-word;}
+  .mock .body .c-ok{color:var(--ok);} .mock .body .c-cut{color:var(--deny);}
+  .mock .body .c-key{color:var(--local);} .mock .body .prompt{color:var(--atlas);}
+
+  /* approval card mock */
+  .appr{border:1px solid var(--atlas-line);border-radius:8px;background:var(--atlas-tint);padding:12px 13px;}
+  .appr .ah{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;}
+  .appr .aid{font-family:var(--mono);font-size:11px;color:var(--atlas);font-weight:600;}
+  .appr .state{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;
+    padding:2px 8px;border-radius:20px;background:color-mix(in srgb,var(--local) 16%,transparent);
+    color:var(--local);border:1px solid color-mix(in srgb,var(--local) 40%,transparent);font-weight:600;}
+  .appr .aq{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+  .appr .ev{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);line-height:1.5;}
+  .appr .btns{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap;}
+  .appr .btn{font-family:var(--mono);font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px;
+    border:1px solid;letter-spacing:.02em;}
+  .appr .btn.ap{background:var(--atlas);color:#fff;border-color:var(--atlas);}
+  .appr .btn.rj{background:transparent;color:var(--deny);border-color:color-mix(in srgb,var(--deny) 45%,var(--line));}
+  .appr .btn.ck{background:transparent;color:var(--ink-2);border-color:var(--line-2);}
+  :root[data-theme="dark"] .appr .btn.ap{color:#0e1319;}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .appr .btn.ap{color:#0e1319;}}
+
+  .does{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;}
+  .does li{position:relative;padding-left:18px;font-size:13px;color:var(--ink-2);line-height:1.45;}
+  .does li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:2px;}
+  .scard.local .does li::before{background:var(--local);}
+  .scard.atlas .does li::before{background:var(--atlas);}
+  .does li b{color:var(--ink);font-weight:600;}
+  .mini-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:1px;font-weight:600;}
+
+  /* ---------- mapping table ---------- */
+  .tbl-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);background:var(--paper);}
+  table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px;}
+  thead th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-3);font-weight:600;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--paper-2);}
+  tbody td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);}
+  tbody tr:last-child td{border-bottom:none;}
+  td .task{color:var(--ink);font-weight:600;font-size:13.5px;}
+  .surf-tag{font-family:var(--mono);font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .surf-tag .pin{width:8px;height:8px;border-radius:50%;flex:none;}
+  .surf-tag.local{color:var(--local);} .surf-tag.local .pin{background:var(--local);}
+  .surf-tag.atlas{color:var(--atlas);} .surf-tag.atlas .pin{background:var(--atlas);}
+  .surf-tag.none{color:var(--deny);} .surf-tag.none .pin{background:var(--deny);}
+
+  /* ---------- honesty ledger ---------- */
+  .ledger{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .lrow{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:13px 15px;box-shadow:var(--sh);
+    display:flex;flex-direction:column;gap:5px;}
+  .lrow .lt{font-size:13.5px;font-weight:600;color:var(--ink);}
+  .lrow .ld{font-size:12px;color:var(--ink-2);line-height:1.45;}
+  .lrow .src{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);}
+  .status{align-self:flex-start;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+    font-weight:700;padding:3px 9px;border-radius:5px;border:1px solid;}
+  .st-real{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line));background:color-mix(in srgb,var(--ok) 10%,transparent);}
+  .st-prop{color:var(--atlas);border-color:color-mix(in srgb,var(--atlas) 45%,var(--line));background:color-mix(in srgb,var(--atlas) 10%,transparent);}
+  .st-defer{color:var(--deferred);border-color:color-mix(in srgb,var(--deferred) 45%,var(--line));background:color-mix(in srgb,var(--deferred) 12%,transparent);}
+  .st-lock{color:var(--deny);border-color:color-mix(in srgb,var(--deny) 45%,var(--line));background:color-mix(in srgb,var(--deny) 10%,transparent);}
+
+  /* callout */
+  .callout{margin-top:22px;background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--atlas);
+    border-radius:8px;padding:15px 18px;box-shadow:var(--sh);}
+  .callout .ct{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--atlas);font-weight:600;margin-bottom:6px;}
+  .callout p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.55;}
+  .callout p b{color:var(--ink);font-weight:600;}
+
+  footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;}
+  footer .quote{font-size:14px;color:var(--ink);font-weight:500;max-width:40ch;letter-spacing:-.005em;}
+  footer .src-list{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);line-height:1.7;text-align:right;}
+
+  @media (max-width:760px){
+    .surfaces{grid-template-columns:1fr;}
+    .ledger{grid-template-columns:1fr;}
+    footer{flex-direction:column;align-items:flex-start;}
+    footer .src-list{text-align:left;}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .plane,.scard,.lrow,.legend,.callout,.tbl-scroll{animation:rise .5s cubic-bezier(.2,.7,.3,1) both;}
+    @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  }
+  :focus-visible{outline:2px solid var(--atlas);outline-offset:2px;border-radius:3px;}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow"><span class="dot"></span>Projection · not an accepted plan · nothing here is built</p>
+    <h1>The Reel Agent, docked into Atlas</h1>
+    <p class="dek">A picture of <b>where you'd look to do what</b> — the local editing pipeline on one side, Atlas's governance console on the other, and the trust boundary between them. Every element is tagged with what it actually is today. In the current docs, Atlas is a <b>deliberately deferred option</b> (ADR-001, Option 5): "premature before a standalone editorial pipeline exists." This map shows how it <i>would</i> fit, grounded in both projects' real documents — it does not describe anything that has been decided or written.</p>
+    <p class="dek mono" style="font-size:12px;margin-top:12px;color:var(--ink-3);">Companion docs · <b style="color:var(--ink-2);font-weight:600;">SYSTEM-VISION.md</b> (the what) · <b style="color:var(--ink-2);font-weight:600;">INTEGRATION-PLAN.md</b> (the when &amp; order) · both in <span style="color:var(--ink-2);">docs/vision/</span></p>
+
+    <div class="legend">
+      <span class="lg-title">How to read this</span>
+      <span class="key"><span class="sw local"></span>Local · data plane (your Mac)</span>
+      <span class="key"><span class="sw atlas"></span>Atlas · control plane (governance)</span>
+      <span class="key"><span class="sw solid"></span>Solid = specified in a doc today</span>
+      <span class="key"><span class="sw dash"></span>Dashed = projected / not designed</span>
+      <span class="key"><span class="sw lock"></span>Locked = ADR hard constraint</span>
+    </div>
+  </header>
+
+  <!-- ============ SECTION 1 · THE DIAGRAM ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>High-level: two planes, one boundary</h2></div>
+    <p class="sec-sub">The pipeline that touches your footage stays entirely on your Mac. Atlas never receives media — it receives a <i>proposed action</i> and the <i>evidence</i> behind it (rationale, counts, the timeline summary), shows it to you, records your decision, and lets the local run continue. That split is the only way a cloud-capable control plane can coexist with the "original media never leaves the device" constraint.</p>
+
+    <div class="diagram-scroll">
+      <div class="diagram">
+
+        <!-- LOCAL PLANE -->
+        <div class="plane local">
+          <div class="plane-hd">
+            <div class="plane-tag"><span class="pin"></span>Data plane</div>
+            <div class="plane-title">Your Mac</div>
+            <div class="plane-note">local-first · Apple Silicon · offline</div>
+          </div>
+          <div class="plane-body">
+            <div class="node"><span class="ix">01</span><div class="nb"><div class="nt">Footage folder + must-includes</div><div class="nd">you mark 3–10 clips as must-keep</div></div></div>
+            <div class="flowline">↓</div>
+            <div class="node"><span class="ix">02</span><div class="nb"><div class="nt">Inventory &amp; proxies</div><div class="nd">FFprobe · low-res proxies</div></div></div>
+            <div class="flowline">↓</div>
+            <div class="node"><span class="ix">03</span><div class="nb"><div class="nt">Analysis → analysis.json</div><div class="nd">blur · motion · audio-events · counts</div></div></div>
+            <div class="flowline">↓</div>
+            <div class="node"><span class="ix">04</span><div class="nb"><div class="nt">Candidates + timeline planner</div><div class="nd">beat-aware · timeline.json + rationale</div></div></div>
+            <div class="flowline">↓</div>
+            <div class="node surface"><span class="ix">05</span><div class="nb"><div class="nt">FFmpeg render → draft.mp4</div><div class="nd">deterministic · cannot delete or publish</div></div></div>
+            <div class="flowline">· · gated actions · ·</div>
+            <div class="node gate"><span class="ix">→</span><div class="nb"><div class="nt">Export the reel</div><div class="nd">needs approval before it leaves as a file</div><span class="chip proj">projected</span></div></div>
+            <div class="node gate"><span class="ix">→</span><div class="nb"><div class="nt">Opt-in: cloud keyframe scoring</div><div class="nd">extracted keyframes only · per-run</div><span class="chip proj">experiment</span></div></div>
+            <div class="node deny"><span class="ix">✕</span><div class="nb"><div class="nt">Identity recognition · media upload</div><div class="nd">refused at the policy layer — see across →</div><span class="chip lock">locked · no approval overrides</span></div></div>
+          </div>
+        </div>
+
+        <!-- BOUNDARY -->
+        <div class="boundary">
+          <span class="b-label">Trust boundary · media never crosses</span>
+          <div class="cross">
+            <div class="xr out"><span class="ar">→</span> <b>proposed action + evidence</b><br>rationale · counts · timeline summary</div>
+            <div class="xr in"><span class="ar">←</span> <b>decision</b><br>approve · reject · ask</div>
+          </div>
+        </div>
+
+        <!-- ATLAS PLANE -->
+        <div class="plane atlas">
+          <div class="plane-hd">
+            <div class="plane-tag"><span class="pin"></span>Control plane</div>
+            <div class="plane-title">Atlas</div>
+            <div class="plane-note">agent-control-center · governance</div>
+          </div>
+          <div class="plane-body">
+            <div class="node"><span class="ix">A</span><div class="nb"><div class="nt">Action Validator</div><div class="nd">binds the exact proposed action</div></div></div>
+            <div class="flowline">↓</div>
+            <div class="node deny"><span class="ix">B</span><div class="nb"><div class="nt">Policy Engine</div><div class="nd">can <b>deny outright</b> — approval can't override a denial</div><span class="chip lock">enforces the locks</span></div></div>
+            <div class="flowline">↓</div>
+            <div class="node surface"><span class="ix">C</span><div class="nb"><div class="nt">Approval Service ↔ Atlas Web</div><div class="nd">the queue you review &amp; decide in</div><span class="chip atlasc">accepted in Atlas</span></div></div>
+            <div class="flowline">↓</div>
+            <div class="node"><span class="ix">D</span><div class="nb"><div class="nt">Run Service</div><div class="nd">agent run state · waiting / continuing</div></div></div>
+            <div class="flowline">↓</div>
+            <div class="node"><span class="ix">E</span><div class="nb"><div class="nt">Audit Writer</div><div class="nd">immutable log · who approved what, when</div></div></div>
+            <div class="flowline">↑ approved continuation</div>
+            <div class="node gate"><span class="ix">↺</span><div class="nb"><div class="nt">Revalidate &amp; run the exact action</div><div class="nd">back on your Mac — export / render proceeds</div><span class="chip proj">projected dock</span></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="ct">The reconciliation this diagram assumes — itself not yet decided</div>
+      <p>Atlas is a governed, potentially cloud-hosted control plane; this project's hard rule is that <b>original media never leaves the device</b>. The only way both hold is the split above: Atlas orchestrates, approves, and audits using <b>rationale and metadata</b>, while media, analysis, and render stay local. That division is a sensible projection — <b>not</b> an ADR, and not something either repo has specified.</p>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 2 · TWO SURFACES ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Two surfaces, two jobs</h2></div>
+    <p class="sec-sub">You'd interact with the system in two different places. The <b>editorial</b> work happens at the agent surface; the <b>governance</b> work happens in Atlas. Today only the left card is in the plan — and even that is a command line, not a GUI (ADR-001: "no polished review UI in the POC").</p>
+
+    <div class="surfaces">
+
+      <!-- AGENT SURFACE -->
+      <div class="scard local">
+        <div class="scard-hd">
+          <h3>The agent surface <span class="chip poc">in POC scope</span></h3>
+          <div class="who">local CLI · plain-language report · draft.mp4</div>
+        </div>
+        <div class="scard-body">
+          <div class="mock">
+            <div class="bar"><span class="lamp"></span>zsh — ~/footage/hawaii-2026</div>
+            <div class="body"><span class="prompt">$</span> reel generate ./clips --track song.mp3 --keep 3,8,14 --dur 60
+
+<span class="c-key">report.txt</span>
+<span class="c-ok">kept</span> clip_014 · audio: laughter peak 0.82 · steady
+<span class="c-ok">kept</span> clip_031 · user-declared must-include
+<span class="c-cut">cut </span> clip_022 · near-duplicate of 014
+→ <span class="c-key">draft.mp4</span> · 0:58 · 1080×1920</div>
+          </div>
+          <div>
+            <div class="mini-h">What you see</div>
+            <ul class="does">
+              <li>The <b>rendered draft</b> and a <b>plain-language reason</b> for every clip kept, cut, or timed the way it was</li>
+              <li>Source-to-subclip <b>provenance</b> in the JSON manifests</li>
+            </ul>
+          </div>
+          <div>
+            <div class="mini-h">What you do</div>
+            <ul class="does">
+              <li><b>Mark must-include</b> clips, set track / style / duration</li>
+              <li><b>Regenerate</b> after changing a lock — iterate on the edit</li>
+              <li>Request the export (which then goes to Atlas to approve)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATLAS SURFACE -->
+      <div class="scard atlas">
+        <div class="scard-hd">
+          <h3>The Atlas surface <span class="chip proj">projected for this project</span></h3>
+          <div class="who">Atlas Web · approval queue · run state · audit</div>
+        </div>
+        <div class="scard-body">
+          <div class="appr">
+            <div class="ah"><span class="aid">approval · A-1</span><span class="state">pending</span></div>
+            <div class="aq">Export draft.mp4 → ~/Reels/hawaii.mp4</div>
+            <div class="ev">evidence · 14 clips · 0:58 · rationale attached<br>run R-7 · waiting on you · no media attached</div>
+            <div class="btns">
+              <span class="btn ap">Approve</span>
+              <span class="btn rj">Reject</span>
+              <span class="btn ck">Ask / clarify</span>
+            </div>
+          </div>
+          <div>
+            <div class="mini-h">What you see</div>
+            <ul class="does">
+              <li>The <b>approval queue &amp; history</b> — exact action scope + its evidence, approval and execution state shown separately</li>
+              <li><b>Agent run state</b> — which runs are active, waiting, or blocked</li>
+              <li>The <b>immutable audit trail</b> of every decision</li>
+            </ul>
+          </div>
+          <div>
+            <div class="mini-h">What you do</div>
+            <ul class="does">
+              <li><b>Approve, reject, or ask for clarification</b> — one human reviewer (Atlas's single-reviewer rule), with a recorded reason</li>
+              <li>Let policy <b>deny</b> what may never proceed — and honor withdrawable consent through audit + retention</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ SECTION 3 · WHERE DO I GO ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Where do I go to…</h2></div>
+    <p class="sec-sub">The same question, answered per task. Editorial iteration lives local; consequential and governed actions live in Atlas; a few things live <i>nowhere</i> — the policy layer refuses them and no approval can bring them back.</p>
+
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>You want to…</th><th>Go to</th><th>Status today</th></tr></thead>
+        <tbody>
+          <tr><td class="task">Mark must-include clips, pick track / length</td><td><span class="surf-tag local"><span class="pin"></span>Agent · CLI</span></td><td>In POC scope</td></tr>
+          <tr><td class="task">Watch the draft &amp; read why a clip was cut</td><td><span class="surf-tag local"><span class="pin"></span>Agent · report + draft.mp4</span></td><td>In POC scope</td></tr>
+          <tr><td class="task">Tweak a lock and regenerate the edit</td><td><span class="surf-tag local"><span class="pin"></span>Agent · CLI</span></td><td>In POC scope</td></tr>
+          <tr><td class="task">Approve the export before it becomes a file</td><td><span class="surf-tag atlas"><span class="pin"></span>Atlas · approval queue</span></td><td>Projected</td></tr>
+          <tr><td class="task">See what a run is waiting on right now</td><td><span class="surf-tag atlas"><span class="pin"></span>Atlas · run state</span></td><td>Projected</td></tr>
+          <tr><td class="task">Review the audit trail of past decisions</td><td><span class="surf-tag atlas"><span class="pin"></span>Atlas · audit log</span></td><td>Projected</td></tr>
+          <tr><td class="task">Turn on cloud keyframe scoring for one run</td><td><span class="surf-tag atlas"><span class="pin"></span>Atlas · opt-in approval</span></td><td>Projected · experiment (ADR-002)</td></tr>
+          <tr><td class="task">Identify <i>who</i> is in a clip; upload originals</td><td><span class="surf-tag none"><span class="pin"></span>Nowhere — policy denies it</span></td><td>Locked by ADR</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 4 · HONESTY LEDGER ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>What's real vs. drawn</h2></div>
+    <p class="sec-sub">So the picture above is never mistaken for a spec. Each piece, and exactly what it is right now.</p>
+
+    <div class="ledger">
+      <div class="lrow"><span class="status st-defer">Deferred option</span><div class="lt">Atlas as this project's orchestrator</div><div class="ld">Named as future-apt but "premature before a standalone editorial pipeline exists." No integration designed.</div><div class="src">reel · ADR-001, Option 5</div></div>
+
+      <div class="lrow"><span class="status st-prop">Proposed</span><div class="lt">Local CLI POC + independent interfaces</div><div class="ld">The whole "build local first, keep planner independent so Atlas can dock later" decision — still Proposed, not accepted.</div><div class="src">reel · ADR-001 (status: Proposed)</div></div>
+
+      <div class="lrow"><span class="status st-prop">Proposed</span><div class="lt">CLI + report + manifest as the review surface</div><div class="ld">"No polished review UI in the POC." The agent-side surface is deliberately a command line, not a GUI.</div><div class="src">reel · ADR-001 · prototype-definition</div></div>
+
+      <div class="lrow"><span class="status st-lock">Locked</span><div class="lt">No identity recognition · media stays on device</div><div class="ld">Hard constraints. Map them onto Atlas's Policy Engine as denials no approval can override.</div><div class="src">reel · CLAUDE.md · ADR-002</div></div>
+
+      <div class="lrow"><span class="status st-real">Accepted in Atlas</span><div class="lt">The approval console &amp; lifecycle itself</div><div class="ld">Queue, evidence, approve/reject/clarify, single reviewer, audit — a real, Approved architecture. But accepted <i>in Atlas</i>, for Atlas's own agents.</div><div class="src">atlas · 13-human-approvals (Approved)</div></div>
+
+      <div class="lrow"><span class="status st-defer">Not designed</span><div class="lt">The reel-agent ↔ Atlas wiring</div><div class="ld">Every crossing arrow, the export-approval hook, the run-state dock — this map's projection. Neither repo specifies it.</div><div class="src">projection from both repos</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="quote">The system proposes, a human decides — that principle is what both planes exist to enforce.</div>
+    <div class="src-list">
+      reel · ADR-001-prototype-shape.md<br>
+      reel · PROJECT.md · prototype-definition.md<br>
+      reel · CLAUDE.md · ADR-002-privacy-and-data-posture.md<br>
+      atlas · docs/architecture/13-human-approvals.md
+    </div>
+  </footer>
+
+</div>

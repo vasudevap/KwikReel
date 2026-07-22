@@ -1,0 +1,502 @@
+<title>Reel Agent — Agent-side UI (mockup)</title>
+<style>
+  :root{
+    --ground:#eef1f4; --paper:#fbfcfd; --paper-2:#f3f6f9; --inset:#eaeef2;
+    --ink:#16202b; --ink-2:#4a5b6c; --ink-3:#6b7b8b; --line:#d4dbe2; --line-2:#c2cbd4;
+    --local:#a65f22; --local-tint:#f7ecdf; --local-line:#e6cca9;
+    --atlas:#2f6299; --atlas-tint:#e7eef6; --atlas-line:#bcd2e7;
+    --ok:#2f7d52; --ok-tint:#e5f1ea; --deny:#a33f34; --deny-tint:#f6e6e3;
+    --warn:#946713; --deferred:#6a5f86; --deferred-tint:#eeebf3;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,sans-serif;
+    --mono:ui-monospace,"SF Mono","SFMono-Regular",Menlo,Consolas,monospace;
+    --sh:0 1px 2px rgba(20,32,45,.04),0 6px 20px rgba(20,32,45,.06);
+    --sh-lg:0 4px 12px rgba(20,32,45,.08),0 20px 50px rgba(20,32,45,.12);
+    --r:10px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0e1319; --paper:#141b23; --paper-2:#182029; --inset:#1c2530;
+      --ink:#d8e1e9; --ink-2:#93a3b1; --ink-3:#75858f; --line:#27313d; --line-2:#32404e;
+      --local:#d9a05a; --local-tint:#241a10; --local-line:#49361f;
+      --atlas:#6ea6da; --atlas-tint:#101c28; --atlas-line:#264259;
+      --ok:#5cb587; --ok-tint:#12211a; --deny:#d1685b; --deny-tint:#241413;
+      --warn:#d8a949; --deferred:#a99bc6; --deferred-tint:#191622;
+      --sh:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.36);
+      --sh-lg:0 6px 18px rgba(0,0,0,.4),0 26px 60px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#eef1f4; --paper:#fbfcfd; --paper-2:#f3f6f9; --inset:#eaeef2;
+    --ink:#16202b; --ink-2:#4a5b6c; --ink-3:#6b7b8b; --line:#d4dbe2; --line-2:#c2cbd4;
+    --local:#a65f22; --local-tint:#f7ecdf; --local-line:#e6cca9;
+    --atlas:#2f6299; --atlas-tint:#e7eef6; --atlas-line:#bcd2e7;
+    --ok:#2f7d52; --ok-tint:#e5f1ea; --deny:#a33f34; --deny-tint:#f6e6e3;
+    --warn:#946713; --deferred:#6a5f86; --deferred-tint:#eeebf3;
+    --sh:0 1px 2px rgba(20,32,45,.04),0 6px 20px rgba(20,32,45,.06);
+    --sh-lg:0 4px 12px rgba(20,32,45,.08),0 20px 50px rgba(20,32,45,.12);
+  }
+  :root[data-theme="dark"]{
+    --ground:#0e1319; --paper:#141b23; --paper-2:#182029; --inset:#1c2530;
+    --ink:#d8e1e9; --ink-2:#93a3b1; --ink-3:#75858f; --line:#27313d; --line-2:#32404e;
+    --local:#d9a05a; --local-tint:#241a10; --local-line:#49361f;
+    --atlas:#6ea6da; --atlas-tint:#101c28; --atlas-line:#264259;
+    --ok:#5cb587; --ok-tint:#12211a; --deny:#d1685b; --deny-tint:#241413;
+    --warn:#d8a949; --deferred:#a99bc6; --deferred-tint:#191622;
+    --sh:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.36);
+    --sh-lg:0 6px 18px rgba(0,0,0,.4),0 26px 60px rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+    font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  .wrap{max-width:1180px;margin:0 auto;padding:clamp(20px,4vw,52px) clamp(16px,4vw,40px) 72px;}
+  .mono{font-family:var(--mono);}
+
+  /* header */
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--local);font-weight:600;display:flex;align-items:center;gap:9px;margin:0 0 14px;}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--local);flex:none;box-shadow:0 0 0 3px var(--local-tint);}
+  h1{font-size:clamp(27px,4.4vw,42px);line-height:1.06;letter-spacing:-.022em;font-weight:680;margin:0 0 16px;text-wrap:balance;max-width:18ch;}
+  .dek{font-size:clamp(15px,1.9vw,17px);color:var(--ink-2);max-width:70ch;margin:0;line-height:1.5;}
+  .dek b{color:var(--ink);font-weight:600;}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:24px 0 0;padding:15px 18px;
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);}
+  .legend .lg-title{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);width:100%;margin-bottom:2px;}
+  .key{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);font-family:var(--mono);}
+  .key .sw{width:13px;height:13px;border-radius:3px;flex:none;}
+  .key .sw.scope{background:var(--ok);}
+  .key .sw.proj{border:1.5px dashed var(--deferred);background:transparent;}
+  .key .sw.gate{background:var(--atlas);}
+  .key .sw.deny{background:var(--deny);}
+
+  section{margin-top:clamp(38px,6vw,60px);}
+  .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap;}
+  .sec-num{font-family:var(--mono);font-size:12px;color:var(--local);font-weight:600;letter-spacing:.05em;}
+  h2{font-size:clamp(19px,2.6vw,25px);letter-spacing:-.014em;font-weight:650;margin:0;line-height:1.15;}
+  .badge{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+    padding:3px 9px;border-radius:5px;border:1px solid;}
+  .badge.scope{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line));background:var(--ok-tint);}
+  .badge.proj{color:var(--deferred);border-color:color-mix(in srgb,var(--deferred) 50%,var(--line));background:var(--deferred-tint);}
+  .sec-sub{color:var(--ink-2);font-size:14.5px;margin:8px 0 22px;max-width:74ch;}
+  .sec-sub b{color:var(--ink);font-weight:600;}
+
+  /* ---------- Section 1: authorized surface ---------- */
+  .triptych{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px;}
+  .filecard{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;display:flex;flex-direction:column;}
+  .filecard .fbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--inset);border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+  .filecard .fbar .lamp{width:8px;height:8px;border-radius:50%;background:var(--line-2);flex:none;}
+  .filecard .fname{margin-left:auto;color:var(--ink-2);}
+  .filecard .fbody{padding:13px 14px;font-family:var(--mono);font-size:11.5px;line-height:1.65;color:var(--ink-2);white-space:pre-wrap;word-break:break-word;flex:1;overflow-x:auto;}
+  .c-ok{color:var(--ok);font-weight:600;} .c-cut{color:var(--deny);font-weight:600;} .c-key{color:var(--local);font-weight:600;}
+  .c-prompt{color:var(--atlas);} .c-dim{color:var(--ink-3);} .c-str{color:var(--ok);} .c-num{color:var(--atlas);}
+
+  /* ---------- Section 2: projected app ---------- */
+  .appwrap{position:relative;}
+  .ribbon{position:absolute;top:16px;right:-6px;z-index:6;background:var(--deferred);color:#fff;
+    font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    padding:6px 14px;border-radius:4px 0 0 4px;box-shadow:var(--sh);}
+  :root[data-theme="dark"] .ribbon{color:#12101a;}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ribbon{color:#12101a;}}
+
+  .appframe{border:1.5px dashed var(--deferred);border-radius:13px;overflow:hidden;box-shadow:var(--sh-lg);
+    background:var(--paper);}
+  .appscroll{overflow-x:auto;}
+  .appinner{min-width:860px;}
+
+  .titlebar{display:flex;align-items:center;gap:14px;padding:10px 15px;background:var(--inset);border-bottom:1px solid var(--line);}
+  .lights{display:flex;gap:7px;}
+  .lights span{width:12px;height:12px;border-radius:50%;}
+  .lights .r{background:#e0685c;} .lights .y{background:#e2b13c;} .lights .g{background:#5cb06a;}
+  .titlebar .tt{font-size:12.5px;color:var(--ink-2);font-weight:600;}
+  .titlebar .tt .mono{color:var(--ink-3);font-weight:500;font-size:11.5px;}
+
+  .toolbar{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid var(--line);background:var(--paper-2);flex-wrap:wrap;}
+  .field{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);
+    background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:5px 9px;}
+  .field .lb{color:var(--ink-3);}
+  .toolbar .spacer{flex:1;}
+  .corr{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);}
+  .corr .n{background:var(--local-tint);color:var(--local);border:1px solid var(--local-line);border-radius:20px;padding:1px 9px;font-weight:700;}
+  .btn{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:6px 13px;border-radius:7px;border:1px solid;letter-spacing:.02em;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .btn.ghost{background:var(--paper);color:var(--ink-2);border-color:var(--line-2);}
+  .btn.gate{background:var(--atlas);color:#fff;border-color:var(--atlas);}
+  :root[data-theme="dark"] .btn.gate{color:#0e1319;}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.gate{color:#0e1319;}}
+  .btn .lk{font-size:12px;}
+
+  .appbody{display:grid;grid-template-columns:290px 1fr 236px;}
+  .pane{padding:16px;border-right:1px solid var(--line);}
+  .pane:last-child{border-right:none;}
+  .pane-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:12px;}
+
+  /* preview pane */
+  .phone{aspect-ratio:9/16;max-height:340px;margin:0 auto;border-radius:16px;border:1px solid var(--line-2);
+    background:
+      radial-gradient(120% 80% at 50% 12%, color-mix(in srgb,var(--local) 30%,transparent), transparent 60%),
+      linear-gradient(180deg,#2a3746,#3f5468 55%,#c88a52);
+    position:relative;overflow:hidden;box-shadow:inset 0 0 0 6px rgba(255,255,255,.03);}
+  .phone .grain{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px);opacity:.4;}
+  .phone .safe{position:absolute;inset:14px;border:1px dashed rgba(255,255,255,.28);border-radius:9px;}
+  .phone .play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;
+    background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+  .phone .play::after{content:"";border-left:13px solid #fff;border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:3px;}
+  .phone .ov{position:absolute;left:10px;bottom:10px;font-family:var(--mono);font-size:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);}
+  .phone .badge-live{position:absolute;top:10px;left:10px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:#fff;background:rgba(0,0,0,.3);padding:2px 7px;border-radius:20px;}
+  .scrub{margin:14px 2px 4px;height:4px;border-radius:3px;background:var(--line-2);position:relative;}
+  .scrub .fill{position:absolute;left:0;top:0;bottom:0;width:40%;background:var(--local);border-radius:3px;}
+  .scrub .head{position:absolute;left:40%;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:var(--local);border:2px solid var(--paper);box-shadow:var(--sh);}
+  .times{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);margin-top:6px;}
+
+  .ribbon-tl{margin-top:18px;}
+  .tl-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;}
+  .tl-h .lab{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600;}
+  .tl-h .beats{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);}
+  .tl-track{display:flex;gap:2px;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line);position:relative;background:var(--paper-2);}
+  .seg{position:relative;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);}
+  .seg.a{background:linear-gradient(180deg,#3f6f9c,#345c82);flex:9;}
+  .seg.b{background:linear-gradient(180deg,#b9772b,#9c631f);flex:6;}
+  .seg.c{background:linear-gradient(180deg,#2f7d52,#276845);flex:6;}
+  .seg.d{background:linear-gradient(180deg,#7a5aa6,#63488a);flex:9;}
+  .seg.e{background:linear-gradient(180deg,#c07a3d,#a4632d);flex:7;}
+  .tl-beats{display:flex;justify-content:space-between;margin-top:5px;padding:0 1px;}
+  .tl-beats i{width:1px;height:6px;background:var(--line-2);display:block;}
+  .tl-beats i.on{background:var(--local);height:9px;}
+
+  /* clips pane */
+  .grp{margin-bottom:6px;}
+  .grp-h{display:flex;align-items:center;gap:9px;margin:16px 0 9px;}
+  .grp-h:first-child{margin-top:0;}
+  .grp-h .gt{font-size:12px;font-weight:700;letter-spacing:.01em;color:var(--ink);}
+  .grp-h .gm{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);}
+  .grp-h .rule{flex:1;height:1px;background:var(--line);}
+
+  .clip{display:grid;grid-template-columns:56px 1fr;gap:12px;padding:11px;border:1px solid var(--line);border-radius:9px;background:var(--paper);margin-bottom:9px;position:relative;transition:border-color .15s;}
+  .clip.sel{border-color:var(--local);box-shadow:0 0 0 1px var(--local);}
+  .clip.cut{background:var(--paper-2);}
+  .thumb{width:56px;height:56px;border-radius:7px;position:relative;overflow:hidden;border:1px solid var(--line-2);}
+  .thumb::after{content:"";position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(0,0,0,.35) 0 3px,transparent 3px 7px);background-size:7px 100%;background-position:0 0,0 100%;background-repeat:no-repeat;
+    box-shadow:inset 0 5px 0 -3px rgba(0,0,0,.25),inset 0 -5px 0 -3px rgba(0,0,0,.25);opacity:.5;}
+  .thumb.t1{background:linear-gradient(135deg,#3f6f9c,#8fb4d6);}
+  .thumb.t2{background:linear-gradient(135deg,#b9772b,#e0b070);}
+  .thumb.t3{background:linear-gradient(135deg,#2f7d52,#7bbd97);}
+  .thumb.t4{background:linear-gradient(135deg,#7a5aa6,#b39ad6);}
+  .thumb.t5{background:linear-gradient(135deg,#c07a3d,#e6b483);}
+  .thumb .dur{position:absolute;right:3px;bottom:3px;font-family:var(--mono);font-size:8.5px;color:#fff;background:rgba(0,0,0,.5);padding:0 3px;border-radius:3px;z-index:1;}
+  .clip.cut .thumb{filter:grayscale(.7) opacity(.6);}
+
+  .cbody{min-width:0;}
+  .crow1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .cid{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink);}
+  .ctime{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);}
+  .state{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:2px 7px;border-radius:20px;border:1px solid;margin-left:auto;}
+  .state.kept{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line));background:var(--ok-tint);}
+  .state.cut{color:var(--deny);border-color:color-mix(in srgb,var(--deny) 45%,var(--line));background:var(--deny-tint);}
+  .state.must{color:var(--local);border-color:var(--local-line);background:var(--local-tint);}
+  .state.lock{color:var(--atlas);border-color:var(--atlas-line);background:var(--atlas-tint);}
+
+  .sigs{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0 6px;}
+  .sig{font-family:var(--mono);font-size:9.5px;color:var(--ink-2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;display:inline-flex;align-items:center;gap:4px;background:var(--paper-2);}
+  .sig .d{width:5px;height:5px;border-radius:50%;flex:none;}
+  .sig .d.g{background:var(--ok);} .sig .d.w{background:var(--warn);} .sig .d.r{background:var(--deny);} .sig .d.a{background:var(--atlas);}
+  .sig.audio{color:var(--local);border-color:var(--local-line);background:var(--local-tint);}
+
+  .why{font-size:12px;color:var(--ink-2);line-height:1.4;}
+  .why b{color:var(--ink);font-weight:600;}
+  .ctrls{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;}
+  .mini{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--ink-3);border:1px solid var(--line);border-radius:6px;padding:3px 8px;background:var(--paper);}
+  .mini.on{color:var(--atlas);border-color:var(--atlas-line);background:var(--atlas-tint);}
+  .mini.restore{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,var(--line));}
+
+  /* inspector */
+  .insp{background:var(--paper-2);}
+  .ins-clip{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--local);margin-bottom:3px;}
+  .ins-sub{font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-bottom:14px;}
+  .ins-lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:14px 0 7px;}
+  .prov{font-family:var(--mono);font-size:10.5px;color:var(--ink-2);line-height:1.7;background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:9px 10px;word-break:break-word;}
+  .prov .k{color:var(--ink-3);}
+  .score{display:flex;flex-direction:column;gap:7px;}
+  .sc{display:grid;grid-template-columns:74px 1fr 28px;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--ink-2);}
+  .sc .bar{height:5px;border-radius:3px;background:var(--line-2);overflow:hidden;}
+  .sc .bar i{display:block;height:100%;background:var(--local);border-radius:3px;}
+  .sc .v{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .decision{margin-top:14px;font-family:var(--mono);font-size:10.5px;color:var(--ink-2);background:var(--ok-tint);border:1px solid color-mix(in srgb,var(--ok) 35%,var(--line));border-radius:7px;padding:9px 10px;line-height:1.5;}
+  .decision b{color:var(--ok);}
+
+  .appfoot{padding:9px 15px;border-top:1px solid var(--line);background:var(--paper-2);display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+    font-family:var(--mono);font-size:10.5px;color:var(--ink-3);}
+  .appfoot .flag{color:var(--deferred);}
+
+  .caption{margin-top:14px;font-size:12.5px;color:var(--ink-3);font-family:var(--mono);line-height:1.6;max-width:80ch;}
+  .caption b{color:var(--ink-2);font-weight:600;}
+
+  .callout{margin-top:24px;background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--deferred);border-radius:8px;padding:15px 18px;box-shadow:var(--sh);}
+  .callout .ct{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--deferred);font-weight:600;margin-bottom:6px;}
+  .callout p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.55;} .callout p b{color:var(--ink);font-weight:600;}
+
+  footer{margin-top:52px;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;}
+  footer .quote{font-size:14px;color:var(--ink);font-weight:500;max-width:44ch;letter-spacing:-.005em;}
+  footer .src-list{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);line-height:1.7;text-align:right;}
+
+  @media (max-width:900px){
+    .triptych{grid-template-columns:1fr;}
+    .appbody{grid-template-columns:1fr;}
+    .pane{border-right:none;border-bottom:1px solid var(--line);}
+    footer{flex-direction:column;align-items:flex-start;} footer .src-list{text-align:left;}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .filecard,.appframe,.legend,.callout{animation:rise .5s cubic-bezier(.2,.7,.3,1) both;}
+    @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  }
+  :focus-visible{outline:2px solid var(--local);outline-offset:2px;border-radius:3px;}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow"><span class="dot"></span>Agent-side surface · mockup · not a spec</p>
+    <h1>What running the Reel Agent looks like</h1>
+    <p class="dek">Two things, honestly separated. <b>What's authorized today</b> is a command line plus a plain-language report and JSON manifests — <a class="mono" style="color:var(--local)">ADR-001</a>: "no polished review UI in the POC." <b>The desktop review app below is a projection</b> — an addable-later surface, and interface work is a stop-and-ask, not something this project has designed or authorized. It's here so you can picture the Phase-3 review experience, not because it exists.</p>
+
+    <div class="legend">
+      <span class="lg-title">How to read this</span>
+      <span class="key"><span class="sw scope"></span>In POC scope — authorized today</span>
+      <span class="key"><span class="sw proj"></span>Projection — not designed / not authorized</span>
+      <span class="key"><span class="sw gate"></span>Gated — export needs approval (→ Atlas)</span>
+      <span class="key"><span class="sw deny"></span>Detection &amp; counting only — never identity</span>
+    </div>
+  </header>
+
+  <!-- ============ SECTION 1 · AUTHORIZED SURFACE ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Authorized today — CLI + report + manifest</h2><span class="badge scope">In POC scope</span></div>
+    <p class="sec-sub">This <i>is</i> the agent UI in the current plan. You run one command; the pipeline explains every choice in plain language; the decisions land in a versioned manifest you can diff and regenerate from. No GUI required for the proof of concept.</p>
+
+    <div class="triptych">
+      <div class="filecard">
+        <div class="fbar"><span class="lamp"></span><span class="lamp"></span><span class="lamp"></span><span class="fname">zsh — ~/footage/hawaii-2026</span></div>
+        <div class="fbody"><span class="c-prompt">$</span> reel generate ./clips \
+    --track song.mp3 \
+    --keep 15,31 --dur 60
+
+<span class="c-dim">inventory   48 clips · 4 corrupt skipped</span>
+<span class="c-dim">analysis    blur·exposure·shake·audio</span>
+<span class="c-dim">candidates  22 windows from 44 clips</span>
+<span class="c-dim">timeline    12 selected · 0:58 / 0:60</span>
+<span class="c-dim">render      draft.mp4 · 1080×1920</span>
+
+<span class="c-ok">✓ done</span> in 8m41s · <span class="c-key">3 files written</span>
+  report.txt · timeline.json · draft.mp4</div>
+      </div>
+
+      <div class="filecard">
+        <div class="fbar"><span class="lamp"></span><span class="lamp"></span><span class="lamp"></span><span class="fname">report.txt</span></div>
+        <div class="fbody"><span class="c-key">SELECTS &amp; REJECTS</span>  <span class="c-dim">(why)</span>
+
+<span class="c-ok">kept</span> clip_015 · <span class="c-dim">you marked this</span>
+     splash+laughter peak 0.82
+<span class="c-ok">kept</span> clip_018 · best motion in group
+     trimmed to a 0:06 window
+<span class="c-cut">cut </span> clip_007 · near-dup of clip_003
+<span class="c-cut">cut </span> clip_034 · blur 0.71 &lt; floor
+<span class="c-ok">kept</span> clip_046 · closes the day
+     <span class="c-dim">exposure flagged, not fatal</span>
+
+<span class="c-dim">order: chronological · 5 events</span></div>
+      </div>
+
+      <div class="filecard">
+        <div class="fbar"><span class="lamp"></span><span class="lamp"></span><span class="lamp"></span><span class="fname">timeline.json</span></div>
+        <div class="fbody"><span class="c-dim">{</span>
+  <span class="c-str">"version"</span>: <span class="c-num">3</span>,
+  <span class="c-str">"target_s"</span>: <span class="c-num">60</span>,
+  <span class="c-str">"segments"</span>: [
+    <span class="c-dim">{</span>
+      <span class="c-str">"src"</span>: <span class="c-str">"IMG_4821.mov"</span>,
+      <span class="c-str">"in"</span>: <span class="c-num">11.04</span>, <span class="c-str">"out"</span>: <span class="c-num">17.1</span>,
+      <span class="c-str">"reason"</span>: <span class="c-str">"motion+audio"</span>,
+      <span class="c-str">"beat_snap"</span>: <span class="c-num">true</span>
+    <span class="c-dim">}</span>, <span class="c-dim">… 11 more ]</span>
+<span class="c-dim">}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 2 · PROJECTED APP ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Projected — the assisted-review desktop app</h2><span class="badge proj">Projection · not authorized</span></div>
+    <p class="sec-sub">If, after validation proves editorial quality, a review GUI is ever justified (Phase 3, "the review path is the product"), this is roughly the shape it would take. Every control maps to something the CLI/manifest already expresses — <b>lock, remove, restore, regenerate, provenance</b>. Nothing here is designed; it's a thinking aid.</p>
+
+    <div class="appwrap">
+      <span class="ribbon">Projection · not a spec</span>
+      <div class="appframe">
+        <div class="appscroll"><div class="appinner">
+
+          <div class="titlebar">
+            <span class="lights"><span class="r"></span><span class="y"></span><span class="g"></span></span>
+            <span class="tt">Reel Agent&nbsp;&nbsp;<span class="mono">— hawaii-2026 · draft v3</span></span>
+          </div>
+
+          <div class="toolbar">
+            <span class="field"><span class="lb">track</span> song.mp3</span>
+            <span class="field"><span class="lb">target</span> 0:60</span>
+            <span class="field"><span class="lb">current</span> 0:58</span>
+            <span class="spacer"></span>
+            <span class="corr">corrections this session <span class="n">3</span></span>
+            <span class="btn ghost">↻ Regenerate</span>
+            <span class="btn gate"><span class="lk">⬖</span> Export — needs approval</span>
+          </div>
+
+          <div class="appbody">
+
+            <!-- PREVIEW -->
+            <div class="pane">
+              <div class="pane-h">Draft preview · 9:16</div>
+              <div class="phone">
+                <div class="grain"></div>
+                <span class="badge-live">DRAFT v3</span>
+                <div class="safe"></div>
+                <div class="play"></div>
+                <span class="ov">clip_018 · snorkel · 0:23</span>
+              </div>
+              <div class="scrub"><div class="fill"></div><div class="head"></div></div>
+              <div class="times"><span>0:23</span><span>0:58</span></div>
+
+              <div class="ribbon-tl">
+                <div class="tl-h"><span class="lab">Timeline</span><span class="beats">cuts near beats · 8/11</span></div>
+                <div class="tl-track">
+                  <span class="seg a">003</span><span class="seg b">015</span><span class="seg c">018</span><span class="seg d">031</span><span class="seg e">046</span>
+                </div>
+                <div class="tl-beats"><i></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i></div>
+              </div>
+            </div>
+
+            <!-- CLIPS -->
+            <div class="pane">
+              <div class="pane-h">Selects &amp; rejects · 12 of 44</div>
+
+              <div class="grp-h"><span class="gt">Morning · beach</span><span class="rule"></span><span class="gm">9:14–9:31a</span></div>
+              <div class="clip">
+                <div class="thumb t1"><span class="dur">0:08</span></div>
+                <div class="cbody">
+                  <div class="crow1"><span class="cid">clip_003</span><span class="ctime">9:14a</span><span class="state kept">kept</span></div>
+                  <div class="sigs"><span class="sig"><span class="d g"></span>steady</span><span class="sig"><span class="d g"></span>exposure ok</span><span class="sig"><span class="d a"></span>faces 2</span><span class="sig audio">audio · waves</span></div>
+                  <div class="why"><b>Kept</b> — clean establishing shot, opens the day.</div>
+                  <div class="ctrls"><span class="mini">Lock</span><span class="mini">Remove</span><span class="mini">Adjust window</span></div>
+                </div>
+              </div>
+              <div class="clip cut">
+                <div class="thumb t1"><span class="dur">0:05</span></div>
+                <div class="cbody">
+                  <div class="crow1"><span class="cid">clip_007</span><span class="ctime">9:31a</span><span class="state cut">cut</span></div>
+                  <div class="sigs"><span class="sig"><span class="d r"></span>near-duplicate</span><span class="sig"><span class="d w"></span>weaker frame</span></div>
+                  <div class="why"><b>Cut</b> — near-duplicate of clip_003; recoverable, never deleted.</div>
+                  <div class="ctrls"><span class="mini restore">Restore</span><span class="mini">Compare</span></div>
+                </div>
+              </div>
+
+              <div class="grp-h"><span class="gt">Snorkel · lagoon</span><span class="rule"></span><span class="gm">11:02–11:20a</span></div>
+              <div class="clip">
+                <div class="thumb t3"><span class="dur">0:06</span></div>
+                <div class="cbody">
+                  <div class="crow1"><span class="cid">clip_015</span><span class="ctime">11:02a</span><span class="state must">must-keep</span></div>
+                  <div class="sigs"><span class="sig"><span class="d a"></span>faces 1</span><span class="sig audio">audio · splash</span><span class="sig audio">audio · laughter 0.82</span></div>
+                  <div class="why"><b>Kept</b> — you marked this must-include. Laughter + splash peak.</div>
+                  <div class="ctrls"><span class="mini on">Must-keep ✓</span><span class="mini">Adjust window</span></div>
+                </div>
+              </div>
+              <div class="clip sel">
+                <div class="thumb t3"><span class="dur">0:06</span></div>
+                <div class="cbody">
+                  <div class="crow1"><span class="cid">clip_018</span><span class="ctime">11:20a</span><span class="state kept">kept</span></div>
+                  <div class="sigs"><span class="sig"><span class="d g"></span>motion high</span><span class="sig"><span class="d g"></span>sharp</span><span class="sig"><span class="d a"></span>faces 1</span></div>
+                  <div class="why"><b>Kept</b> — best motion energy in the group; trimmed from 0:11 to a 0:06 window.</div>
+                  <div class="ctrls"><span class="mini">Lock</span><span class="mini">Remove</span><span class="mini">Adjust window</span></div>
+                </div>
+              </div>
+
+              <div class="grp-h"><span class="gt">Waterfall · hike</span><span class="rule"></span><span class="gm">1:47–1:52p</span></div>
+              <div class="clip">
+                <div class="thumb t4"><span class="dur">0:09</span></div>
+                <div class="cbody">
+                  <div class="crow1"><span class="cid">clip_031</span><span class="ctime">1:47p</span><span class="state lock">locked</span></div>
+                  <div class="sigs"><span class="sig"><span class="d g"></span>steady</span><span class="sig"><span class="d a"></span>faces 3</span><span class="sig audio">audio · falls</span></div>
+                  <div class="why"><b>Locked by you</b> — kept exactly as marked; the optimizer plans around it.</div>
+                  <div class="ctrls"><span class="mini on">Locked ✓</span><span class="mini">Unlock</span></div>
+                </div>
+              </div>
+              <div class="clip cut">
+                <div class="thumb t4"><span class="dur">0:04</span></div>
+                <div class="cbody">
+                  <div class="crow1"><span class="cid">clip_034</span><span class="ctime">1:52p</span><span class="state cut">cut</span></div>
+                  <div class="sigs"><span class="sig"><span class="d r"></span>blur 0.71</span><span class="sig"><span class="d r"></span>below floor</span></div>
+                  <div class="why"><b>Cut</b> — heavy blur, below the quality floor. Restore to override.</div>
+                  <div class="ctrls"><span class="mini restore">Restore</span></div>
+                </div>
+              </div>
+
+              <div class="grp-h"><span class="gt">Sunset · lookout</span><span class="rule"></span><span class="gm">6:38–6:41p</span></div>
+              <div class="clip">
+                <div class="thumb t5"><span class="dur">0:07</span></div>
+                <div class="cbody">
+                  <div class="crow1"><span class="cid">clip_046</span><span class="ctime">6:38p</span><span class="state kept">kept</span></div>
+                  <div class="sigs"><span class="sig"><span class="d w"></span>exposure warn</span><span class="sig"><span class="d a"></span>faces 2</span><span class="sig audio">audio · cheer</span></div>
+                  <div class="why"><b>Kept</b> — closes the day; slight backlight flagged, judged not fatal.</div>
+                  <div class="ctrls"><span class="mini">Lock</span><span class="mini">Remove</span><span class="mini">Adjust window</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- INSPECTOR -->
+            <div class="pane insp">
+              <div class="pane-h">Inspector</div>
+              <div class="ins-clip">clip_018</div>
+              <div class="ins-sub">snorkel · 11:20a · kept</div>
+
+              <div class="ins-lab">Provenance</div>
+              <div class="prov"><span class="k">source</span> IMG_4821.mov<br><span class="k">window</span> 00:11:04 → 00:11:10<br><span class="k">of</span> a 0:11 original<br><span class="k">edits</span> trim · 9:16 crop · beat-snap</div>
+
+              <div class="ins-lab">Why this scored</div>
+              <div class="score">
+                <div class="sc"><span>technical</span><span class="bar"><i style="width:78%"></i></span><span class="v">.78</span></div>
+                <div class="sc"><span>uniqueness</span><span class="bar"><i style="width:66%"></i></span><span class="v">.66</span></div>
+                <div class="sc"><span>motion</span><span class="bar"><i style="width:90%"></i></span><span class="v">.90</span></div>
+                <div class="sc"><span>audio</span><span class="bar"><i style="width:40%"></i></span><span class="v">.40</span></div>
+                <div class="sc"><span>coverage</span><span class="bar"><i style="width:72%"></i></span><span class="v">.72</span></div>
+              </div>
+
+              <div class="decision"><b>Selected</b> — rank 4 of 22 candidates. Deterministic score; no model override in this run.</div>
+            </div>
+
+          </div>
+
+          <div class="appfoot">
+            <span class="flag">◇ projection</span>
+            <span>· originals never leave this Mac</span>
+            <span>· export raises an approval before any file is written</span>
+          </div>
+
+        </div></div>
+      </div>
+    </div>
+
+    <p class="caption"><b>On the placeholders:</b> clip tiles are abstract on purpose — the pipeline does face <i>detection and counting</i> (the "faces N" chip), never identification, and no media is shown or uploaded. What you'd actually see is your own footage, rendered locally.</p>
+
+    <div class="callout">
+      <div class="ct">Why this is a projection, not a plan</div>
+      <p>[ADR-001](proposed) keeps the POC to <b>CLI + report/manifest</b> and lists a desktop review app only as an <i>addable-later</i> surface. [ROADMAP.md] marks interface work as <b>stop-and-ask — not a judgment call</b>. This mockup commits the project to nothing; a real review UI would need validated editorial quality first, then its own accepted design.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="quote">The system proposes, a human decides — the review surface is where deciding happens, whether that's a report or, one day, this.</div>
+    <div class="src-list">
+      reel · ADR-001-prototype-shape.md<br>
+      reel · ROADMAP.md (Phase 3 · assisted review)<br>
+      reel · PROJECT.md · prototype-definition.md<br>
+      reel · docs/vision/SYSTEM-VISION.md
+    </div>
+  </footer>
+
+</div>
