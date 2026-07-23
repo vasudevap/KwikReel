@@ -43,7 +43,7 @@ The private Notion hub is [AI Vacation Reel Agent — Delivery Hub](https://app.
 
 ## Current baseline
 
-At creation, the project is in **Stage A — Direction**. `PROJECT.md`, `ROADMAP.md`, `ADR-001` through `ADR-004`, and `VALIDATION-PLAN.md` are not yet accepted; Phase 1 work orders are a draft backlog and are not authorized. No media, corpus, consent record, experiment, implementation, engineering specification, ADP, or product interface exists.
+The project is in **Stage A — Direction**. All four ADRs (`ADR-001`–`ADR-004`) are accepted (owner-approved 2026-07-22–23; ADR-003 with Essentia dropped, librosa/ISC only); `PROJECT.md`, `ROADMAP.md`, and `VALIDATION-PLAN.md` are not yet accepted; Phase 1 work orders are a draft backlog and are not authorized. No media, corpus, consent record, experiment, implementation, engineering specification, ADP, or product interface exists.
 
 ## Setup verification
 

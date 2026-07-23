@@ -1,8 +1,10 @@
 # ADR-004 — Validation-first sequencing and kill criteria
 
-**Status:** Proposed — not accepted
+**Status:** Accepted — owner-approved 2026-07-22
 **Supersedes:** the phase ordering in the previous `ROADMAP.md` draft, which placed model-based editorial experiments at Phase 4.
 **Depends on:** the Validation-stage pilot authorized in MD-001 (PROP-01, piloting on Vacation Reel Stage B only). That authorization is contingent on this project's ADRs being accepted; general acceptance of the Validation stage is deferred to MD-002. If PROP-01 is rejected at MD-002, this ADR must be revised rather than silently retained.
+
+**On acceptance:** validation-first sequencing and the three kill criteria below are locked, relaxable only by a new ADR stating what changed. Two pre-registration items from `docs/work-orders/phase-1-backlog-deltas.md` — the EXP-003 local-vs-cloud split (B-1) and a numeric differentiation margin for kill criterion 1 (B-2) — remain to be settled **before EXP-003 runs**; they do not gate this acceptance.
 
 ## Context
 

@@ -1,7 +1,9 @@
 # ADR-003 — Music and licensing posture
 
-**Status:** Proposed — not accepted
+**Status:** Accepted — owner-approved 2026-07-23
 **Risk addressed:** music/licensing infringement, rated High likelihood / High impact in `docs/research/risk-register.md`.
+
+**On acceptance (2026-07-23):** the music/licensing posture is ratified — user-supplied rights-cleared track, a clean no-music export, Instagram's library as a timing reference only, and no commercial-track extraction at any phase. One correction was applied at ratification (resolving `phase-1-backlog-deltas.md` B-5): **Essentia is dropped from the approved path.** Its AGPLv3 copyleft is distribution-restricting — the same rule that excludes `madmom`, and verified against Essentia's published licensing terms. Beat/section detection uses **librosa (ISC)** only; adding Essentia later requires a new ADR.
 
 ## Context
 
@@ -29,7 +31,7 @@ Adopt option 1.
 - **No commercial-track extraction, and no claim of licensed-music support, at any phase.** Hard constraint; changeable only by a new ADR following legal review.
 - The validation corpus uses rights-cleared tracks only, including for beat-detection benchmarking.
 
-**Dependency licensing.** `madmom` is excluded as a core dependency (GPL, patchy maintenance) despite its accuracy. Beat and section detection uses librosa or Essentia. Any dependency whose licence would restrict distribution requires an ADR before adoption; the previous draft of `prototype-definition.md` proposed benchmarking madmom and has been corrected.
+**Dependency licensing.** `madmom` is excluded as a core dependency (GPL, patchy maintenance) despite its accuracy. Beat and section detection uses **librosa (ISC)** only. **Essentia is excluded** on the same rule that excludes `madmom` — its AGPLv3 copyleft is distribution-restricting (more so than madmom's GPL); adopting it later requires a new ADR. Any dependency whose licence would restrict distribution requires an ADR before adoption; the previous draft of `prototype-definition.md` proposed benchmarking madmom and has been corrected.
 
 ## Consequences
 

@@ -34,7 +34,7 @@ Separate from claims, per the playbook's *committed is not shipped* discipline.
 | Test corpus | **not collected** — consent workflow does not exist yet (WO-002) |
 | Ground-truth annotations | **none** |
 | Experiment results | **none** |
-| Accepted ADRs | **none** — ADR-001 through ADR-004 are all Proposed |
+| Accepted ADRs | **ADR-001–004 all Accepted** — ADR-001/002/004 owner-approved 2026-07-22, ADR-003 on 2026-07-23 (Essentia dropped for its AGPLv3 licence; librosa/ISC only) |
 | Git history | Initial documentation commit `e234a12` (`Initialize project direction artifacts`); no remote or published branch — see `handoff.md` |
 
 ## Log
@@ -42,3 +42,6 @@ Separate from claims, per the playbook's *committed is not shipped* discipline.
 | Date | Change |
 |---|---|
 | 2026-07-20 | Ledger initialized alongside the Stage B validation plan. All claims graded `assumed`. |
+| 2026-07-22 | ADR-001 (prototype shape) accepted by owner. No claim grades changed; no implementation or media authorized. |
+| 2026-07-22 | ADR-002 (privacy/data posture) and ADR-004 (validation-first sequencing) accepted by owner. ADR-003 held pending resolution of the Essentia (AGPLv3) vs distribution-restriction contradiction. No claim grades changed; no media collected. |
+| 2026-07-23 | ADR-003 (music/licensing) accepted by owner. Essentia's AGPLv3 licence verified; B-5 resolved — Essentia dropped, beat detection uses librosa (ISC) only. Stage A ADR set complete; PROP-01 pilot launched. No claim grades changed; no media collected. |

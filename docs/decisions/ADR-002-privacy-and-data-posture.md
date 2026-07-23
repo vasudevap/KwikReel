@@ -1,8 +1,10 @@
 # ADR-002 — Privacy and data posture
 
-**Status:** Proposed — not accepted
+**Status:** Accepted — owner-approved 2026-07-22
 **Required by:** `_oversight/DELIVERY-PLAYBOOK.md` Stage A — a data and privacy posture ADR is mandatory before any data is collected where a project processes personal, third-party, or minors' data.
 **Referenced by:** `docs/work-orders/phase-1-backlog.md` (WO-013 previously cited a "privacy ADR" that did not exist; this resolves that reference).
+
+**On acceptance:** the posture below is ratified, including its hard constraints — no face recognition or person identification at any phase; originals opened read-only with no delete path and no default network egress; withdrawable written consent covering children's footage specifically; and the cloud comparison bounded to extracted keyframes in EXP-003 under per-run opt-in. Acceptance clears the corpus-collection gate **in principle only**: no media may be collected until the consent and deletion workflow (WO-002) exists and consent is recorded first. No media has been collected.
 
 ## Context
 

@@ -1,6 +1,8 @@
 # ADR-001 — Start with a local command-line editorial pipeline
 
-**Status:** Proposed — not accepted
+**Status:** Accepted — owner-approved 2026-07-22
+
+Acceptance is scoped to this decision only. It fixes the prototype shape (local CLI, `timeline.json` canonical output, planner interfaces kept renderer-independent). It does **not** authorize implementation — Phase 1 Work Orders additionally require ADR-004 accepted and an authorized ADP — and it does **not** authorize media collection, which is gated separately by ADR-002.
 
 ## Context
 

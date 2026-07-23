@@ -8,7 +8,7 @@ Not an autonomous editor. The system proposes; a person decides.
 
 **Stage A — Direction.** Documents only: no code, no test corpus, no experiments, no accepted decisions. See [handoff.md](handoff.md) for the precise state and the owner actions required to move.
 
-The next gate is owner approval of `PROJECT.md`, `ROADMAP.md`, ADR-001 through ADR-004, and the validation plan with its pre-registered thresholds.
+The next gate is owner approval of `PROJECT.md`, `ROADMAP.md`, and the validation plan with its pre-registered thresholds. All four ADRs were accepted 2026-07-22–23.
 
 ## Thesis
 
