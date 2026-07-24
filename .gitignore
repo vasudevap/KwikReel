@@ -106,3 +106,6 @@ node_modules/
 
 # macOS
 .DS_Store
+
+# Claude Code — per-user local settings stay local; launch.json is shared
+.claude/settings.local.json

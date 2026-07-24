@@ -1,0 +1,98 @@
+/* WO-100 prototype — deliberately plain. Visual polish is out of scope (this is
+   a flow prototype, not a design). Legible, low-chrome, honest about being fake. */
+:root {
+  --ink: #1c1e21;
+  --muted: #6b7280;
+  --line: #d6d9de;
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --accent: #2d6cdf;
+  --good: #1f8a4c;
+  --warn: #b8860b;
+  --bad: #c23b3b;
+  --pending: #7a5cc0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--ink);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); }
+button {
+  font: inherit;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+button.danger { color: var(--bad); }
+input, select { font: inherit; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; }
+
+.proto-banner {
+  background: repeating-linear-gradient(45deg, #fff3cd, #fff3cd 10px, #ffe9a8 10px, #ffe9a8 20px);
+  border-bottom: 1px solid var(--warn);
+  color: #6b5300;
+  font-size: 12px;
+  padding: 4px 16px;
+  text-align: center;
+}
+.shell { max-width: 1040px; margin: 0 auto; padding: 16px; }
+h1 { font-size: 18px; margin: 8px 0; }
+h2 { font-size: 15px; margin: 16px 0 8px; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.wrap { flex-wrap: wrap; }
+.spread { justify-content: space-between; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin: 10px 0; }
+
+/* Stepper */
+.stepper { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 8px 0 4px; }
+.step { font-size: 12px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); white-space: nowrap; }
+.step.current { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.step.done { border-color: var(--good); color: var(--good); }
+.step.inert { opacity: 0.5; font-style: italic; }
+.step .gate { color: var(--warn); }
+.step-sep { color: var(--line); }
+
+/* Clips */
+.clip-list { display: flex; flex-direction: column; gap: 8px; }
+.clip { display: flex; gap: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fff; }
+.clip.excluded { opacity: 0.5; }
+.clip.deleted { opacity: 0.4; border-style: dashed; }
+.clip.unreadable { border-color: var(--bad); background: #fdf3f3; }
+.thumb { border-radius: 4px; display: block; background: #ccc; }
+.clip-body { flex: 1; min-width: 0; }
+.badge { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 999px; border: 1px solid; margin-right: 4px; }
+.badge.proposed { color: var(--accent); border-color: var(--accent); }
+.badge.user { color: var(--ink); border-color: var(--ink); }
+.badge.pending { color: var(--pending); border-color: var(--pending); }
+.badge.accepted { color: var(--good); border-color: var(--good); }
+.badge.adjusted { color: var(--warn); border-color: var(--warn); }
+.badge.dismissed { color: var(--bad); border-color: var(--bad); }
+.badge.flag { color: var(--warn); border-color: var(--warn); background: #fff8e6; }
+
+/* Trim bar */
+.trimbar { position: relative; height: 22px; background: #eceef1; border-radius: 4px; overflow: hidden; border: 1px solid var(--line); }
+.trimbar .kept { position: absolute; top: 0; bottom: 0; background: #bcd3f7; border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+.trimbar .prop { position: absolute; top: 0; bottom: 0; border-left: 2px dashed var(--warn); border-right: 2px dashed var(--warn); background: rgba(184,134,11,0.12); }
+.trimbar .cut { position: absolute; top: 0; bottom: 0; background-image: repeating-linear-gradient(45deg, #e2e5ea, #e2e5ea 4px, #d6d9de 4px, #d6d9de 8px); }
+
+/* Reasons */
+.reason { border-left: 3px solid var(--accent); padding: 4px 8px; margin: 4px 0; background: #f7f9fc; font-size: 13px; }
+.reason .code { font-family: monospace; font-size: 11px; color: var(--muted); }
+.reason .refs { font-family: monospace; font-size: 11px; color: var(--muted); }
+
+/* Progress */
+.progress { height: 14px; background: #e6e8ec; border-radius: 999px; overflow: hidden; }
+.progress > div { height: 100%; background: var(--accent); transition: width 0.1s linear; }
+
+.notice { border: 1px solid var(--warn); background: #fff8e6; border-radius: 6px; padding: 8px 12px; font-size: 13px; }
+.err { border: 1px solid var(--bad); background: #fdf3f3; border-radius: 6px; padding: 8px 12px; font-size: 13px; }
+.gatebar { border-top: 2px solid var(--line); margin-top: 12px; padding-top: 10px; }
+table.src { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.src th, table.src td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
+table.src th { background: #f0f2f5; }
+code.path { font-family: monospace; font-size: 11px; color: var(--muted); }
