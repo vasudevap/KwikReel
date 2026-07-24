@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the backlog approved, and **[ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) authorized 2026-07-24** (course-correction ADR-009–013 landed; [pre-ADP review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)). **WO-100 (prototype) and WO-101 (contract kernel) complete 2026-07-24**; ES-001 amended with the prototype's ten schema gaps (§4.5). The first product code exists: the **frozen contracts** plus the **backend compute lanes** (WO-102 ingest · WO-103 store · WO-104 render · WO-105 qa), with the **ES-001 §10 internal checkpoint proven end-to-end** on synthetic fixtures (29 tests). The HTTP API, the trim proposer, and the real frontend remain.
+**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the backlog approved, and **[ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) authorized 2026-07-24** (course-correction ADR-009–013 landed; [pre-ADP review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)). **WO-100 (prototype) and WO-101 (contract kernel) complete 2026-07-24**; ES-001 amended with the prototype's ten schema gaps (§4.5). The first product code exists: the **frozen contracts**, the **backend compute lanes** (WO-102 ingest · WO-103 store · WO-104 render · WO-105 qa), and the **HTTP API** (WO-106) with its ADR-011 security guards (WO-113 partial). The **ES-001 §10 internal checkpoint is proven end-to-end** on synthetic fixtures; **45 tests green.** The trim proposer (WO-111/112) and the real frontend (WO-107–110) remain.
 
 ## What this is
 
@@ -27,10 +27,10 @@ The repository name predates this framing. The framing governs.
 
 ## What does not exist
 
-- **Backend compute exists; delivery + intelligence do not.** WO-102–105 implement ingest, store, render, and QA against the WO-101 interfaces (synthetic fixtures, tested). Still absent: the **HTTP API** (WO-106), the **trim proposer** and its analysis (WO-111/112), the **real frontend** (WO-107–110 — still the fake-data prototype), and the security **guard suite** (WO-113).
+- **Backend + HTTP API exist; the AI and the real UI do not.** WO-102–106 implement ingest, store, render, QA, and the API (with ADR-011 security guards, WO-113 partial) against the WO-101 interfaces (synthetic fixtures, 45 tests). Still absent: the **trim proposer** and its analysis (WO-111/112 — M1's only "AI"), and the **real frontend** (WO-107–110, still the fake-data prototype talking to no backend).
 - **No media.** No corpus, no consent records, no annotations.
 - **No experiment ever ran.** Every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded `assumed`.
-- No API, proposer, real frontend, or guard suite yet — WO-102/103/104/105 (ingest/store/render/qa) are done on synthetic fixtures with the internal checkpoint proven, but WO-106, WO-111/112, WO-107–110, WO-113, and WO-114 have not started.
+- No proposer or real frontend yet — WO-102–106 (ingest/store/render/qa/api) + WO-113 security/hygiene guards are done on synthetic fixtures with the internal checkpoint proven; WO-111/112 (proposer), WO-107–110 (frontend), WO-114 (full integration), and the WO-113 frontend-bundle guard remain.
 
 ## What is only proposed
 

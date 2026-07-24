@@ -52,6 +52,12 @@ def timeline_duration_s(project: Project) -> float:
     return sum(seg.out_s - seg.in_s for _, seg in _timeline_clips(project))
 
 
+def output_filename(project: Project, label: str) -> str:
+    """Deterministic output basename, shared by the renderer and the API layer."""
+    stem = (project.name or "reel").strip().replace(" ", "-").lower() or "reel"
+    return f"{stem}-{label}.mp4"
+
+
 class FFmpegRenderer:
     def __init__(self, output_root: str | Path) -> None:
         self.output_root = Path(output_root)
@@ -68,8 +74,7 @@ class FFmpegRenderer:
     # --- internal ---------------------------------------------------------
 
     def _out_path(self, project: Project, label: str) -> Path:
-        stem = (project.name or "reel").strip().replace(" ", "-").lower() or "reel"
-        return self.output_root / project.project_id / f"{stem}-{label}.mp4"
+        return self.output_root / project.project_id / output_filename(project, label)
 
     def _render(self, project: Project, audio_mode: AudioMode, out: Path) -> Path:
         clips = _timeline_clips(project)
