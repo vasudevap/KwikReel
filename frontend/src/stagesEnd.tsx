@@ -3,7 +3,7 @@ import type { StageProps } from './appTypes'
 import type { AudioMode } from './types'
 import { DEMO_SPEEDS, REAL_JOB_SECONDS, runJob } from './fakeAsync'
 import { approveStage, clipRenderSeconds, renderClips, sourceOf, timelineSeconds } from './store'
-import { ClipThumb, DispositionBadge, JobProgress, TrimBar, baseName, fmtDur } from './ui'
+import { ClipThumb, DispositionBadge, JobProgress, StageBar, TrimBar, baseName, fmtDur } from './ui'
 
 export function FinalizeStage({ data, update, goto }: StageProps) {
   const { project } = data
@@ -19,6 +19,21 @@ export function FinalizeStage({ data, update, goto }: StageProps) {
         The reel below is exactly what will render. Editing anything after you approve here will visibly
         reset this approval.
       </p>
+
+      <StageBar
+        left={<button onClick={() => goto('trim')}>◀ Back to trim</button>}
+        right={
+          <button
+            className="primary"
+            onClick={() => {
+              update((p) => approveStage(p, 'finalize'))
+              goto('export')
+            }}
+          >
+            Approve finalize ▶ Export
+          </button>
+        }
+      />
 
       <div className="panel">
         <div className="row spread wrap">
@@ -62,18 +77,6 @@ export function FinalizeStage({ data, update, goto }: StageProps) {
         })}
       </div>
 
-      <div className="gatebar row spread wrap">
-        <button onClick={() => goto('trim')}>◀ Back to trim</button>
-        <button
-          className="primary"
-          onClick={() => {
-            update((p) => approveStage(p, 'finalize'))
-            goto('export')
-          }}
-        >
-          Approve finalize ▶ Export
-        </button>
-      </div>
     </div>
   )
 }
@@ -148,6 +151,7 @@ export function ExportStage({ data, update, speed, setSpeed }: StageProps) {
     return (
       <div>
         <h1>Done ✓</h1>
+        <StageBar left={<button onClick={() => setPhase('choose')}>◀ Export another version</button>} />
         <div className="panel">
           <strong>Output QA passed</strong>
           <ul className="small">{qa?.notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
@@ -166,9 +170,6 @@ export function ExportStage({ data, update, speed, setSpeed }: StageProps) {
             </div>
           ))}
         </div>
-        <div className="gatebar">
-          <button onClick={() => setPhase('choose')}>◀ Export another version</button>
-        </div>
       </div>
     )
   }
@@ -177,6 +178,14 @@ export function ExportStage({ data, update, speed, setSpeed }: StageProps) {
     <div>
       <h1>Export</h1>
       <p className="muted small">Pick one or more audio treatments. Each renders as its own file.</p>
+      <StageBar
+        left={<span className="small muted">{modes.length} version(s) selected</span>}
+        right={
+          <button className="primary" disabled={modes.length === 0} onClick={() => setPhase('render')}>
+            Render {modes.length} version(s)
+          </button>
+        }
+      />
       <div className="clip-list">
         {ALL_MODES.map((m) => (
           <label key={m.id} className="clip" style={{ cursor: 'pointer', alignItems: 'center' }}>
@@ -192,12 +201,6 @@ export function ExportStage({ data, update, speed, setSpeed }: StageProps) {
             </div>
           </label>
         ))}
-      </div>
-      <div className="gatebar row spread wrap">
-        <span className="small muted">{modes.length} version(s) selected</span>
-        <button className="primary" disabled={modes.length === 0} onClick={() => setPhase('render')}>
-          Render {modes.length} version(s)
-        </button>
       </div>
     </div>
   )

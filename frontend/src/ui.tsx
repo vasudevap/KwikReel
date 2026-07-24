@@ -119,6 +119,17 @@ export interface StepDef {
   gate?: boolean
   inert?: boolean
 }
+
+// Consistent top action bar for every stage: forward/advance actions go on the
+// right, in-page actions (e.g. "AI Trim all") and back-nav go on the left.
+export function StageBar({ left, right }: { left?: React.ReactNode; right?: React.ReactNode }) {
+  return (
+    <div className="stagebar">
+      <div className="stagebar-left row wrap">{left}</div>
+      <div className="stagebar-right row wrap">{right}</div>
+    </div>
+  )
+}
 export function Stepper({
   steps,
   currentIdx,

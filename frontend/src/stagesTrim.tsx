@@ -11,7 +11,7 @@ import {
   rerunTrim,
   sourceOf,
 } from './store'
-import { ClipThumb, DispositionBadge, OriginBadge, ReasonList, TrimBar, baseName, fmtDur } from './ui'
+import { ClipThumb, DispositionBadge, OriginBadge, ReasonList, StageBar, TrimBar, baseName, fmtDur } from './ui'
 
 const STEP = 0.5
 const MIN_WINDOW = 1.0
@@ -59,16 +59,33 @@ export function TrimStage({ data, update, goto }: StageProps) {
         reviewing and fixing them is the whole point. Adjust, remove, or re-run anything.
       </p>
 
-      <div className="row spread wrap">
-        <div className="row wrap small">
-          <button className="primary" onClick={trimAll} disabled={unproposed.length === 0}>
-            AI Trim all ({unproposed.length})
+      <StageBar
+        left={
+          <>
+            <button onClick={trimAll} disabled={unproposed.length === 0}>
+              AI Trim all ({unproposed.length})
+            </button>
+            <span className="small muted">
+              {withProposal.length}/{clips.length} proposed · {pendingCount} awaiting your review
+            </span>
+          </>
+        }
+        right={
+          <button
+            className="primary"
+            onClick={() => {
+              update((p) => approveStage(p, 'trim'))
+              goto('finalize')
+            }}
+          >
+            Approve trim ▶ Finalize
           </button>
-          <span className="muted">
-            {withProposal.length}/{clips.length} proposed · {pendingCount} awaiting your review
-          </span>
-        </div>
-      </div>
+        }
+      />
+      <p className="small muted" style={{ margin: '-6px 0 10px' }}>
+        Approving accepts every untouched proposal.{' '}
+        {pendingCount > 0 ? `${pendingCount} still pending.` : 'Nothing pending.'}
+      </p>
 
       <div className="clip-list" style={{ marginTop: 10 }}>
         {clips.map((c) => {
@@ -143,21 +160,6 @@ export function TrimStage({ data, update, goto }: StageProps) {
         })}
       </div>
 
-      <div className="gatebar row spread wrap">
-        <span className="small muted">
-          Approving trim promotes every untouched proposal to <strong>accepted</strong> and records the
-          timestamp. {pendingCount > 0 ? `${pendingCount} still pending.` : 'Nothing pending.'}
-        </span>
-        <button
-          className="primary"
-          onClick={() => {
-            update((p) => approveStage(p, 'trim'))
-            goto('finalize')
-          }}
-        >
-          Approve trim ▶ Finalize
-        </button>
-      </div>
     </div>
   )
 }

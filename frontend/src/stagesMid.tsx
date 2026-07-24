@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { StageProps } from './appTypes'
 import type { SeedData } from './fixtures'
 import { DEMO_SPEEDS, REAL_JOB_SECONDS, runJob } from './fakeAsync'
-import { JobProgress, ClipThumb, fmtDur, baseName } from './ui'
+import { JobProgress, ClipThumb, StageBar, fmtDur, baseName } from './ui'
 import {
   approveStage,
   clipRenderSeconds,
@@ -76,6 +76,20 @@ export function IngestStage({ data, update, speed, setSpeed, goto, projName }: S
         {readable.length} readable clips · {unreadable.length} unreadable · {dups.length} near-duplicate
         group(s). Detection counts people later (M2) — never identity.
       </p>
+      <StageBar
+        left={<span className="small muted">Approving records a timestamp in project.json (survives reload).</span>}
+        right={
+          <button
+            className="primary"
+            onClick={() => {
+              update((p) => approveStage(p, 'ingest'))
+              goto('curate')
+            }}
+          >
+            Approve import ▶ Curate
+          </button>
+        }
+      />
       {unreadable.length > 0 && (
         <div className="err">
           ⚠ {unreadable.length} clip couldn’t be read ({unreadable.map((s) => baseName(s.path)).join(', ')}).
@@ -120,20 +134,6 @@ export function IngestStage({ data, update, speed, setSpeed, goto, projName }: S
           </tbody>
         </table>
       </div>
-      <div className="gatebar row spread wrap">
-        <span className="small muted">
-          Approving import records a timestamp in <code>project.json</code> (survives reload, auditable).
-        </span>
-        <button
-          className="primary"
-          onClick={() => {
-            update((p) => approveStage(p, 'ingest'))
-            goto('curate')
-          }}
-        >
-          Approve import ▶ Curate
-        </button>
-      </div>
     </div>
   )
 }
@@ -152,15 +152,19 @@ export function CurateStage({ data, update, goto }: StageProps) {
         You decide what’s in and what order — no AI proposes inclusion or order in M1 (ADR-009). The
         AI’s first suggestion comes at the next step (trim).
       </p>
-      <div className="row spread wrap">
-        <div className="small">
-          Running total <strong>{fmtDur(total)}</strong> vs target <strong>{fmtDur(target)}</strong>{' '}
-          <span className="muted">— reference only, nothing is enforced.</span>
-        </div>
-        <button className="primary" onClick={() => goto('trim')}>
-          Continue ▶ AI trim
-        </button>
-      </div>
+      <StageBar
+        left={
+          <div className="small">
+            Running total <strong>{fmtDur(total)}</strong> vs target <strong>{fmtDur(target)}</strong>{' '}
+            <span className="muted">— reference only, nothing is enforced.</span>
+          </div>
+        }
+        right={
+          <button className="primary" onClick={() => goto('trim')}>
+            Continue ▶ AI trim
+          </button>
+        }
+      />
 
       <div className="clip-list" style={{ marginTop: 10 }}>
         {clips.map((c, i) => {

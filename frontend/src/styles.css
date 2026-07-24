@@ -92,6 +92,11 @@ h2 { font-size: 15px; margin: 16px 0 8px; }
 .notice { border: 1px solid var(--warn); background: #fff8e6; border-radius: 6px; padding: 8px 12px; font-size: 13px; }
 .err { border: 1px solid var(--bad); background: #fdf3f3; border-radius: 6px; padding: 8px 12px; font-size: 13px; }
 .gatebar { border-top: 2px solid var(--line); margin-top: 12px; padding-top: 10px; }
+/* Consistent per-stage top bar: forward action right, in-page/back-nav left. */
+.stagebar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 10px 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.stagebar-left, .stagebar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stagebar-left { min-height: 30px; }
+.stagebar-right { margin-left: auto; }
 table.src { width: 100%; border-collapse: collapse; font-size: 12px; }
 table.src th, table.src td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
 table.src th { background: #f0f2f5; }
