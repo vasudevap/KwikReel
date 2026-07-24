@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the M1 Work Order backlog drafted, and a **pre-ADP course correction applied 2026-07-24** ([review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md); ADR-009–013). **No code exists.**
+**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the backlog approved, and **[ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) authorized 2026-07-24** (course-correction ADR-009–013 landed; [pre-ADP review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)). Build underway at WO-100; **no product code exists yet.**
 
 ## What this is
 
@@ -14,7 +14,7 @@ The repository name predates this framing. The framing governs.
 
 **Stage A (Direction) is closed. Stage B (Specification) is complete for M1.** A **pre-ADP course correction was applied 2026-07-24** (ADR-009–013): manual curation added to M1, proposal `disposition` added, local delivery security specified, evidence checkpoints added, and prototype thumbnails reconciled with ADR-002.
 
-The next gate is the owner approving the M1 backlog and authorizing an ADP. **Nothing may be built before that.**
+**The M1 backlog is approved and [ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) is authorized (2026-07-24).** Build is underway, starting with WO-100. The grant is *local build only*: pushes to the public repo, CI/Actions, and any run against real footage remain separately gated (ADP-001 §3).
 
 ## What is real
 
@@ -30,11 +30,11 @@ The next gate is the owner approving the M1 backlog and authorizing an ADP. **No
 - **No product code.** No UI, no backend, no renderer, no `project.json` implementation.
 - **No media.** No corpus, no consent records, no annotations.
 - **No experiment ever ran.** Every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded `assumed`.
-- No approved Work Order and no ADP.
+- No *completed* Work Order yet — WO-100 (prototype) is the first, now in progress under the authorized ADP-001.
 
 ## What is only proposed
 
-- **`docs/work-orders/m1-backlog.md`** — 15 Work Orders for M1, with file scopes, dependencies, lanes, and stop-and-ask triggers. **Needs owner approval.**
+- **`docs/work-orders/m1-backlog.md`** — 15 Work Orders for M1. **Approved 2026-07-24; execution authorized via [ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md)** (no longer merely proposed).
 - `docs/specs/COMPONENT-DECOMPOSITION.md` — forward-looking design. Unlocks nothing.
 
 ## What happens first when building is authorized
@@ -51,9 +51,10 @@ Then WO-101 freezes the contracts, and six lanes run in parallel.
 
 ## Owner actions required
 
-1. **Approve `m1-backlog.md`, then authorize an ADP.** This is the last gate before code.
-2. **Push, if wanted.** Commits are local. Each push to the public repo is its own decision — prior authorization does not carry forward.
-3. **Register the project in `_oversight/STATUS.md`.** Still absent from the overseer roster, so status and drift passes cannot see it.
+1. **Per-push authorization.** ADP-001 keeps every push to the public `origin` a separate decision — commits stay local until you say push.
+2. **Record ADR-002 consent before real-media WOs run.** WO-102 / WO-111 / WO-114 and WO-104's centre-crop check can be *built* against synthetic fixtures now, but cannot *run against real footage* until a consent + lifecycle record exists.
+3. **Register the project in `_oversight/STATUS.md`** so status and drift passes can see it.
+4. **Walk the WO-100 prototype** when it's ready and review its ES-001 schema-gap list before WO-101 freezes contracts.
 
 ## Things that will bite you
 

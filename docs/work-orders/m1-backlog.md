@@ -1,8 +1,8 @@
 # M1 Work Order backlog — working pipe + AI trim
 
-**Status:** Draft — owner approval required
+**Status:** Approved — 2026-07-24. Execution authorized under [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md).
 **Governing:** [ES-001](../specs/ES-001-manual-editor-core.md) (Accepted), [ROADMAP.md](../../ROADMAP.md), [ADR-005](../decisions/ADR-005-editor-form-factor.md), [ADR-006](../decisions/ADR-006-incremental-staged-build.md), [ADR-007](../decisions/ADR-007-build-sequencing.md), [ADR-008](../decisions/ADR-008-prototype-before-contract-freeze.md)
-**Authorizes nothing.** No Work Order may start until the owner authorizes an ADP.
+**Execution authority:** granted by [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md) (Authorized 2026-07-24), scoped to *local build only* — pushes, CI, and real-media execution remain gated (ADP-001 §3). WO-100 runs first.
 
 ## Directory layout (this is what makes the lanes safe)
 
