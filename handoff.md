@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the backlog approved, and **[ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) authorized 2026-07-24** (course-correction ADR-009–013 landed; [pre-ADP review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)). **WO-100 (prototype) and WO-101 (contract kernel) complete 2026-07-24**; ES-001 amended with the prototype's ten schema gaps (§4.5). The first product code — the **frozen contracts** — now exists; behaviour (WO-102+) has not started.
+**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the backlog approved, and **[ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) authorized 2026-07-24** (course-correction ADR-009–013 landed; [pre-ADP review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)). **WO-100 (prototype) and WO-101 (contract kernel) complete 2026-07-24**; ES-001 amended with the prototype's ten schema gaps (§4.5). The first product code exists: the **frozen contracts** plus the **backend compute lanes** (WO-102 ingest · WO-103 store · WO-104 render · WO-105 qa), with the **ES-001 §10 internal checkpoint proven end-to-end** on synthetic fixtures (29 tests). The HTTP API, the trim proposer, and the real frontend remain.
 
 ## What this is
 
@@ -27,10 +27,10 @@ The repository name predates this framing. The framing governs.
 
 ## What does not exist
 
-- **No behaviour yet.** WO-101 froze the *contracts* (models, TS types, service `Protocol`s) as code, but there is **no UI logic, no backend logic, no renderer, no store implementation** — those are WO-102+.
+- **Backend compute exists; delivery + intelligence do not.** WO-102–105 implement ingest, store, render, and QA against the WO-101 interfaces (synthetic fixtures, tested). Still absent: the **HTTP API** (WO-106), the **trim proposer** and its analysis (WO-111/112), the **real frontend** (WO-107–110 — still the fake-data prototype), and the security **guard suite** (WO-113).
 - **No media.** No corpus, no consent records, no annotations.
 - **No experiment ever ran.** Every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded `assumed`.
-- No completed *behaviour* Work Order — WO-100 (prototype) and WO-101 (contracts) are done; WO-102–114 (ingest, store, render, qa, api, analysis, propose, frontend lanes, guards, integration) have not started.
+- No API, proposer, real frontend, or guard suite yet — WO-102/103/104/105 (ingest/store/render/qa) are done on synthetic fixtures with the internal checkpoint proven, but WO-106, WO-111/112, WO-107–110, WO-113, and WO-114 have not started.
 
 ## What is only proposed
 

@@ -1,6 +1,6 @@
 # M1 Work Order backlog — working pipe + AI trim
 
-**Status:** Approved — 2026-07-24. Execution authorized under [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md). **Progress: WO-100 ✅ · WO-101 ✅ (both 2026-07-24, local build only); WO-102–114 not started — the six-lane parallel phase awaits the owner's go.**
+**Status:** Approved — 2026-07-24. Execution authorized under [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md). **Progress (2026-07-24, synthetic fixtures, local build only):** WO-100/101 ✅ · **WO-102 (ingest) · WO-103 (store) · WO-104 (render) · WO-105 (qa) ✅** — the ES-001 §10 internal checkpoint (Import→curate→store→render→export) is proven end-to-end (29 tests green). Remaining: WO-106 (api) · WO-111/112 (analysis/proposer — now unblocked by the checkpoint) · WO-107–110 (frontend) · WO-113 (guards) · WO-114 (full integration). Real-footage gates stay deferred to the ADR-002 consent record.**
 **Governing:** [ES-001](../specs/ES-001-manual-editor-core.md) (Accepted), [ROADMAP.md](../../ROADMAP.md), [ADR-005](../decisions/ADR-005-editor-form-factor.md), [ADR-006](../decisions/ADR-006-incremental-staged-build.md), [ADR-007](../decisions/ADR-007-build-sequencing.md), [ADR-008](../decisions/ADR-008-prototype-before-contract-freeze.md)
 **Execution authority:** granted by [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md) (Authorized 2026-07-24), scoped to *local build only* — pushes, CI, and real-media execution remain gated (ADP-001 §3). WO-100 runs first.
 
@@ -45,24 +45,28 @@ WO-100 creates the frontend directories; later frontend WOs fill in their own. W
 - **Stop-and-ask:** any deviation from ES-001 as amended
 
 ### WO-102 · Ingest and proxies
+- **Status:** ✅ **Complete against synthetic fixtures — 2026-07-24.** `backend/ingest/`: ffprobe→`SourceIndex` (rotation-corrected orientation, fps, codec, has_audio/gps, sha256), 540×960 `+faststart` proxies to a separate dir, corrupt files retained `readable:false`, read-only originals verified. Tests green. **Deferred:** the real 50-clip-day gate (needs the ADR-002 consent record).
 - **Scope:** `probe_clip` via ffprobe, `validate_readable`, `make_proxy` (540×960 H.264 ~1.5 Mbps `+faststart`), `build_source_index`. Unreadable sources retained with `readable: false` and a reason.
 - **File scope:** `backend/ingest/` · **Excludes:** any write beneath `media_root`; any analysis
 - **Gates:** Real 50-clip day probes cleanly · a corrupt file is reported, not crashed on · proxies play · read-only enforcement test passes
 - **Depends:** WO-101
 
 ### WO-103 · Project store
+- **Status:** ✅ **Complete — 2026-07-24.** `backend/store/`: save/load byte-equivalent, optimistic concurrency on `updated_at` (409), and the §4.1 invariants — origin-protection (a machine write can't overwrite an `origin:"user"` field unless an accepted proposal backs it), delete-is-a-flag (no clip dropped, exact restore), dense/unique order, unknown-schema-version rejected. 11 tests green.
 - **Scope:** `save`, `load`, schema-version handling, optimistic concurrency on `updated_at` (`409` on mismatch). Enforces the ES-001 §4.1 invariants: `origin` written on every mutation, `proposals` retained on override, **`disposition` set on every proposal (`pending`/`accepted`/`adjusted`/`dismissed`)**, `deleted` never removes a clip, `order` dense and unique.
 - **File scope:** `backend/store/` · **Excludes:** HTTP concerns
 - **Gates:** save → load → byte-equivalent · a machine write refuses to overwrite an `origin: "user"` field · delete then restore returns the exact prior state
 - **Depends:** WO-101
 
 ### WO-104 · Renderer and exporter
+- **Status:** ✅ **Complete against synthetic fixtures — 2026-07-24.** `backend/render/`: §8.1 filter_complex (trim→setpts→scale/centre-crop 1080×1920→concat) and §8.2 three audio modes — `music` bed, `clip` natural audio with a silent pad for audio-less clips, `silent` valid AAC; one loudness pass per mode (skipped on all-silent to avoid a NaN-sample encoder failure). Tests green. **Deferred (stop-and-ask):** centre-crop acceptability on real footage.
 - **Scope:** FFmpeg `filter_complex` per ES-001 §8.1 — trim, `setpts`, scale/crop to 1080×1920 centre-crop, concat. **Audio per §8.2 — three modes:** `music` uses the track and does not mix clip audio; `clip` muxes the concatenated **natural clip audio** with a **silent pad for any `has_audio:false` clip**; `silent` carries a valid silent AAC track. Single loudness-normalisation pass per mode.
 - **File scope:** `backend/render/` · **Excludes:** speed ramps beyond rate 1.0 (M3); saliency reframing; **per-clip ducking under music (M2+)**; any network
 - **Gates:** Duration within ±0.5 s of the timeline sum · exactly 1080×1920 H.264/AAC · all three audio modes produced on request · the `silent` mode carries a valid audio track · a `clip` render of an all-audio-less set is correctly silent with a valid track
 - **Depends:** WO-101 · **Stop-and-ask:** if centre-crop proves unacceptable on real footage
 
 ### WO-105 · Output QA
+- **Status:** ✅ **Complete against synthetic fixtures — 2026-07-24.** `backend/qa/`: §8.3 `QAReport` — not-black (blackdetect), audio-matched-to-mode (volumedetect), duration ±0.5 s, 1080×1920, H.264/AAC, non-zero frames. Catches a black render, a silent `music` render, and a truncated render; does **not** fail a correct `silent` render or an all-audio-less `clip` render for being silent. Tests green. (`safe_margins_ok` is a no-op in M1 — no titles rendered yet.)
 - **Scope:** `validate_render` per ES-001 §8.3 — not black; **audio matched to the mode's expectation** (`music` not silent; `silent` silent + valid track; `clip` valid track, non-silent unless every source is audio-less); duration; resolution; codec; safe-title margins; non-zero frame count. Emits `QAReport`; failure blocks export with a stated reason.
 - **File scope:** `backend/qa/` · **Excludes:** rendering; works against fixtures
 - **Gates:** Catches a deliberately black render, a truncated render, and a silent `music` render · **does not** fail a correct `silent` render for being silent · **does not** fail a correct `clip` render of an all-audio-less set for being silent
