@@ -16,18 +16,24 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); }
+/* Every button is clearly coloured — solid-blue primary, blue-outline
+   secondary, red-outline danger. No button renders as plain colourless white. */
 button {
   font: inherit;
   padding: 5px 10px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--accent);
   background: var(--panel);
+  color: var(--accent);
   border-radius: 5px;
   cursor: pointer;
 }
-button:hover { border-color: var(--accent); }
+button:hover { background: #eef3fd; }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
 button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-button.danger { color: var(--bad); }
+button.primary:hover { background: #2560c9; border-color: #2560c9; }
+button.primary:active { background: #1f52ad; }
+button.danger { color: var(--bad); border-color: var(--bad); }
+button.danger:hover { background: #fdeeee; }
 input, select { font: inherit; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; }
 
 .proto-banner {
