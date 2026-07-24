@@ -1,6 +1,6 @@
 # M1 Work Order backlog — working pipe + AI trim
 
-**Status:** Approved — 2026-07-24. Execution authorized under [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md).
+**Status:** Approved — 2026-07-24. Execution authorized under [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md). **Progress: WO-100 ✅ · WO-101 ✅ (both 2026-07-24, local build only); WO-102–114 not started — the six-lane parallel phase awaits the owner's go.**
 **Governing:** [ES-001](../specs/ES-001-manual-editor-core.md) (Accepted), [ROADMAP.md](../../ROADMAP.md), [ADR-005](../decisions/ADR-005-editor-form-factor.md), [ADR-006](../decisions/ADR-006-incremental-staged-build.md), [ADR-007](../decisions/ADR-007-build-sequencing.md), [ADR-008](../decisions/ADR-008-prototype-before-contract-freeze.md)
 **Execution authority:** granted by [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md) (Authorized 2026-07-24), scoped to *local build only* — pushes, CI, and real-media execution remain gated (ADP-001 §3). WO-100 runs first.
 
@@ -25,6 +25,7 @@ WO-100 creates the frontend directories; later frontend WOs fill in their own. W
 ---
 
 ### WO-100 · Clickable prototype — runs first, alone
+- **Status:** ✅ **Complete — 2026-07-24.** Full flow clickable end to end; owner walked it and approved the flow; schema-gap list produced ([WO-100-schema-gaps.md](../specs/WO-100-schema-gaps.md)); only `fixtures/synthetic/` committed. **All ten gap resolutions owner-signed-off and amended into [ES-001 §4.5](../specs/ES-001-manual-editor-core.md); WO-101 done.**
 - **Scope:** React prototype of the entire M1 flow with fake data: create project → pick folder and track → clips on a timeline → **manually curate (include/exclude, delete, restore, reorder)** → AI trim (per clip and *Trim all*) → read the reasons → adjust or remove a suggestion → **approve (proposals get a `disposition`)** → finalize → export the three audio modes (music/clip/silent). Per [ADR-008](../decisions/ADR-008-prototype-before-contract-freeze.md) it must **fake the real waiting times** (~5 min analysis, ~5 min render) and **seed deliberately bad AI proposals** (a trim cutting the good part; a clip where the proposer gives up). **Thumbnails follow [ADR-013](../decisions/ADR-013-prototype-thumbnails-consent.md):** committed fixtures are **synthetic / rights-cleared only** (`fixtures/synthetic/`, no real people); real-footage thumbnails are the owner's own, generated locally into `fixtures/local/` (gitignored, never committed) behind a self-consent + lifecycle note recorded before extraction.
 - **File scope:** `frontend/`, `fixtures/synthetic/` (committed), `fixtures/local/` (untracked)
 - **Excludes:** Any backend. Any real processing. **Any committed real footage or real-footage thumbnail.** **Visual polish — colour, spacing, typography.**
@@ -35,6 +36,7 @@ WO-100 creates the frontend directories; later frontend WOs fill in their own. W
 > **Between WO-100 and WO-101:** any gap the prototype finds is amended into ES-001 first. WO-101 does not start until ES-001 reflects what the screen actually needs.
 
 ### WO-101 · Contract kernel and scaffold — runs second, alone
+- **Status:** ✅ **Complete — 2026-07-24.** ES-001 §4 frozen as code: Pydantic models (`backend/contracts/models.py`, single source of truth) + service Protocols (`backend/contracts/interfaces.py`) + a stdlib TS generator (`gen_types.py`) emitting `frontend/src/types/contracts.ts`. Manifests declared (root `pyproject.toml`, `frontend/package.json`). **Gates met:** §4.1 canonical example validates; save→reopen byte-equivalent; TS generated from the models (drift-guarded, compiles clean under `--strict`). `pytest` 5/5 green. Local build only — not pushed.
 - **Scope:** Backend skeleton; dependency manifests. Freeze **as code** the ES-001 §4 schemas (`project.json`, `SourceIndex`, `analysis.json`, `ReasonRecord`) — **including the proposal `disposition` field (ADR-010)** — as Pydantic models with matching TypeScript types, **plus the service interfaces** every other WO codes against (Python Protocols for ingest, store, render, qa, analysis, propose). Schema round-trip test harness.
 - **File scope:** `backend/contracts/`, `frontend/src/types/`, `tests/contracts/`, `pyproject.toml`, `package.json`
 - **Excludes:** Any behaviour. Interfaces and types only.

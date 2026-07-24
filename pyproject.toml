@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reel-agent"
+version = "0.1.0"
+description = "AI Vacation Reel Agent — local-first, human-directed reel editor (M1 backend)."
+requires-python = ">=3.11"
+
+# WO-101 owns the manifests and pre-declares the WHOLE M1 dependency set, so no
+# later Work Order edits this file. Anything outside this set is a stop-and-ask
+# (see docs/work-orders/m1-backlog.md). WO-101 itself uses only pydantic; the
+# rest are declared now for WO-102+ (ingest/analysis/render/api).
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "pydantic>=2",
+  "opencv-python",
+  "numpy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+include = ["backend*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the backlog approved, and **[ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) authorized 2026-07-24** (course-correction ADR-009–013 landed; [pre-ADP review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)). Build underway at WO-100; **no product code exists yet.**
+**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the backlog approved, and **[ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) authorized 2026-07-24** (course-correction ADR-009–013 landed; [pre-ADP review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)). **WO-100 (prototype) and WO-101 (contract kernel) complete 2026-07-24**; ES-001 amended with the prototype's ten schema gaps (§4.5). The first product code — the **frozen contracts** — now exists; behaviour (WO-102+) has not started.
 
 ## What this is
 
@@ -14,7 +14,7 @@ The repository name predates this framing. The framing governs.
 
 **Stage A (Direction) is closed. Stage B (Specification) is complete for M1.** A **pre-ADP course correction was applied 2026-07-24** (ADR-009–013): manual curation added to M1, proposal `disposition` added, local delivery security specified, evidence checkpoints added, and prototype thumbnails reconciled with ADR-002.
 
-**The M1 backlog is approved and [ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) is authorized (2026-07-24).** Build is underway, starting with WO-100. The grant is *local build only*: pushes to the public repo, CI/Actions, and any run against real footage remain separately gated (ADP-001 §3).
+**The M1 backlog is approved and [ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) is authorized (2026-07-24).** WO-100 and WO-101 are complete (local, unpushed). The grant is *local build only*: pushes to the public repo, CI/Actions, and any run against real footage remain separately gated (ADP-001 §3).
 
 ## What is real
 
@@ -23,14 +23,14 @@ The repository name predates this framing. The framing governs.
 - **Three milestones**, each shipping something the owner can use: **M1** working pipe + AI trim · **M2** AI selection and ordering · **M3** AI speed ramping.
 - **`ES-001` freezes** the `project.json` schema, `SourceIndex`, `analysis.json`, `ReasonRecord`, the HTTP contract, and the trim proposer's signals and rules.
 - **A GitHub remote exists** — `origin` → `https://github.com/vasudevap/ai-vacation-reel-agent`, and **it is PUBLIC**. Everything in this repository is visible to anyone.
-- Documents only. That is the complete list.
+- **As of 2026-07-24, the first code exists:** the WO-100 clickable prototype (`frontend/`, fake data) and the WO-101 **contract kernel** — Pydantic models + generated TS types + service interfaces (`backend/contracts/`, `frontend/src/types/contracts.ts`), with a green round-trip + drift-guard test suite. Everything else is still documents.
 
 ## What does not exist
 
-- **No product code.** No UI, no backend, no renderer, no `project.json` implementation.
+- **No behaviour yet.** WO-101 froze the *contracts* (models, TS types, service `Protocol`s) as code, but there is **no UI logic, no backend logic, no renderer, no store implementation** — those are WO-102+.
 - **No media.** No corpus, no consent records, no annotations.
 - **No experiment ever ran.** Every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded `assumed`.
-- No *completed* Work Order yet — WO-100 (prototype) is the first, now in progress under the authorized ADP-001.
+- No completed *behaviour* Work Order — WO-100 (prototype) and WO-101 (contracts) are done; WO-102–114 (ingest, store, render, qa, api, analysis, propose, frontend lanes, guards, integration) have not started.
 
 ## What is only proposed
 
@@ -54,7 +54,7 @@ Then WO-101 freezes the contracts, and six lanes run in parallel.
 1. **Per-push authorization.** ADP-001 keeps every push to the public `origin` a separate decision — commits stay local until you say push.
 2. **Record ADR-002 consent before real-media WOs run.** WO-102 / WO-111 / WO-114 and WO-104's centre-crop check can be *built* against synthetic fixtures now, but cannot *run against real footage* until a consent + lifecycle record exists.
 3. **Register the project in `_oversight/STATUS.md`** so status and drift passes can see it.
-4. **Walk the WO-100 prototype** when it's ready and review its ES-001 schema-gap list before WO-101 freezes contracts.
+4. ~~Walk the WO-100 prototype and review its schema-gap list before WO-101.~~ **Done 2026-07-24** — flow approved, all ten gaps resolved into ES-001 §4.5, WO-101 froze the contracts. Next owner decision: **authorize the WO-102+ six-lane parallel phase** (some lanes touch real footage → need the ADR-002 consent record, owner action #2).
 
 ## Things that will bite you
 
