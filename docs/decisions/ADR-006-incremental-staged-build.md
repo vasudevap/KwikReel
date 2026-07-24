@@ -1,6 +1,7 @@
 # ADR-006 — Incremental staged build with per-stage human approval
 
 **Status:** Accepted — owner-approved 2026-07-23
+**Amended by:** ADR-007 (2026-07-23) — **the sequencing clause only.** AI trim moves into the first milestone and assists are ordered by tractability. Every other clause below — the approval gate, the transparency requirement, "assists earn their place," and the stop/de-scope triggers — stands unchanged. Read the two records together.
 **Supersedes:** ADR-004 — Validation-first sequencing and kill criteria
 **Relates to:** PROP-01 / MD-001 — the Validation-stage pilot was authorized for this project contingent on its ADRs. This ADR **withdraws this project from that pilot.** General acceptance of PROP-01 remains a separate MD-002 matter and is unaffected by this decision.
 

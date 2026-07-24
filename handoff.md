@@ -1,12 +1,13 @@
 # Handoff
 
-**Updated:** 2026-07-23 — **direction pivoted** to a human-directed, approval-gated staged editor, and **Stage A closed.** `PROJECT.md`, `ROADMAP.md`, ADR-005 and ADR-006 all accepted; ADR-001 and ADR-004 superseded; `VALIDATION-PLAN.md` retired. Still documents only. **Correction: a GitHub remote does exist and was pushed through `8b51a8b`** — earlier handoffs claiming otherwise were stale. The pivot itself is committed locally and **not pushed**.
+**Updated:** 2026-07-23 — **direction pivoted** to a human-directed, approval-gated staged editor; **Stage A closed**; then **milestones re-sequenced by ADR-007** so AI trim ships in the first milestone. `PROJECT.md`, `ROADMAP.md`, ADR-005 and ADR-006 all accepted; ADR-001 and ADR-004 superseded; `VALIDATION-PLAN.md` retired. Still documents only. **Correction: a GitHub remote does exist and was pushed through `8b51a8b`** — earlier handoffs claiming otherwise were stale. The pivot itself is committed locally and **not pushed**.
 
 ## What is real
 
 - **The pivot (2026-07-23).** The product is a **human-directed, transparent, approval-gated nine-stage reel editor.** The system proposes selection/ordering, trims, and speed ramps — each with a plain-language reason — and the user reviews, overrides anything, and approves each stage before the next runs. This replaces the previous framing, in which model-assisted ranking acted autonomously and was the project's pivotal bet.
-- **`PROJECT.md` and `ROADMAP.md` are Accepted (owner-approved 2026-07-23).** With the ADRs below, this **closes Stage A — Direction.** Stage B (Specification) is next; the gate before any building is an authorized ADP.
-- **Four accepted ADRs:** ADR-002 (privacy, 2026-07-22), ADR-003 (music/licensing, 2026-07-23), **ADR-005** (local web app form factor, 2026-07-23), **ADR-006** (incremental staged build with per-stage approval, 2026-07-23). **None authorizes implementation** — that requires an authorized ADP.
+- **`PROJECT.md`, `ROADMAP.md`, and `ES-001` are all Accepted (owner-approved 2026-07-23).** Stage A — Direction is closed, and Stage B — Specification is complete for M1. `ROADMAP.md` was accepted, re-opened when ADR-007 re-sequenced the milestones, then re-accepted the same day. **The only gate left before building is an authorized ADP.**
+- **The build is three milestones**, each shipping a usable product to the owner: **M1** working pipe + AI trim · **M2** AI selection & ordering · **M3** AI speed. Mac-only; phone access considered and deferred.
+- **Five accepted ADRs:** ADR-002 (privacy, 2026-07-22), ADR-003 (music/licensing), **ADR-005** (local web app form factor), **ADR-006** (incremental staged build with per-stage approval), **ADR-007** (build sequencing — AI trim in M1, amends ADR-006's sequencing clause only) — the last four all 2026-07-23. **None authorizes implementation** — that requires an authorized ADP.
 - **Two superseded ADRs, retained with their original text and a why-superseded note:** ADR-001 (CLI-first prototype shape) → ADR-005; ADR-004 (validation-first sequencing) → ADR-006.
 - **`VALIDATION-PLAN.md` is retired** and this project is withdrawn from the PROP-01 Validation-stage pilot. General acceptance of PROP-01 remains an MD-002 matter, unaffected by this project.
 - A folder of Stage A direction documents. **Documents only.**
@@ -36,7 +37,7 @@ Stated plainly so it is not inferred from the volume of documentation:
 
 ## Owner actions required
 
-1. **Approve the M1–M3 Engineering Specification** once drafted, then **authorize an ADP.** ADR-005 and ADR-006 fix the shape and the method; neither authorizes building.
+1. **Authorize an ADP.** This is the last gate before building. The ADRs and ES-001 fix the shape, the method, and the contracts; none of them authorizes writing code.
 2. **Confirm the existing remote, and authorize any push separately.** Creation is no longer the open question — `origin` exists and was pushed through `8b51a8b`. Verify the repository's visibility directly, since it is not observable from the working tree. The pivot commit is unpushed; **each push is its own consequential action requiring explicit authorization**, and prior authorization does not carry forward.
 3. **Register the project in `_oversight/STATUS.md`.** It is still absent from the overseer roster and therefore invisible to status and drift passes.
 4. **Plan the real-user check.** ADR-006 makes it binding that owner approval is a *build* gate, not evidence of product quality. Roadmap milestones M3.5 and M7 require real users other than the owner.

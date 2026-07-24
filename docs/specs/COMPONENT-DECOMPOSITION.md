@@ -103,18 +103,18 @@ The only coordination points. Sketches below are **proposed shapes for review**,
 
 | # | Component | Kind | Emits → | Milestone |
 |---|---|---|---|---|
-| 1 | **Ingest & Proxy** — `probe_clip`, `validate_readable`, `make_proxy`, `build_source_index` | Deterministic | `SourceIndex` + proxies | M1 |
-| 2 | **Project Store** — `save`, `load`, `migrate_schema`, lossless round-trip | Deterministic | `project.json` | M1 |
-| 3 | **Timeline Editor (UI)** *— the product* — sequence view, `set_trim`, `set_speed`, `delete`, `restore`, `reorder`, show rationale | Interactive | user-set fields + `origin` | M2 |
-| 4 | **Renderer / Assembler** — `assemble`, `apply_speed_ramps`, `reframe_9x16` (saliency-driven), `loudness_normalize`, `duck_music` | Deterministic, sandboxed | `draft.mp4` | M3 |
-| 5 | **Output QA** — `validate_render`: not black/silent/truncated; duration; safe-title margins | Deterministic gate | QAReport | M3 |
-| 6 | **Exporter** — 1080×1920 H.264/AAC, **with-music and without-music variants** | Deterministic | final files | M3 |
-| 7 | **Per-clip Analysis** — `blur/exposure/shake`, `static_score`, `dup_embedding`, `people_count`, `motion_energy`, `audio_event_salience`, `scene_cuts`, `saliency_map` | Det + on-device models | `analysis.json` | M4 |
-| 8 | **Trim Proposer** — `propose_window` from quality/static/duplicate signals | Deterministic | trim proposals + reasons | M4 |
-| 9 | **Beat/Section Analyzer** — `detect_beats` (**librosa**), `detect_sections`, `eligible_beat_snapping` | Deterministic | beat-map | M5 |
-| 10 | **Speed Proposer** — interest curve from motion/audio/scene → ramps; beat-aligned on opt-in | Deterministic (ML later) | speed proposals + reasons | M5 |
-| 11 | **Selection & Order Proposer** — legible heuristic: duration, people **count**, sharpness, motion, event coverage, chronology | Deterministic (ML later) | include/exclude + order + reasons | M6 |
-| 12 | **Explanation Composer** — renders `ReasonRecord` into user-facing text, faithfulness-gated to the features that actually drove the proposal | Bounded | UI rationale | M4 → M6 |
+| 1 | **Ingest & Proxy** — `probe_clip`, `validate_readable`, `make_proxy`, `build_source_index` | Deterministic | `SourceIndex` + proxies | **M1** |
+| 2 | **Project Store** — `save`, `load`, `migrate_schema`, lossless round-trip | Deterministic | `project.json` | **M1** |
+| 3 | **Timeline Editor (UI)** *— the product* — sequence view, `set_trim`, `reorder`, proposal review, per-clip and bulk assist actions, approval; `set_speed`/`delete`/`restore` extend it at M2–M3 | Interactive | user-set fields + `origin` | **M1** |
+| 4 | **Renderer / Assembler** — `assemble`, `apply_speed_ramps`, `reframe_9x16` (centre-crop in M1; saliency-driven deferred), `loudness_normalize` | Deterministic, sandboxed | `draft.mp4` | **M1** |
+| 5 | **Output QA** — `validate_render`: not black; audio per variant; duration; safe-title margins | Deterministic gate | QAReport | **M1** |
+| 6 | **Exporter** — 1080×1920 H.264/AAC, **with-music and without-music variants** | Deterministic | final files | **M1** |
+| 7 | **Per-clip Analysis** — `blur/exposure/shake`, `static_score`, `motion_energy`, `audio_rms`, `scene_cuts`, `dup_embedding`; `people_count` arrives at M2, `saliency_map` deferred | Det + on-device models | `analysis.json` | **M1** |
+| 8 | **Trim Proposer** — `propose_window` from quality/static/duplicate signals | Deterministic | trim proposals + reasons | **M1** |
+| 9 | **Selection & Order Proposer** — legible heuristic: duration, people **count**, sharpness, motion, event coverage, chronology | Deterministic (ML later) | include/exclude + order + reasons | **M2** |
+| 10 | **Beat/Section Analyzer** — `detect_beats` (**librosa**), `detect_sections`, `eligible_beat_snapping` | Deterministic | beat-map | **M3** |
+| 11 | **Speed Proposer** — interest curve from motion/audio/scene → ramps; beat-aligned on opt-in | Deterministic (ML later) | speed proposals + reasons | **M3** |
+| 12 | **Explanation Composer** — renders `ReasonRecord` into user-facing text, faithfulness-gated to the features that actually drove the proposal | Bounded | UI rationale | **M1**, extended M2–M3 |
 
 **Cross-cutting:** Provenance recorder (`run.json`) · **Approval gatekeeper** (no stage advances without a `stage_approvals` entry) · **Egress guard** (no network from the media path) · Consent & deletion worker (ADR-002) · Golden-set regression harness (fixed inputs → expected `project.json`; drift detection).
 
@@ -125,7 +125,7 @@ The only coordination points. Sketches below are **proposed shapes for review**,
 | No face recognition / person ID | C-7 `people_count` returns a count; no identity API reachable from its file scope |
 | Originals read-only; no delete path | C-1 (read-only open) + C-4 (renderer has no source-delete path) |
 | Original media never leaves device | Egress guard; media path has no network capability; no CDN/remote fonts in the UI |
-| No `madmom` / no distribution-restrictive licence | C-9 uses librosa; dependency-licence check is a build gate |
+| No `madmom` / no distribution-restrictive licence | C-10 uses librosa; dependency-licence check is a build gate |
 | No auto-publish | C-4/C-6 have no network; export is a gated human act via C-3 |
 | **No assist advances a stage** | Approval gatekeeper: stage N+1 refuses to run without `stage_approvals[N]` |
 | **Every proposal explains itself** | No proposing component may emit a field without an accompanying `ReasonRecord`; C-12 faithfulness gate |
@@ -144,8 +144,8 @@ clips + track ─▶[1 Ingest]─▶ SourceIndex + proxies ─▶[2 Project Stor
                                      │                                        │
         ┌────────────────────────────┼────────────────────────────┐           │
         ▼                            ▼                            ▼           │
- [11 Selection/Order]        [8 Trim Proposer]           [10 Speed Proposer]   │
-   proposals+reasons           proposals+reasons          proposals+reasons    │
+  [9 Selection/Order]        [8 Trim Proposer]           [11 Speed Proposer]   │
+   (M2) prop + reasons       (M1) prop + reasons         (M3) prop + reasons   │
         └────────────────────────────┴────────────────────────────┘           │
                                      │                                        │
                      ══ APPROVAL GATE — user reviews, overrides, approves ══   │
@@ -172,9 +172,13 @@ This is also why proposers are confined to emitting *fields with reasons*, never
 
 ## §5 · Build sequencing
 
-Authoritative in [ROADMAP.md](../../ROADMAP.md). Summary: **M1** C-1, C-2 · **M2** C-3 · **M3** C-4, C-5, C-6 *(first shippable — a complete manual editor)* · **M4** C-7, C-8, C-12 · **M5** C-9, C-10 · **M6** C-11.
+Authoritative in [ROADMAP.md](../../ROADMAP.md); fixed by [ADR-007](../decisions/ADR-007-build-sequencing.md).
 
-Assist components (C-8, C-10, C-11) are added on top of working manual capability and may each be dropped without breaking the product.
+- **M1** — C-1, C-2, C-3, C-4, C-5, C-6, C-7, C-8, C-12. The working pipe **plus the trim assist**. An **internal checkpoint** inside M1 requires the pipeline (C-1 → C-3 → C-4 → C-6) to work *before* C-7/C-8 are layered on, so the renderer and the proposer are never debugged at the same time. The checkpoint is not a release.
+- **M2** — C-9 selection & order proposer, with its include/exclude, reorder, delete, and restore controls in C-3.
+- **M3** — C-10 beat/section analyzer and C-11 speed proposer, with per-segment speed controls in C-3.
+
+**The pairing rule (ADR-007):** every assist ships in the same milestone as the controls that override it. Assist components (C-8, C-9, C-11) may each be dropped without breaking the product — M1 leaves a working pipe underneath, and a de-scoped stage reverts to manual, still transparent and still gated.
 
 ## §6 · Work Orders
 
