@@ -1,117 +1,117 @@
 # Project — AI Vacation Reel Agent
 
-**Status:** Draft — owner approval required
-**Governing methodology:** `_oversight/DELIVERY-PLAYBOOK.md`. The Validation stage this project uses (PROP-01) is **piloting on Vacation Reel Stage B only** per MD-001 (owner-accepted 2026-07-20); general acceptance is deferred to MD-002. This project is at **Stage A — Direction**. Stage B (Validation) is triggered and not yet started. No implementation is authorized.
+**Status:** **Accepted — owner-approved 2026-07-23.** Supersedes the prior ranking-centric draft (pivot 2026-07-23).
+**Governing methodology:** `_oversight/DELIVERY-PLAYBOOK.md`, normal flow (Direction → Specification → incremental staged build). Validation-first sequencing and the PROP-01 pilot are **retired** for this project by ADR-006 (Accepted 2026-07-23); ADR-001's CLI-first prototype shape is superseded by ADR-005 (Accepted 2026-07-23). ADR-002 (privacy) and ADR-003 (music/licensing) stand. This project is at **Stage A — Direction (re-opened by the pivot)**. No implementation, media collection, or remote repository is authorized.
 
 ## Framing
 
-Build and validate an **explainable, local-first assisted first-draft editor for private family footage** — not a claim of fully autonomous editorial intelligence.
+Build an **explainable, local-first, human-directed first-draft reel editor for private family footage.** The system proposes a transparent first pass at the whole edit — **which clips, in what order, where to trim, where to change speed** — and the human reviews every proposal, overrides anything, and **approves each of nine stages before the next runs.** The AI proposes; the human decides.
 
-The word *assisted* is load-bearing. The system produces one defensible draft and an honest account of its reasoning; a human accepts, corrects, or rejects it. The review and correction path is the product. The automated pipeline is what makes the review cheap.
+Three words are load-bearing. *Human-directed* — the user makes every editorial decision, by approving or overriding. *Assisted* — the heavy first pass is done for them, as a starting point. *Transparent* — every pick, rejection, trim, and speed change carries a plain-language reason and is auditable. The **staged, confirmation-gated pipeline and the timeline where the user finishes the edit are the product;** the automated assists are what make that finishing fast.
 
-> **Naming note.** The repository is `ai-vacation-reel-agent` and predates this framing. The folder name is retained to avoid breaking paths; wherever the product is described, the framing above governs. "Agent" here means a governed pipeline that proposes, not an autonomous editor that decides.
+> **Naming note.** The repository is `ai-vacation-reel-agent` and predates this framing. The name is retained to avoid breaking paths; wherever the product is described, the framing above governs. "Agent" here means a governed pipeline that *proposes at each stage and waits for approval*, not an autonomous editor that decides.
+
+## What changed in this pivot (and why)
+
+The previous draft bet the project on one hard capability used *autonomously*: that model-assisted cross-clip ranking could out-select a human well enough to be the product's entire reason to exist. That framing justified validation-first sequencing, a pivotal experiment, an annotated ranking corpus, and a locked kill criterion.
+
+**The autonomy is gone — not the ranking.** Ranking and selection stay, but **demoted to a transparent proposal the user reviews and approves,** sitting under the same per-stage gate as every other assist. Consequences:
+
+- **Scope shifts.** Speed ramping moves from out-of-scope to a **core stage**; an interactive timeline UI moves from deferred to **central**; ranking/selection is **re-cast as a reviewable, approval-gated assist** rather than an autonomous engine; a full **audit trail** becomes first-class.
+- **The product stops depending on the AI being *right*.** Every proposal is overridable; a weak assist is a worse *starting point*, not a broken product.
+- **Validation-first can retire.** With an approval gate on every assist, there is no single pivotal capability to pre-validate — assists are proven per-stage as they are built.
+- **Governance gets stronger, not weaker.** "Human-approved at consequential points" is now literally *every stage*.
 
 ## Architectural thesis
 
-Strong AI products are **governed systems**: deterministic where possible, probabilistic where useful, measurable throughout, privacy-aware by default, reversible in their actions, and human-approved at consequential points.
-
-This project is a test of that thesis on a domain where the probabilistic part is genuinely hard and the consequences of getting it wrong are personal rather than commercial. The six principles are defined in the playbook's *Governed-systems design principles* and are cited by ADR rather than restated here.
+Strong AI products are **governed systems**: deterministic where possible, probabilistic where useful, measurable throughout, privacy-aware by default, reversible in their actions, and human-approved at consequential points. The six principles are defined in the playbook's *Governed-systems design principles* and cited by ADR rather than restated. After the pivot the human is present at every gate, and every machine proposal is explained — the thesis in its strongest form.
 
 ## Problem
 
-Turning a day's worth of independently captured vacation clips into a satisfying, chronological Reel requires disproportionate manual review and editorial judgment. Existing editors automate the *mechanics* of finishing — cuts, templates, reframing, beat sync — but the user still chooses meaningful subclips, balances people and activities, and constructs the day's story.
+Turning a day's vacation clips into a reel you're proud to post still costs a tedious evening in CapCut or iMovie. The **mechanical grind** is what the memory-keeper resents: scrubbing each clip for the usable few seconds, deciding which moments make the cut and in what order, timing speed changes so the boring parts fly by and the good moments land, nudging cuts to the music, and redoing it all when one change throws off the rest.
 
-**What is already served, and must not be claimed as a gap:** automated assembly-to-music is commodity. Apple Photos Memory Movies, Google Photos Highlight Videos, CapCut AutoCut, GoPro Quik, and pay-per-render services such as AidVid all produce a music-synced montage from a batch of clips, several of them free and pre-installed. Positioning this project as though generic automated montage creation were unserved would be false.
+**What is already served, and must not be claimed as a gap.** Fully automated assembly-to-music is commodity: Apple Photos Memory Movies, Google Photos Highlight Videos, CapCut AutoCut, GoPro Quik. They are free, fast, pre-installed — and they take control *away* and explain nothing. You get a montage, not a say and not a reason.
 
-**The candidate gap** is narrower and harder: *explainable editorial judgment*. Chronology-aware event coverage, auditable selects and rejects with plain-language reasons, local-first privacy, recoverable decisions, and lightweight human correction. No incumbent output is reviewable — you get a montage, not an account of why those clips.
+**The candidate gap:** a tool that does the heavy first pass *and shows its work*, while keeping the human in control and able to approve or overturn every decision — assisted selection, ordering, trim, and speed, each with a visible rationale, on a convenient timeline, every decision reversible, the whole project saved and re-editable. The differentiator is **transparent, approvable assistance — not autonomous judgment, and not a black box.** This is a hypothesis until real users confirm they value it over one-tap automation.
 
-This gap is a **hypothesis, not a finding**. It is not established until the competitive floor is measured (EXP-001) and the ranking claim is tested (EXP-003).
+This reframing also lowers platform-absorption risk: incumbents are racing toward *more* automation and *less* visibility — the opposite direction from this product.
 
 ## Primary user
 
-The **memory-keeper parent**: 30–50, shoots on iPhone, captures 20–100 clips per vacation day, owns an Apple Silicon Mac, wants to share a reel with family and friends. Currently either never edits, or burns 2–4 evening hours in CapCut/iMovie once per trip and resents it.
+The **memory-keeper parent**: 30–50, shoots on iPhone, captures 20–100 clips per vacation day, owns an Apple Silicon Mac, wants to share a reel with family and friends. Currently either never edits, or burns 2–4 evening hours in CapCut/iMovie once per trip.
 
-Deliberately not targeted, and why: professional travel creators have workflows and standards this will not meet; casual creators are adequately served by CapCut templates; action-camera users belong to Quik; frequent business travellers do not make reels.
+**Job:** "Turn today's footage into a shareable 60–90 second reel in one sitting — with the app doing the grunt work and showing me why, but every call still mine to approve or change."
 
-**Job:** "Turn today's footage into a shareable 60–90 second story of our day before the trip glow fades — without giving up an evening."
+**Quality bar:** proud to post. Better than an Apple Memory *because I directed it and can see how it was built*.
 
-**Quality bar:** proud to post. Noticeably better than an Apple Memory; not Sundance.
+Deliberately not targeted: professional creators (have NLEs and standards this won't meet); users who genuinely want one-tap automation (well served by Apple/Google/CapCut); action-camera users (Quik).
 
 ## Product promise
 
-Create an explainable draft; never publish automatically; never destructively discard originals; retain a recoverable audit trail for every selection and rejection.
+Propose and explain at every stage; never advance a stage without approval; never publish automatically; never destructively modify or discard originals. Every selection, rejection, trim, and speed change carries a plain-language reason and is reversible, and the entire project is save-able and re-editable later.
 
-## Validation scope
+## Scope — the nine-stage pipeline
 
-- 20–50 clips from one day, capped at 60; 60–90 second target; 9:16 H.264 draft.
-- Local-first on Apple Silicon. Original media does not upload by default. A controlled, opt-in cloud-VLM-on-keyframes comparison is permitted solely to measure the quality/privacy trade-off, governed by ADR-002.
-- One user-supplied royalty-free track. Instagram's licensed in-app music is a timing reference, not exportable media (ADR-003).
-- Deterministic floor first: metadata, visual quality, duplicates, event grouping, beat markers, chronological constrained selection. Model-based judgment is layered on top and must beat that floor to earn its place.
-- One draft, not several. Multiple drafts create decision fatigue and contradict the value proposition.
-- User marks 3–10 "must-include" clips upfront. This is cheap insurance against ranking failure and is in scope from the first working version.
-- Review via manifest, rendered draft, and lock/remove/restore/regenerate controls.
+| # | Stage | System role | Gate |
+|---|---|---|---|
+| 1 | **Ingest** | User selects candidate clips + one music track. System inventories duration, timestamp, orientation, codec and builds preview proxies without touching originals; unsupported/corrupt items are reported. | → confirm |
+| 2 | **Assisted selection & ordering** | System proposes which clips to include and their sequence (chronology-aware), each pick and each rejection carrying a plain-language reason. User reviews with full transparency, adds/removes/reorders, and **approves**. | → approve |
+| 3 | **Trim assist** | System proposes in/out points keeping the usable part of each selected clip (trimming blur, shake, dead air, junk), each with a reason. | → confirm |
+| 4 | **Speed assist** | System proposes speed ramps — faster through low-interest spans, slower on high-interest moments — aligned to the track's beats/sections where the user opts in. | → confirm |
+| 5 | **Timeline** | Clips laid out in sequence with their trims, speeds, and the music track visible, alongside the rationale for each. | (presentation) |
+| 6 | **Manual edit** | User selects any clip and changes trim in/out, changes speed, deletes it, or **restores a previously deleted clip**. Immediate and reversible. This is the product. | user drives |
+| 7 | **Finalize** | An explicit "Finalize" action renders a draft reel cut to the music for review. Nothing renders without it. | → approve |
+| 8 | **Export** | On approval, export 1080×1920 H.264/AAC — **with music or without music (user-selectable)**. | |
+| 9 | **Save / Load** | Project (clip order, selection, trims, speeds, deletions, music reference, rationale) saves to a re-openable file and reloads faithfully for later editing. | |
 
-**Out of validation scope:** automatic speed changes (advisory flags only), multiple editorial styles, opaque preference learning, face recognition, commercial Instagram music, publishing, and polished interface work.
+**In scope:** AI-assisted **selection, ordering, trim, and speed-ramping**, each presented as a transparent, overridable proposal that requires user approval to proceed; an interactive **local web-app timeline editor**; music beat/section alignment for speed and cuts; a per-decision **audit trail**; lossless project save/reload; export with and without music.
 
-## Representative user stories and acceptance criteria
+**Baseline for the assists:** deterministic and transparent first — for selection, a legible heuristic (duration, people **count** without identity, sharpness, motion energy, event coverage, chronology); for trim, quality/duplicate/static detection; for speed, motion energy, audio events, scene changes, and beat markers. ML-based "interestingness" is a **later enhancement**, not v1. Because the user selects freely at any time, the selection assist can start simple and improve after the mechanically simpler stages are working.
 
-| Story | Acceptance criteria |
-|---|---|
-| Import a day | Given 20–50 common mobile clips, the system inventories duration, timestamp, orientation, and a proxy without modifying originals. Unsupported/corrupt items are reported. |
-| Mark what matters | Before analysis, the user may mark 3–10 must-include clips. Marked clips are never rejected and their inclusion is recorded as user-declared, not inferred. |
-| Understand quality | Each clip receives interpretable blur, exposure, shake, duration, and duplicate indicators; candidates are recoverably rejected, never deleted. |
-| Preserve a story | Given dated clips, the proposed order is chronological by default and exposes event groups plus selected/rejected rationale. |
-| Stay concise | Given a 60–90 s target, the selected timeline does not exceed it and records each duration/speed decision. |
-| Edit to music | Given a local track, the draft includes beat/section markers and most cuts land within a defined tolerance of eligible beats; it does not force every beat. |
-| Review safely | The user can inspect source-to-subclip provenance and regenerate after changing a lock, style, or target duration. Export requires explicit approval. |
-| Export | A successful run renders a playable 1080×1920 H.264/AAC draft with safe-title margins and a JSON decision manifest. |
+**Out of scope:** any selection, ordering, or publishing that proceeds **without user review and approval**; face recognition or person **identification** of any kind (assists may detect and count people, never identify them); cloud processing of originals; commercial Instagram music (ADR-003); **filters (a named future enhancement)**; multiple editorial styles; opaque preference learning.
 
 ## Success measures
 
-**North-star metric: corrections-to-acceptance** — the count of discrete changes a user makes before they would post the draft. Instrumented from the first working version, not retrofitted. Every other measure below is diagnostic; this one decides whether the product has a reason to exist. If correcting the draft costs as much as editing in CapCut, the pipeline is a demo rather than a product.
+Primary bar, per the pivot: **control + a good starting point.** Success is not minimizing the user's edits — editing is the point — it is that the assists give a good-enough, *explained* start that a proud reel is finished **in one sitting, in the user's control**, without dropping back to CapCut.
 
-| Area | Measure | Target |
+| Area | Measure | Goal |
 |---|---|---|
-| **Acceptance** | **Corrections to acceptance, median** | **≤5** |
-| **Acceptance** | **"Would post after tweaks", 1–10** | **≥7** |
-| Ranking | Rank correlation vs. pooled human ranking | Spearman ≥0.6 **and beats the heuristic baseline** |
-| Filtering | Must-keep recall / seeded-unusable precision | ≥95% / ≥80% |
-| Duplicates | Duplicate pairs represented twice without justification | ≤10% |
-| Chronology | Correct adjacent event transitions | ≥90% |
-| Coverage | User-designated essential events represented | ≥80%; 100% of must-includes |
-| Subclip | Overlap with human-chosen windows | ≥70% |
-| Duration | Absolute error from target | ≤0.5 s, or a recorded shorter decision |
-| Music | Eligible cuts near an allowed beat | ≥70% within 150 ms |
-| Throughput | 50-clip day, end to end, Apple Silicon | ≤15 min |
+| **One-sitting completion** | User reaches a reel they'd post, in a single session, every decision theirs to approve | **primary signal** |
+| Starting-point quality | Proposed selection/order kept or only lightly adjusted | majority of clips |
+| Starting-point quality | Proposed trims kept or minor-adjusted | majority of clips |
+| Starting-point quality | Proposed speed ramps kept | majority of clips |
+| Transparency | Every pick/rejection/trim/speed shows a reason a user finds legible | required |
+| Convenience | Import → approved reel, wall-clock | materially faster than the manual CapCut evening |
+| Control & safety | Every proposal overridable; delete reversible; project round-trips losslessly | required |
+| Render fidelity | Exported reel matches the timeline (trim/speed/beat alignment) | within tolerance |
+| Music sync | Speed changes / cuts near a beat when sync is on; never forced | ≥70% within ~150 ms |
+| Throughput | Stage 2–4 analysis and final render on a 50-clip day, Apple Silicon | a few minutes each |
 
-All targets are **pre-registered thresholds**. Moving one after seeing a result is drift and is recorded as drift in the evidence ledger.
+These are product-acceptance goals checked as each stage is built — **not** pre-registered pivotal thresholds (that regime retired with validation-first).
 
-## Kill criteria
+## Reasons to stop or de-scope
 
-Pre-committed under the playbook's Stage A rule and locked by **ADR-004**. These can only be relaxed by a new ADR stating what changed. A project with no written stopping condition does not stop.
+Lighter than the prior kill criteria, checked at stage boundaries rather than pre-committed and ADR-locked. Concluding on evidence remains a successful outcome.
 
-1. **Ranking fails to beat the baseline.** If model-assisted cross-clip ranking cannot outperform a transparent metadata/CV heuristic by a meaningful margin (EXP-003), the differentiating claim is false. Conclude as a portfolio proof of concept.
-2. **Correction burden stays high.** If median corrections-to-acceptance exceeds 8 on real users' own footage (EXP-008), the review workflow costs what manual editing costs and the product has no reason to exist.
-3. **Platform absorption.** If Apple or Google ships reviewable, explainable editorial reels natively, the remaining differentiation is gone. Re-measured at every phase close, not discovered late.
-
-Firing a kill criterion is a **successful** use of the methodology. The project is explicitly funded to be able to conclude "the differentiating claim is false."
+1. **No convenience win.** If finishing a reel with the tool takes as long as the CapCut evening on real footage, it has no reason to exist over free tools → conclude as a portfolio piece.
+2. **An assist is net-negative (stage-level de-scope, not a project kill).** If any assist — selection, trim, or speed — is wrong often enough that reviewing and fixing it costs more than doing it by hand, ship that stage manual-only (still transparent, still gated) and drop that AI. Recorded honestly, not argued around.
+3. **Absorption (diminished risk).** If a platform ships this same *transparent, approvable, clip-by-clip staged flow*, reassess differentiation. More platform automation is not a threat here — it is the opposite of this product.
 
 ## Commercial posture
 
-**Conditional and deliberately deferred.** This is a validation and portfolio project first. Productization requires evidence on four fronts — editorial quality, user acceptance, willingness to pay, and continued differentiation from platform incumbents — and no such evidence exists today.
-
-The known headwinds are recorded now so they are not rediscovered as surprises: usage frequency is 2–6 occasions per year, which is hostile to subscription models; the free floor is high and improving each OS cycle; and the single most-requested feature, real Instagram music, is legally unavailable to any third party. Plausible models if evidence supports one at all: one-time Mac purchase, or pay-per-render. These are recorded in the risk register, not planned against.
+Conditional and deliberately deferred. This is a validation-and-portfolio project first. Known headwinds are recorded now so they are not rediscovered later: usage is 2–6 occasions per year (hostile to subscriptions); the free automation floor is high and improving; and the most-requested feature, real Instagram music, is legally unavailable to any third party. Plausible models if evidence ever supports one: one-time Mac purchase, or pay-per-render. Recorded in the risk register, not planned against.
 
 ## Portfolio intent
 
-This project is also intended as a demonstration of **architecture-led AI product delivery**: how an ambiguous AI idea becomes an evidence-led system design, rather than a polished UI built on untested assumptions. The artifact trail — decisions with their reasoning, experiments with pre-registered thresholds, and honest verdicts including negative ones — is a deliverable in its own right. A kill decision reached on evidence demonstrates the thesis as well as a ship decision would.
+This project also demonstrates **architecture-led AI product delivery**: how an ambiguous AI idea becomes an evidence-led, governed system rather than a polished UI on untested assumptions — and how a mid-flight pivot is absorbed cleanly through superseding decision records rather than drift. The artifact trail is a deliverable in its own right.
 
 ## Open assumptions
 
 Graded per the playbook's evidence discipline. Nothing below is measured.
 
-- **Hypothesis (pivotal):** model-assisted ranking and subclip selection outperform a transparent metadata/CV heuristic baseline by enough to reduce corrections meaningfully. Untested; EXP-003 and EXP-004.
-- **Hypothesis:** explainability and control, not montage quality, are what incumbents fail to provide. Untested; EXP-001 measures the competitive floor.
-- **Hypothesis:** local Apple Silicon throughput is acceptable for a 50-clip day. Untested; EXP-007.
-- **Assumed:** users prefer an assisted draft to full automation. Untested; EXP-009.
-- **TBD:** target hardware specifics, local model licensing, music source, and whether NLE handoff is required at all.
+- **Assumed (pivotal to the pivot):** users prefer transparent, approvable assistance to one-tap automation. The whole product rests on this; check with real users early.
+- **Hypothesis:** a legible selection/ordering heuristic makes a helpful, trusted first pass — good enough that reviewing it beats selecting from scratch. Untested, and the most ambitious assist.
+- **Hypothesis:** deterministic trim detection is reliable enough to be a helpful starting point. Untested.
+- **Hypothesis:** rules-based speed ramping (motion/audio/scene + beats) produces speed changes that read as intentional and musical. Untested.
+- **Hypothesis:** a local web app + local FFmpeg backend gives acceptable preview and render performance on Apple Silicon. Untested.
+- **TBD:** exact selection and interestingness heuristics; preview/scrubbing approach; project-file format; whether NLE export is ever needed.

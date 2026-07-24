@@ -1,7 +1,8 @@
 # Phase 1 backlog — Validation apparatus
 
-**Status:** Draft backlog. **These are not yet approved Work Orders.** File scopes, validation gates, and execution packets must be frozen before an ADP is authorized.
-**Governing:** `docs/specs/VALIDATION-PLAN.md`; sequencing locked by ADR-004.
+**Status:** **RETIRED 2026-07-23 — superseded by ADR-006.** This backlog decomposes the validation apparatus (corpus, scorer A/B, comparison harness, held-out discipline) that ADR-006 withdrew along with `VALIDATION-PLAN.md`. **No Work Order here was ever approved and none was ever executed.** A fresh backlog is drawn from `ROADMAP.md` milestones and `COMPONENT-DECOMPOSITION.md` after an ADP is authorized. Retained for history; the text below is the original draft, unedited.
+
+**Governing (historical):** `docs/specs/VALIDATION-PLAN.md` (retired); sequencing locked by ADR-004 (superseded by ADR-006).
 
 **Resequenced 2026-07-20.** The previous backlog mapped WOs to the old roadmap, where model-based editorial work sat at Phase 4 behind a review loop. Under ADR-004 the pivotal ranking experiment moves to Phase 1 and gates everything downstream.
 

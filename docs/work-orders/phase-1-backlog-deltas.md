@@ -1,6 +1,6 @@
 # Phase-1 backlog — proposed deltas
 
-**Status:** Draft addendum · **proposed** — owner approval required. Does **not** modify the accepted-track [phase-1-backlog.md](phase-1-backlog.md); it proposes changes to it. Introduces no accepted decision and relaxes no constraint.
+**Status:** **RETIRED 2026-07-23 — superseded by ADR-006**, together with its parent [phase-1-backlog.md](phase-1-backlog.md). These deltas propose changes to a validation apparatus that has been withdrawn. **Nothing here was ever approved or executed.** Retained for history; the text below is the original draft, unedited.
 **Origin:** the architecture review / three-way triangulation (independent design ↔ project decisions ↔ generic reel-agent best-practice). Companion design: [../specs/COMPONENT-DECOMPOSITION.md](../specs/COMPONENT-DECOMPOSITION.md).
 **Governing:** [ADR-004](../decisions/ADR-004-validation-first-sequencing.md), [VALIDATION-PLAN.md](../specs/VALIDATION-PLAN.md), [ADR-002](../decisions/ADR-002-privacy-and-data-posture.md), [ADR-003](../decisions/ADR-003-music-and-licensing-posture.md).
 

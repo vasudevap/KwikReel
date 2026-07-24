@@ -1,6 +1,8 @@
 # ADR-001 — Start with a local command-line editorial pipeline
 
-**Status:** Accepted — owner-approved 2026-07-22
+**Status:** Superseded by ADR-005 (2026-07-23). Previously Accepted — owner-approved 2026-07-22.
+
+**Why superseded:** the 2026-07-23 pivot made the product a nine-stage, review-and-approve editor. This record's premise — that the uncertainty is editorial quality rather than interface, so no review UI is needed yet — no longer holds. Retained for history; `timeline.json` is replaced by `project.json` per ADR-005. The text below is the original record, unedited.
 
 Acceptance is scoped to this decision only. It fixes the prototype shape (local CLI, `timeline.json` canonical output, planner interfaces kept renderer-independent). It does **not** authorize implementation — Phase 1 Work Orders additionally require ADR-004 accepted and an authorized ADP — and it does **not** authorize media collection, which is gated separately by ADR-002.
 
