@@ -58,10 +58,20 @@ labels/
 # Held-out set — sealed until the final comparison (ADR-004)
 held-out/
 
-# Experiment run artifacts (results are summarized into EXP records, not dumped here)
+# Project state — canonical editor state under ADR-005.
+# project.json embeds absolute paths to private media, source filenames, and
+# capture metadata. It is per-user working state, never repository content.
+project.json
+*.project.json
+projects/
+
+# Run artifacts (results are summarized into records, not dumped here)
 runs/
 results/
 *.analysis.json
+
+# Superseded canonical output (ADR-001 -> ADR-005); retained so stale files
+# from the pre-pivot design can never be committed either.
 *.timeline.json
 
 # ---------------------------------------------------------------------------
