@@ -1,27 +1,27 @@
 # Evidence ledger
 
-**Status:** Initialized 2026-07-20. **No experiment has run. Every claim below is graded `assumed`.**
-**Governing:** `_oversight/DELIVERY-PLAYBOOK.md` Stage B, artifact 6. Reviewed at every phase gate.
+**Status:** Reset for the 2026-07-23 pivot and the 2026-07-24 course correction. **No experiment has run and no product code exists. Every claim below is graded `assumed`.**
+**Governing:** `_oversight/DELIVERY-PLAYBOOK.md` honesty disciplines; ADR-006 (per-stage acceptance) and ADR-012 (evidence checkpoints). Reviewed at every milestone gate.
 
-Grades: **measured** (an EXP reported it) · **estimated** (derived from measured data) · **assumed** (believed, untested) · **refuted** (an EXP disproved it).
+Grades: **measured** (a checkpoint/gate reported it) · **estimated** (derived from measured data) · **assumed** (believed, untested) · **refuted** (disproved).
 
-The purpose of this table is to make it impossible to forget which of the project's load-bearing beliefs are actually known. A claim used in an ADR, an ES, or a pitch must be traceable to a row here.
+A claim used in an ADR, an ES, or a pitch must be traceable to a row here. The pre-pivot ledger graded an autonomous-ranking programme that ADR-006 retired; those claims (old C-01…C-11, tied to EXP-001…009 and kill criteria) are **withdrawn with that programme** and are not carried forward.
 
-## Load-bearing claims
+## Load-bearing claims (post-pivot)
 
 | # | Claim | Grade | Moved by | Notes |
 |---|---|---|---|---|
-| C-01 | Model-assisted ranking beats a transparent heuristic baseline by a meaningful margin | **assumed** | EXP-003 | **Pivotal.** Kill criterion 1. The project's entire differentiation rests here. |
-| C-02 | Incumbent free tools leave a real quality/control gap | **assumed** | EXP-001 | Competitive landscape reads vendor docs, not measured output |
-| C-03 | Users accept a draft with ≤5 corrections | **assumed** | EXP-008 | North-star metric. Kill criterion 2 |
-| C-04 | Deterministic filtering reliably rejects junk without losing must-keeps | **assumed** | EXP-002 | The floor the whole pipeline stands on |
-| C-05 | Motion + audio + model window selection finds the good seconds | **assumed** | EXP-004 | Hardest ranked technical problem |
-| C-06 | A 50-clip day processes locally in ≤15 min on Apple Silicon | **assumed** | EXP-007 | If false, hybrid keyframe architecture becomes default |
-| C-07 | Time-gap + GPS clustering matches human event labels | **assumed** | EXP-005 | |
-| C-08 | Selective beat alignment reads better than every-beat cutting | **assumed** | EXP-006 | |
-| C-09 | Users prefer an assisted draft to full automation | **assumed** | EXP-009 | Drives product shape, not just marketing |
-| C-10 | Someone would pay for this | **assumed** | EXP-009 | Weakest assumption in the project. 2–6 uses/year is hostile to subscriptions |
-| C-11 | Apple/Google will not absorb this capability during the project's life | **assumed** | re-measured each phase close | Kill criterion 3. Cannot be settled once — it decays |
+| C-01 | Users value explained, approvable assistance enough to review a first draft rather than take one-tap automation | **assumed** | ADR-012 **CP-1** (preference probe on the WO-100 prototype) | **Pivotal to the pivot.** The whole product rests here. A cheap early read — *not* the binding real-user gate. |
+| C-02 | Incumbent free tools leave a real "would I post this?" gap on a real day | **assumed** | ADR-012 **CP-2** (competitive-floor comparison) | Competitive landscape reads vendor docs, not measured output. Re-checked each milestone (absorption). |
+| C-03 | A legible, deterministic trim heuristic is a helpful starting point (kept more than discarded) | **assumed** | M1 `disposition` rates (ADR-010) at the trim-stage snapshot | Fires ADR-006's assists-earn-their-place trigger. |
+| C-04 | Manual curation + AI trim yields a short reel **evaluable against — and plausibly as good as** — that day's Apple Memory | **assumed** | M1 exit gate (ES-001 §10; ADR-009) | Evaluable and plausibly useful; superiority is a later real-user question, not claimed here. |
+| C-05 | A local web app + local FFmpeg meets the ≤5-min proxy/analysis/render targets on the target Apple Silicon Mac | **assumed** | ADR-012 **CP-3** (perf spike at the M1 internal checkpoint) | If false, the "one sitting" promise and the §9 gates need revision. |
+| C-06 | Centre-crop to 9:16 is acceptable on real, people-centred footage | **assumed** | M1 exit gate; WO-104 stop-and-ask | Saliency reframing is deferred; centre-crop is the M1 fallback. |
+| C-07 | A legible selection/ordering heuristic makes a trusted first pass (review beats ordering from scratch) | **assumed** | M2 exit gate | The most ambitious assist; sequenced second. |
+| C-08 | Rules-based speed ramps (motion/audio/scene + beats) read as intentional and musical | **assumed** | M3 exit gate | Least-certain signal; sequenced last. "A wrong ramp reads as kitsch instantly." |
+| C-09 | The pre-value workflow (iPhone→Mac folder + user-supplied rights-cleared track) is tolerable to a real user | **assumed** | deferred real-user validation | Tolerable to the owner now; a named real-user adoption risk (risk register). |
+| C-10 | Someone would pay for this | **assumed** | deferred | Weakest claim. 2–6 uses/year is hostile to subscriptions. |
+| C-11 | Apple/Google will not absorb this *transparent, approvable, staged* flow during the project's life | **assumed** | re-measured each milestone close | Decays; cannot be settled once. More platform *automation* is not the trigger. |
 
 ## Implementation reality
 
@@ -30,18 +30,15 @@ Separate from claims, per the playbook's *committed is not shipped* discipline.
 | Item | State |
 |---|---|
 | Product code | **none** |
-| Evaluation apparatus | **none** |
-| Test corpus | **not collected** — consent workflow does not exist yet (WO-002) |
-| Ground-truth annotations | **none** |
-| Experiment results | **none** |
-| Accepted ADRs | **ADR-001–004 all Accepted** — ADR-001/002/004 owner-approved 2026-07-22, ADR-003 on 2026-07-23 (Essentia dropped for its AGPLv3 licence; librosa/ISC only) |
-| Git history | Initial documentation commit `e234a12` (`Initialize project direction artifacts`); no remote or published branch — see `handoff.md` |
+| Media / corpus / consent records / annotations | **none** |
+| Experiment / checkpoint results | **none** — CP-1/CP-2/CP-3 not yet run |
+| Accepted ADRs | 002, 003, 005, 006, 007, 008, and the 2026-07-24 set **009, 010, 011, 012, 013**. ADR-001 superseded by 005; ADR-004 superseded by 006. |
+| Git | Public remote `origin` → `github.com/vasudevap/ai-vacation-reel-agent` (**PUBLIC**). Local `main` is ahead of `origin/main`; each push is a separate owner decision. |
 
 ## Log
 
 | Date | Change |
 |---|---|
-| 2026-07-20 | Ledger initialized alongside the Stage B validation plan. All claims graded `assumed`. |
-| 2026-07-22 | ADR-001 (prototype shape) accepted by owner. No claim grades changed; no implementation or media authorized. |
-| 2026-07-22 | ADR-002 (privacy/data posture) and ADR-004 (validation-first sequencing) accepted by owner. ADR-003 held pending resolution of the Essentia (AGPLv3) vs distribution-restriction contradiction. No claim grades changed; no media collected. |
-| 2026-07-23 | ADR-003 (music/licensing) accepted by owner. Essentia's AGPLv3 licence verified; B-5 resolved — Essentia dropped, beat detection uses librosa (ISC) only. Stage A ADR set complete; PROP-01 pilot launched. No claim grades changed; no media collected. |
+| 2026-07-20 | Ledger initialized alongside the (now retired) Stage B validation plan. All claims graded `assumed`. |
+| 2026-07-23 | Pivot to a human-directed, approval-gated editor (ADR-005/006/007/008). The autonomous-ranking claim set (old C-01…C-11 / EXP-001…009) is withdrawn with the programme. No media collected. |
+| 2026-07-24 | Pre-ADP course correction (ADR-009–013). Ledger reset to the post-pivot load-bearing claims above; all `assumed`. Prior "no remote" note corrected — a public remote exists. PROP-01 participation was withdrawn by ADR-006, so no pilot-launch entry stands. No media collected; no experiment run. |

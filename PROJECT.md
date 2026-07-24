@@ -1,11 +1,11 @@
 # Project — AI Vacation Reel Agent
 
-**Status:** **Accepted — owner-approved 2026-07-23.** Supersedes the prior ranking-centric draft (pivot 2026-07-23).
+**Status:** **Accepted — owner-approved 2026-07-23; amended 2026-07-24 (pre-ADP course correction — ADR-009/010/011/012/013).** Supersedes the prior ranking-centric draft (pivot 2026-07-23).
 **Governing methodology:** `_oversight/DELIVERY-PLAYBOOK.md`, normal flow (Direction → Specification → incremental staged build). Validation-first sequencing and the PROP-01 pilot are **retired** for this project by ADR-006 (Accepted 2026-07-23); ADR-001's CLI-first prototype shape is superseded by ADR-005 (Accepted 2026-07-23). ADR-002 (privacy) and ADR-003 (music/licensing) stand. This project is at **Stage A — Direction (re-opened by the pivot)**. No implementation, media collection, or remote repository is authorized.
 
 ## Framing
 
-Build an **explainable, local-first, human-directed first-draft reel editor for private family footage.** The system proposes a transparent first pass at the whole edit — **which clips, in what order, where to trim, where to change speed** — and the human reviews every proposal, overrides anything, and **approves each of nine stages before the next runs.** The AI proposes; the human decides.
+Build an **explainable, local-first, human-directed first-draft reel editor for private family footage.** The system proposes a transparent first pass at the whole edit — **which clips, in what order, where to trim, where to change speed** — and the human reviews every proposal, overrides anything, and **approves each machine-proposing stage before the next runs — five approval gates (ingest, selection, trim, speed, finalize) across the nine-stage pipeline.** The AI proposes; the human decides.
 
 Three words are load-bearing. *Human-directed* — the user makes every editorial decision, by approving or overriding. *Assisted* — the heavy first pass is done for them, as a starting point. *Transparent* — every pick, rejection, trim, and speed change carries a plain-language reason and is auditable. The **staged, confirmation-gated pipeline and the timeline where the user finishes the edit are the product;** the automated assists are what make that finishing fast.
 
@@ -61,10 +61,12 @@ Propose and explain at every stage; never advance a stage without approval; neve
 | 5 | **Timeline** | Clips laid out in sequence with their trims, speeds, and the music track visible, alongside the rationale for each. | (presentation) |
 | 6 | **Manual edit** | User selects any clip and changes trim in/out, changes speed, deletes it, or **restores a previously deleted clip**. Immediate and reversible. This is the product. | user drives |
 | 7 | **Finalize** | An explicit "Finalize" action renders a draft reel cut to the music for review. Nothing renders without it. | → approve |
-| 8 | **Export** | On approval, export 1080×1920 H.264/AAC — **with music or without music (user-selectable)**. | |
+| 8 | **Export** | On approval, export 1080×1920 H.264/AAC in a **user-selectable audio mode — music, natural clip audio, or silent** (ES-001 §8.2). | |
 | 9 | **Save / Load** | Project (clip order, selection, trims, speeds, deletions, music reference, rationale) saves to a re-openable file and reloads faithfully for later editing. | |
 
-**In scope:** AI-assisted **selection, ordering, trim, and speed-ramping**, each presented as a transparent, overridable proposal that requires user approval to proceed; an interactive **local web-app timeline editor**; music beat/section alignment for speed and cuts; a per-decision **audit trail**; lossless project save/reload; export with and without music.
+**Five approval gates, not nine.** The nine stages are the pipeline; the gates that hold the next stage are the five machine-proposing/consequential ones — **ingest, selection, trim, speed, finalize** (the `stage_approvals` keys in ES-001). Stages 5/6/9 (timeline, manual edit, save) are presentation or user-driven and gate nothing. **Manual curation (include/exclude/delete/restore) is available from M1** (ADR-009); the selection/order *assist* is M2.
+
+**In scope:** AI-assisted **selection, ordering, trim, and speed-ramping**, each presented as a transparent, overridable proposal that requires user approval to proceed; an interactive **local web-app timeline editor**; music beat/section alignment for speed and cuts; a per-decision **audit trail**; lossless project save/reload; export in three audio modes (music, natural clip audio, or silent).
 
 **Baseline for the assists:** deterministic and transparent first — for selection, a legible heuristic (duration, people **count** without identity, sharpness, motion energy, event coverage, chronology); for trim, quality/duplicate/static detection; for speed, motion energy, audio events, scene changes, and beat markers. ML-based "interestingness" is a **later enhancement**, not v1. Because the user selects freely at any time, the selection assist can start simple and improve after the mechanically simpler stages are working.
 
@@ -87,7 +89,7 @@ Primary bar, per the pivot: **control + a good starting point.** Success is not 
 | Music sync | Speed changes / cuts near a beat when sync is on; never forced | ≥70% within ~150 ms |
 | Throughput | Stage 2–4 analysis and final render on a 50-clip day, Apple Silicon | a few minutes each |
 
-These are product-acceptance goals checked as each stage is built — **not** pre-registered pivotal thresholds (that regime retired with validation-first).
+These are product-acceptance goals checked as each stage is built — **not** pre-registered pivotal thresholds (that regime retired with validation-first). "Kept or minor-adjusted" is read from each proposal's `disposition` (ADR-010): `accepted` + `adjusted-within-tolerance` = kept. The pivotal belief and the competitive floor get their own lightweight checkpoints (ADR-012 CP-1/CP-2), and the ≤5-min throughput target a perf spike (CP-3); none blocks the ADP (see ROADMAP).
 
 ## Reasons to stop or de-scope
 
@@ -109,7 +111,8 @@ This project also demonstrates **architecture-led AI product delivery**: how an 
 
 Graded per the playbook's evidence discipline. Nothing below is measured.
 
-- **Assumed (pivotal to the pivot):** users prefer transparent, approvable assistance to one-tap automation. The whole product rests on this; check with real users early.
+- **Assumed (pivotal to the pivot):** users prefer transparent, approvable assistance to one-tap automation. The whole product rests on this; checked cheaply and early via ADR-012 **CP-1** on the WO-100 prototype, and by the binding real-user gate before the product is called *good*.
+- **Assumed (adoption):** the pre-value workflow — moving iPhone clips into a Mac folder and supplying a rights-cleared track before any result — is tolerable to a real user. Tolerable to the owner now; a named adoption risk (risk register).
 - **Hypothesis:** a legible selection/ordering heuristic makes a helpful, trusted first pass — good enough that reviewing it beats selecting from scratch. Untested, and the most ambitious assist.
 - **Hypothesis:** deterministic trim detection is reliable enough to be a helpful starting point. Untested.
 - **Hypothesis:** rules-based speed ramping (motion/audio/scene + beats) produces speed changes that read as intentional and musical. Untested.

@@ -10,7 +10,7 @@ Acceptance is scoped to this decision only. It fixes the form factor and the can
 
 ADR-001 chose a local CLI pipeline on an explicit premise: *"The uncertainty is editorial quality, not interface polish."* It deferred any review application until editorial quality was proven, and made the manifest and report the review surface.
 
-The 2026-07-23 pivot invalidates that premise. The product is now a nine-stage, transparent, approval-gated editor in which the user reviews machine proposals — selection, ordering, trim, speed — overrides any of them, and approves each stage before the next runs, then finishes the edit on a timeline. **Review-and-approve at nine gates cannot be delivered through a JSON manifest and a printed report.** The interaction surface is the primary deliverable, not a deferred nicety.
+The 2026-07-23 pivot invalidates that premise. The product is now a nine-stage, transparent, approval-gated editor in which the user reviews machine proposals — selection, ordering, trim, speed — overrides any of them, and approves each stage before the next runs, then finishes the edit on a timeline. **Review-and-approve at every proposing stage cannot be delivered through a JSON manifest and a printed report.** The interaction surface is the primary deliverable, not a deferred nicety.
 
 ADR-001 anticipated this path — it kept planner interfaces renderer-independent so "a desktop review application… can be added after results justify them." The pivot brings that addition forward and makes it central.
 

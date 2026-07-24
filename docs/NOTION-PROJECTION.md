@@ -1,5 +1,7 @@
 # Notion project-tracking projection
 
+> **⚠️ PARTIALLY STALE — updated 2026-07-24.** The protocol below stands, but the "Current baseline" and the Evidence-Scorecard source (`VALIDATION-PLAN.md`, retired) are pre-pivot. Current state: **eleven ADRs accepted (002/003/005/006/007/008 + 009–013)**; `PROJECT.md`, `ROADMAP.md`, `ES-001` **accepted and amended 2026-07-24**; the M1 backlog is a drafted, unauthorized backlog. `handoff.md` is authoritative for state.
+
 **Status:** Active project-management record.
 **Created:** 2026-07-21.
 **Governing:** `handoff.md`, `PROJECT.md`, `ROADMAP.md`, accepted ADRs, and experiment reports remain authoritative.
@@ -43,7 +45,7 @@ The private Notion hub is [AI Vacation Reel Agent — Delivery Hub](https://app.
 
 ## Current baseline
 
-The project is in **Stage A — Direction**. All four ADRs (`ADR-001`–`ADR-004`) are accepted (owner-approved 2026-07-22–23; ADR-003 with Essentia dropped, librosa/ISC only); `PROJECT.md`, `ROADMAP.md`, and `VALIDATION-PLAN.md` are not yet accepted; Phase 1 work orders are a draft backlog and are not authorized. No media, corpus, consent record, experiment, implementation, engineering specification, ADP, or product interface exists.
+**Stage A (Direction) closed; Stage B (Specification) done for M1; pre-ADP course correction applied 2026-07-24.** Eleven ADRs are accepted (002/003/005/006/007/008 + 009–013); ADR-001/004 are superseded; `PROJECT.md`, `ROADMAP.md`, and `ES-001` are accepted (amended 2026-07-24); `VALIDATION-PLAN.md` is retired. The M1 Work Order backlog is drafted and **not authorized** (no ADP). No media, corpus, consent record, experiment, implementation, or product interface exists.
 
 ## Setup verification
 

@@ -1,24 +1,24 @@
 # Handoff
 
-**Updated:** 2026-07-23. Direction pivoted, Stage A closed, M1 specified, and the M1 Work Order backlog drafted. **No code exists.**
+**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the M1 Work Order backlog drafted, and a **pre-ADP course correction applied 2026-07-24** ([review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md); ADR-009–013). **No code exists.**
 
 ## What this is
 
 An explainable, local-first, human-directed reel editor for private family footage. It runs as a **local web app on a Mac**.
 
-The AI proposes a first pass at the edit — which clips, in what order, where to trim, where to change speed — each with a plain-language reason. The user reviews everything, can override anything, and **approves each stage before the next runs.** The AI proposes; the human decides.
+The AI proposes a first pass at the edit — which clips, in what order, where to trim, where to change speed — each with a plain-language reason. The user reviews everything, can override anything, and **approves each machine-proposing stage before the next runs — five approval gates across the nine-stage pipeline.** The AI proposes; the human decides.
 
 The repository name predates this framing. The framing governs.
 
 ## Where the project is
 
-**Stage A (Direction) is closed. Stage B (Specification) is complete for M1.**
+**Stage A (Direction) is closed. Stage B (Specification) is complete for M1.** A **pre-ADP course correction was applied 2026-07-24** (ADR-009–013): manual curation added to M1, proposal `disposition` added, local delivery security specified, evidence checkpoints added, and prototype thumbnails reconciled with ADR-002.
 
 The next gate is the owner approving the M1 backlog and authorizing an ADP. **Nothing may be built before that.**
 
 ## What is real
 
-- **Six accepted ADRs:** ADR-002 (privacy, 2026-07-22), ADR-003 (music/licensing), ADR-005 (local web app; `project.json` canonical), ADR-006 (incremental staged build; per-stage approval; transparency), ADR-007 (build sequencing — AI trim in M1), ADR-008 (prototype before contract freeze). The last five are all 2026-07-23.
+- **Eleven accepted ADRs:** ADR-002 (privacy), ADR-003 (music/licensing), ADR-005 (local web app; `project.json` canonical), ADR-006 (staged build; per-stage approval; transparency), ADR-007 (AI trim in M1), ADR-008 (prototype before contract freeze), and the **2026-07-24 course-correction set** — ADR-009 (manual curation in M1), ADR-010 (proposal `disposition`), ADR-011 (local delivery security), ADR-012 (evidence checkpoints), ADR-013 (prototype thumbnails under ADR-002).
 - **`PROJECT.md`, `ROADMAP.md`, and `ES-001` are accepted** (owner-approved 2026-07-23).
 - **Three milestones**, each shipping something the owner can use: **M1** working pipe + AI trim · **M2** AI selection and ordering · **M3** AI speed ramping.
 - **`ES-001` freezes** the `project.json` schema, `SourceIndex`, `analysis.json`, `ReasonRecord`, the HTTP contract, and the trim proposer's signals and rules.
@@ -43,7 +43,7 @@ The next gate is the owner approving the M1 backlog and authorizing an ADP. **No
 
 1. Fake the real waiting times (~5 min analysis, ~5 min render), so the flow is designed against real latency.
 2. Seed **deliberately bad AI suggestions**, so the review screen actually gets exercised. Reviewing is the product.
-3. Use **real thumbnails** from actual footage, not grey boxes.
+3. Use **real thumbnails** for readability testing — but per **ADR-013**, committed fixtures are synthetic/rights-cleared only (`fixtures/synthetic/`), and real-footage thumbnails are the owner's own, local, untracked (`fixtures/local/`), behind a self-consent + lifecycle note recorded before extraction. No real footage or thumbnail is ever committed.
 
 It produces an agreed flow and **a list of gaps in the ES-001 schema.** Those gaps are amended into ES-001 *before* WO-101 turns any schema into code. Changing a screen takes minutes; changing a schema after eight Work Orders have implemented it is a migration across every saved project.
 
@@ -58,7 +58,7 @@ Then WO-101 freezes the contracts, and six lanes run in parallel.
 ## Things that will bite you
 
 - **The repo is public.** `project.json` will contain absolute paths to private footage. It is gitignored — keep it that way.
-- **Stale documents, not yet reviewed against the pivot:** `docs/specs/prototype-definition.md`, `sample-media-test-strategy.md`, `docs/vision/*`, `docs/research/*`, `docs/NOTION-PROJECTION.md`, `EVIDENCE-LEDGER.md`. Treat their claims as pre-pivot.
+- **Stale documents:** `README.md`, `docs/specs/EVIDENCE-LEDGER.md`, and `docs/research/risk-register.md` were **rewritten to the pivot on 2026-07-24**. `docs/vision/*`, `docs/specs/prototype-definition.md`, `docs/specs/sample-media-test-strategy.md`, and `docs/NOTION-PROJECTION.md` now carry **pre-pivot banners** and are retained for history. `docs/specs/COMPONENT-DECOMPOSITION.md` was reconciled to ES-001.
 - **Retired, kept for history:** `VALIDATION-PLAN.md`, `phase-1-backlog.md`, `phase-1-backlog-deltas.md`. ADR-001 and ADR-004 are superseded; their original text is retained with a note on top.
 - **ADR-006 is amended by ADR-007** on sequencing only. Read both together.
 - **Owner approval is a build gate, not proof the product is good.** ADR-006 makes this binding. Real users other than the owner are deferred, not deleted — that requirement returns when the question becomes "is this good?" rather than "is this useful to me?"

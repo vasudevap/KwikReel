@@ -2,6 +2,7 @@
 
 **Status:** Draft · **forward-looking design** — owner approval required. Introduces **no accepted decision** and relaxes **no constraint**. Ungraded; introduces no claim into [EVIDENCE-LEDGER.md](EVIDENCE-LEDGER.md).
 **Rewritten 2026-07-23** for the pivot to a human-directed, approval-gated editor.
+**Reconciled 2026-07-24 to ES-001 as amended (ADR-009/010).** Where a sketch below differs from ES-001, **ES-001 §4 is authoritative:** `project.json` uses `segments[]` (trim + nested speed) with a `proposals` block carrying a `disposition`; **manual curation (include/exclude/delete/restore) is M1** (ADR-009), the selection/order *assist* is M2; the assists-earn-their-place metric reads `disposition`, not binary `origin` (ADR-010).
 **Governing:** [PROJECT.md](../../PROJECT.md), [ADR-005](../decisions/ADR-005-editor-form-factor.md) (local web app; `project.json` canonical; analysis layer independent of UI and renderer), [ADR-006](../decisions/ADR-006-incremental-staged-build.md) (staged build; per-stage approval; transparency as a standing requirement), [ADR-002](../decisions/ADR-002-privacy-and-data-posture.md), [ADR-003](../decisions/ADR-003-music-and-licensing-posture.md). Build sequencing is authoritative in [ROADMAP.md](../../ROADMAP.md).
 
 ## What is real (read this first)
@@ -87,7 +88,7 @@ The only coordination points. Sketches below are **proposed shapes for review**,
     }
   ],
   "rejected": [ { "source_id": "…", "reasons": [ "…" ] } ],   // recoverable, with stated reasons
-  "export": { "with_music": true, "without_music": true }
+  "export": { "audio_modes": ["music", "clip", "silent"] }   // ES-001 §4.1 is authoritative (was with_music/without_music)
 }
 ```
 
@@ -165,8 +166,8 @@ The previous decomposition made a pluggable `Scorer` interface the keystone, so 
 Three properties follow:
 
 - **Every assist is independently disposable.** Because proposals only ever write fields the user can override, deleting a proposer degrades the product to manual for that stage and breaks nothing downstream. That is what makes ADR-006's stage-level de-scope actually executable rather than aspirational.
-- **Assist quality is measured continuously and for free.** `origin` records whether each final value came from the machine or the human, so "were the proposals kept?" — a `PROJECT.md` success measure — is a query over saved projects, not a study.
-- **The manual capability is the baseline.** Built first (M2–M3), it gives each later assist something honest to be judged against.
+- **Assist quality is measured continuously and for free.** Each proposal's **`disposition`** (ADR-010; `pending|accepted|adjusted|dismissed`) records the user's terminal action, so "were the proposals kept?" — a `PROJECT.md` success measure — is a query over saved projects, not a study. (`origin` alone is binary and cannot separate a minor adjust from a full override; ES-001 §4 is authoritative.)
+- **The manual capability is the baseline.** Manual trim and **manual curation** ship in M1 (ADR-007/009); each later assist proposes into controls the user already has, giving it something honest to be judged against.
 
 This is also why proposers are confined to emitting *fields with reasons*, never a finished edit: a component that authored the whole timeline would put unattributable output on the honesty surface and make overrides ambiguous.
 
@@ -174,8 +175,8 @@ This is also why proposers are confined to emitting *fields with reasons*, never
 
 Authoritative in [ROADMAP.md](../../ROADMAP.md); fixed by [ADR-007](../decisions/ADR-007-build-sequencing.md).
 
-- **M1** — C-1, C-2, C-3, C-4, C-5, C-6, C-7, C-8, C-12. The working pipe **plus the trim assist**. An **internal checkpoint** inside M1 requires the pipeline (C-1 → C-3 → C-4 → C-6) to work *before* C-7/C-8 are layered on, so the renderer and the proposer are never debugged at the same time. The checkpoint is not a release.
-- **M2** — C-9 selection & order proposer, with its include/exclude, reorder, delete, and restore controls in C-3.
+- **M1** — C-1, C-2, C-3 (incl. **manual curation controls**), C-4, C-5, C-6, C-7, C-8, C-12. The working pipe **plus manual curation plus the trim assist** (ADR-009). An **internal checkpoint** inside M1 requires the pipeline (C-1 → C-3 → C-4 → C-6) to work *before* C-7/C-8 are layered on, so the renderer and the proposer are never debugged at the same time. The checkpoint is not a release.
+- **M2** — C-9 selection & order proposer, **proposing into the C-3 curation controls already shipped in M1** (include/exclude, reorder, delete, restore).
 - **M3** — C-10 beat/section analyzer and C-11 speed proposer, with per-segment speed controls in C-3.
 
 **The pairing rule (ADR-007):** every assist ships in the same milestone as the controls that override it. Assist components (C-8, C-9, C-11) may each be dropped without breaking the product — M1 leaves a working pipe underneath, and a de-scoped stage reverts to manual, still transparent and still gated.

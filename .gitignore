@@ -43,6 +43,13 @@ out/
 *.proxy.*
 draft*.mp4
 
+# Prototype fixtures (ADR-013). Real-footage thumbnails/proxies stay ignored by the
+# media globs above and MUST NOT be committed; only SYNTHETIC / rights-cleared assets
+# (no real footage, no real people) are re-included under fixtures/synthetic/.
+fixtures/local/
+!fixtures/synthetic/
+!fixtures/synthetic/**
+
 # Consent records and identity mapping — PII, kept out of the repo entirely.
 # The synthetic-ID mapping is the re-identification key for the whole corpus.
 consent/

@@ -20,22 +20,22 @@ backend/propose/     WO-112      tests/guards/           WO-113
 
 **Dependency manifests (`pyproject.toml`, `package.json`) are owned by WO-101 alone.** WO-101 pre-declares the whole M1 set: fastapi, uvicorn, pydantic, opencv-python, numpy, pytest · react, typescript, vite. **Any WO needing something outside that set is a stop-and-ask** — two agents editing a manifest at once is the classic way parallel work corrupts itself.
 
-WO-100 creates the frontend directories; later frontend WOs fill in their own.
+WO-100 creates the frontend directories; later frontend WOs fill in their own. WO-100 also creates `fixtures/synthetic/` (committed, synthetic/rights-cleared only) and `fixtures/local/` (gitignored, owner-only real thumbnails) per ADR-013.
 
 ---
 
 ### WO-100 · Clickable prototype — runs first, alone
-- **Scope:** React prototype of the entire M1 flow with fake data: create project → pick folder and track → clips on a timeline → AI trim (per clip and *Trim all*) → read the reasons → adjust or remove a suggestion → approve → finalize → export both variants. Per [ADR-008](../decisions/ADR-008-prototype-before-contract-freeze.md) it must **fake the real waiting times** (~5 min analysis, ~5 min render), **seed deliberately bad AI proposals** (a trim cutting the good part; a clip where the proposer gives up), and **use real thumbnails** pulled from actual footage.
-- **File scope:** `frontend/`, `fixtures/`
-- **Excludes:** Any backend. Any real processing. **Visual polish — colour, spacing, typography.**
-- **Gates:** The full flow is clickable end to end · the owner walks it and agrees it is the right flow · **a written list of ES-001 schema gaps is produced**
+- **Scope:** React prototype of the entire M1 flow with fake data: create project → pick folder and track → clips on a timeline → **manually curate (include/exclude, delete, restore, reorder)** → AI trim (per clip and *Trim all*) → read the reasons → adjust or remove a suggestion → **approve (proposals get a `disposition`)** → finalize → export the three audio modes (music/clip/silent). Per [ADR-008](../decisions/ADR-008-prototype-before-contract-freeze.md) it must **fake the real waiting times** (~5 min analysis, ~5 min render) and **seed deliberately bad AI proposals** (a trim cutting the good part; a clip where the proposer gives up). **Thumbnails follow [ADR-013](../decisions/ADR-013-prototype-thumbnails-consent.md):** committed fixtures are **synthetic / rights-cleared only** (`fixtures/synthetic/`, no real people); real-footage thumbnails are the owner's own, generated locally into `fixtures/local/` (gitignored, never committed) behind a self-consent + lifecycle note recorded before extraction.
+- **File scope:** `frontend/`, `fixtures/synthetic/` (committed), `fixtures/local/` (untracked)
+- **Excludes:** Any backend. Any real processing. **Any committed real footage or real-footage thumbnail.** **Visual polish — colour, spacing, typography.**
+- **Gates:** The full flow (incl. manual curation) is clickable end to end · the owner walks it and agrees it is the right flow · **a written list of ES-001 schema gaps is produced** · **no real footage or thumbnail is committed** (only `fixtures/synthetic/`)
 - **Depends:** none
-- **Stop-and-ask:** a gap requiring a change to an accepted ADR · effort drifting into visual design
+- **Stop-and-ask:** a gap requiring a change to an accepted ADR · effort drifting into visual design · **any need to commit real footage or a real-footage thumbnail**
 
 > **Between WO-100 and WO-101:** any gap the prototype finds is amended into ES-001 first. WO-101 does not start until ES-001 reflects what the screen actually needs.
 
 ### WO-101 · Contract kernel and scaffold — runs second, alone
-- **Scope:** Backend skeleton; dependency manifests. Freeze **as code** the ES-001 §4 schemas (`project.json`, `SourceIndex`, `analysis.json`, `ReasonRecord`) as Pydantic models with matching TypeScript types, **plus the service interfaces** every other WO codes against (Python Protocols for ingest, store, render, qa, analysis, propose). Schema round-trip test harness.
+- **Scope:** Backend skeleton; dependency manifests. Freeze **as code** the ES-001 §4 schemas (`project.json`, `SourceIndex`, `analysis.json`, `ReasonRecord`) — **including the proposal `disposition` field (ADR-010)** — as Pydantic models with matching TypeScript types, **plus the service interfaces** every other WO codes against (Python Protocols for ingest, store, render, qa, analysis, propose). Schema round-trip test harness.
 - **File scope:** `backend/contracts/`, `frontend/src/types/`, `tests/contracts/`, `pyproject.toml`, `package.json`
 - **Excludes:** Any behaviour. Interfaces and types only.
 - **Gates:** Schemas validate the ES-001 §4.1 example · round-trip is byte-equivalent · TS types and Pydantic models share one source of truth
@@ -49,27 +49,27 @@ WO-100 creates the frontend directories; later frontend WOs fill in their own.
 - **Depends:** WO-101
 
 ### WO-103 · Project store
-- **Scope:** `save`, `load`, schema-version handling, optimistic concurrency on `updated_at` (`409` on mismatch). Enforces the ES-001 §4.1 invariants: `origin` written on every mutation, `proposals` retained on override, `deleted` never removes a clip, `order` dense and unique.
+- **Scope:** `save`, `load`, schema-version handling, optimistic concurrency on `updated_at` (`409` on mismatch). Enforces the ES-001 §4.1 invariants: `origin` written on every mutation, `proposals` retained on override, **`disposition` set on every proposal (`pending`/`accepted`/`adjusted`/`dismissed`)**, `deleted` never removes a clip, `order` dense and unique.
 - **File scope:** `backend/store/` · **Excludes:** HTTP concerns
 - **Gates:** save → load → byte-equivalent · a machine write refuses to overwrite an `origin: "user"` field · delete then restore returns the exact prior state
 - **Depends:** WO-101
 
 ### WO-104 · Renderer and exporter
-- **Scope:** FFmpeg `filter_complex` per ES-001 §8.1 — trim, `setpts`, scale/crop to 1080×1920 centre-crop, concat. Audio per §8.2: `with_music` uses the track and mutes clip audio; `without_music` is silent with a valid silent AAC track. Loudness normalisation. Both export variants.
-- **File scope:** `backend/render/` · **Excludes:** speed ramps beyond rate 1.0 (M3); saliency reframing; ducking; any network
-- **Gates:** Duration within ±0.5 s of the timeline sum · exactly 1080×1920 H.264/AAC · both variants produced · the silent variant carries a valid audio track
+- **Scope:** FFmpeg `filter_complex` per ES-001 §8.1 — trim, `setpts`, scale/crop to 1080×1920 centre-crop, concat. **Audio per §8.2 — three modes:** `music` uses the track and does not mix clip audio; `clip` muxes the concatenated **natural clip audio** with a **silent pad for any `has_audio:false` clip**; `silent` carries a valid silent AAC track. Single loudness-normalisation pass per mode.
+- **File scope:** `backend/render/` · **Excludes:** speed ramps beyond rate 1.0 (M3); saliency reframing; **per-clip ducking under music (M2+)**; any network
+- **Gates:** Duration within ±0.5 s of the timeline sum · exactly 1080×1920 H.264/AAC · all three audio modes produced on request · the `silent` mode carries a valid audio track · a `clip` render of an all-audio-less set is correctly silent with a valid track
 - **Depends:** WO-101 · **Stop-and-ask:** if centre-crop proves unacceptable on real footage
 
 ### WO-105 · Output QA
-- **Scope:** `validate_render` per ES-001 §8.3 — not black; **audio matched to the variant's expectation**; duration; resolution; codec; safe-title margins; non-zero frame count. Emits `QAReport`; failure blocks export with a stated reason.
+- **Scope:** `validate_render` per ES-001 §8.3 — not black; **audio matched to the mode's expectation** (`music` not silent; `silent` silent + valid track; `clip` valid track, non-silent unless every source is audio-less); duration; resolution; codec; safe-title margins; non-zero frame count. Emits `QAReport`; failure blocks export with a stated reason.
 - **File scope:** `backend/qa/` · **Excludes:** rendering; works against fixtures
-- **Gates:** Catches a deliberately black render, a truncated render, and a silent `with_music` render · **does not** fail a correct `without_music` render for being silent
+- **Gates:** Catches a deliberately black render, a truncated render, and a silent `music` render · **does not** fail a correct `silent` render for being silent · **does not** fail a correct `clip` render of an all-audio-less set for being silent
 - **Depends:** WO-101
 
 ### WO-106 · HTTP API and job runner
-- **Scope:** FastAPI routes per ES-001 §6, bound to `127.0.0.1`. Async job runner reporting `{state, progress, error}`. Error envelope `{error_code, human_text, remediation}`. Proxy serving with range requests. Codes against WO-101 interfaces, not implementations.
+- **Scope:** FastAPI routes per ES-001 §6, bound to `127.0.0.1`. **Local delivery security per ES-001 §9 / [ADR-011](../decisions/ADR-011-local-delivery-security.md): Origin/Host allow-listing, no permissive CORS, a per-launch capability token on state-changing routes, and a path-scrubbed error envelope.** Async job runner reporting `{state, progress, error}`. Error envelope `{error_code, human_text, remediation}`. Proxy serving with range requests. Codes against WO-101 interfaces, not implementations.
 - **File scope:** `backend/api/` · **Excludes:** business logic — it lives in the service WOs
-- **Gates:** Every ES-001 §6 endpoint present · binds localhost only · a failing job surfaces its error rather than hanging
+- **Gates:** Every ES-001 §6 endpoint present · binds localhost only · **a cross-origin POST is rejected · a request with a missing/invalid capability token is rejected · no wildcard CORS · error responses carry no absolute media paths** · a failing job surfaces its error rather than hanging
 - **Depends:** WO-101
 
 ### WO-107 · Frontend — app shell and API client
@@ -84,16 +84,16 @@ WO-100 creates the frontend directories; later frontend WOs fill in their own.
 - **Gates:** 50 clips render without stalling · scrubbing is responsive on proxies
 - **Depends:** WO-107
 
-### WO-109 · Frontend — manual edit controls and approval
-- **Scope:** Trim handles, reorder, and the stage-approval UI. Every edit sets `origin: "user"`.
-- **File scope:** `frontend/src/edit/` · **Excludes:** AI proposals
-- **Gates:** Every edit survives reload · editing after a finalize approval visibly resets that approval
+### WO-109 · Frontend — manual curation, edit controls, and approval
+- **Scope:** **Manual curation — include/exclude, delete, restore ([ADR-009](../decisions/ADR-009-manual-curation-in-m1.md) §5.5)** — plus trim handles, reorder, and the stage-approval UI. Excluded clips do not render; deleted clips are flag-retained for exact restore. The timeline shows running total vs `target_duration_s` (reference only). Every edit sets `origin: "user"`.
+- **File scope:** `frontend/src/edit/` · **Excludes:** AI proposals; any *proposer* for inclusion/order (M2)
+- **Gates:** Every edit survives reload · exclude→restore and delete→restore round-trip exactly · excluded clips are absent from the render · editing after a finalize approval visibly resets that approval
 - **Depends:** WO-108
 
 ### WO-110 · Frontend — trim proposal UI
-- **Scope:** Per-clip *AI trim* button and *Trim all* bulk action. Each proposal's `human_text` displayed inline. Adjust a proposal; remove a proposal; explicitly re-run one clip. All three retain `proposals.segments`.
+- **Scope:** Per-clip *AI trim* button and *Trim all* bulk action. Each proposal's `human_text` displayed inline. Adjust a proposal (→ `disposition: "adjusted"`); remove a proposal (→ `"dismissed"`); accept untouched proposals on stage approval (→ `"accepted"`); explicitly re-run one clip (→ fresh `"pending"`). All retain `proposals.segments`.
 - **File scope:** `frontend/src/trim/` · **Excludes:** proposal logic — that is WO-112
-- **Gates:** A proposal with no readable reason fails the build · adjust and remove both set `origin: "user"` and retain the proposal · re-run is the only path that overwrites a user value
+- **Gates:** A proposal with no readable reason fails the build · adjust and remove both set `origin: "user"`, set `disposition` accordingly, and retain the proposal · re-run is the only path that overwrites a user value
 - **Depends:** WO-109, WO-112, **and the checkpoint**
 
 ### WO-111 · Per-clip analysis
@@ -109,13 +109,13 @@ WO-100 creates the frontend directories; later frontend WOs fill in their own.
 - **Depends:** WO-101, WO-111, **and the checkpoint**
 
 ### WO-113 · Guards and build gates
-- **Scope:** Automated checks — no outbound network from the media path; no CDN, remote fonts, or remote assets in the frontend bundle; dependency-licence check (no `madmom`, nothing distribution-restrictive); read-only enforcement beneath `media_root`; `project.json` gitignored.
+- **Scope:** Automated checks — no outbound network from the media path; no CDN, remote fonts, or remote assets in the frontend bundle; dependency-licence check (no `madmom`, nothing distribution-restrictive); read-only enforcement beneath `media_root`; `project.json` gitignored. **Local delivery security guards (ADR-011): a cross-origin POST is rejected; a missing/invalid capability token is rejected; a wildcard-CORS config fails the build; an error response carrying an absolute media path fails.** **Fixtures guard (ADR-013): only `fixtures/synthetic/` is tracked — a committed real-footage file or thumbnail fails.**
 - **File scope:** `tests/guards/`, `scripts/` · **Excludes:** feature work
 - **Gates:** Each guard **fails** when deliberately violated — a guard that cannot fail is not a guard
 - **Depends:** WO-101
 
 ### WO-114 · Integration verification
-- **Scope:** The full ES-001 §10 M1 exit gate on **a real ~50-clip day, not a curated subset.**
+- **Scope:** The full ES-001 §10 M1 exit gate on **a real ~50-clip day, not a curated subset** — including the manual-curation round-trips (§10.5) and the **judge-against-Apple-Memory** comparison (§10.8).
 - **File scope:** `tests/integration/` · **Excludes:** fixing what it finds — failures become new Work Orders
 - **Gates:** All eight ES-001 §10 checks pass
 - **Depends:** every WO above
@@ -171,3 +171,5 @@ None of these is a judgment call.
 6. Relaxing a validation gate to make it pass.
 7. Anything needing a new ADR, ES, or Work Order.
 8. Interface work beyond the WO's stated scope, including visual polish during WO-100.
+9. Committing any real footage or real-footage thumbnail (only `fixtures/synthetic/` is tracked — ADR-002/013).
+10. Relaxing any local delivery security control from ES-001 §9 / ADR-011.

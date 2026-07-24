@@ -1,5 +1,7 @@
 # Competitive landscape — July 2026
 
+> **⚠️ Evidence-framing is PRE-PIVOT (banner added 2026-07-24).** The **competitive content below stands and remains load-bearing** (it feeds EVIDENCE-LEDGER C-02 and the absorption risk). But its process references are superseded: "kill criterion 3" is now a **stop/de-scope trigger** (ADR-006), "EXP-001 / the floor re-run" is now **ADR-012 CP-2**, and "Phase 1" is now the milestone sequence (ROADMAP). Read those terms accordingly.
+
 **Method:** Current vendor documentation was reviewed on 20 July 2026. Claims describe documented capability, not hands-on benchmark results; availability and regional behavior must be rechecked before product decisions.
 
 | Product | Meaningful capability | Gap against this project | Assessment |

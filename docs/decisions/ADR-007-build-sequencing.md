@@ -1,6 +1,7 @@
 # ADR-007 — AI trim in the first milestone; assists ordered by tractability
 
 **Status:** Accepted — owner-approved 2026-07-23
+**Amended by:** ADR-009 (2026-07-24) — manual curation added to M1's contents and the exit gate recalibrated to *evaluable, plausibly worth keeping*; the three audio modes are in ES-001 §8.2. Read the two together.
 **Amends:** ADR-006 — **the sequencing clause only.** Every other clause of ADR-006 stands unchanged: the approval gate, the transparency requirement, "assists earn their place," and the stop/de-scope triggers are untouched.
 **Governing:** [PROJECT.md](../../PROJECT.md), [ADR-005](ADR-005-editor-form-factor.md), [ADR-006](ADR-006-incremental-staged-build.md)
 

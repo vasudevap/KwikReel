@@ -1,7 +1,7 @@
 # Roadmap — AI Vacation Reel Agent
 
-**Status:** **Accepted — owner-approved 2026-07-23.** Re-sequenced per ADR-007.
-**Governing:** `_oversight/DELIVERY-PLAYBOOK.md` (normal Direction → Specification → build flow); build method **ADR-006**; sequencing **ADR-007**; form factor **ADR-005**.
+**Status:** **Accepted — owner-approved 2026-07-23; amended 2026-07-24 (pre-ADP course correction, ADR-009/012).** Re-sequenced per ADR-007.
+**Governing:** `_oversight/DELIVERY-PLAYBOOK.md` (normal Direction → Specification → build flow); build method **ADR-006**; sequencing **ADR-007** (amended by **ADR-009** — manual curation in M1); evidence checkpoints **ADR-012**; form factor **ADR-005**.
 
 ## What changed, and why
 
@@ -15,7 +15,7 @@ Each milestone ships **a usable product to the owner**, who is the sole user at 
 
 | M | You get | AI proposes | Exit gate |
 |---|---|---|---|
-| **M1** | Import from a chosen folder, in order → **AI trim** (per-clip button and "trim all"; adjust or remove any suggestion) → timeline → render → export **with and without music** | In/out points per clip, each with a plain-language reason | Import a real day, AI-trim it, export a reel worth keeping; save → reopen identical |
+| **M1** | Import from a chosen folder → **manual curation** (include/exclude, delete, restore, reorder) → **AI trim** (per-clip button and "trim all"; adjust or remove any suggestion) → timeline → render → export in **three audio modes (music / natural clip audio / silent)** | In/out points per clip, each with a plain-language reason | Import a real day, **curate to a short set**, AI-trim the keepers, export; **judge it against that day's Apple Memory (evaluable, plausibly worth keeping)**; save → reopen identical |
 | **M2** | **+ AI sequence** — one "Organize timeline" action, **undoable wholesale**; include/exclude, reorder, delete, restore | Which clips are in, and their order — reasons for picks **and** rejections | Reviewing the proposal beats ordering from scratch |
 | **M3** | **+ AI speed** — per-segment rate controls | Speed ramps: faster through low-interest spans, slower on key moments, beat-aligned on opt-in | Proposed ramps kept on most clips |
 
@@ -35,9 +35,19 @@ This is a **build checkpoint, not a release.** Nothing ships at the checkpoint. 
 
 ## Two properties this sequence preserves
 
-**Every assist arrives with its own override controls, in the same milestone.** M1 ships AI trim *and* trim adjustment. M2 ships AI sequencing *and* delete/restore/reorder. You never receive a proposal you cannot overturn — the pairing rule from ADR-007, and the thing the pivot was actually protecting.
+**Every assist arrives with its own override controls, in the same milestone.** M1 ships AI trim *and* trim adjustment, **plus manual curation controls — include/exclude, delete, restore, reorder (ADR-009).** M2 ships the AI sequencing *assist*, which proposes into those M1 curation controls. You never receive a proposal you cannot overturn — the pairing rule from ADR-007, and the thing the pivot was actually protecting. (Shipping the manual controls in M1 does not pre-empt the M2 assist: M1 has no proposer for inclusion or order.)
 
 **Each assist is individually disposable.** M1 leaves a working pipe underneath. If AI trim proves bad, it de-scopes to manual trimming (still transparent, still gated) and M2 proceeds regardless. The product survives the loss of any assist, or of all three.
+
+## Evidence checkpoints (ADR-012)
+
+Lightweight, not pre-registered, and calibrated so **none blocks authorizing the ADP**:
+
+- **CP-1 — preference probe** (the pivot's pivotal belief): show 1–2 real memory-keepers the WO-100 prototype and record whether they'd review explained proposals or just want one tap. *After WO-100 exists; before M1 is called useful.*
+- **CP-2 — competitive floor**: the owner scores one real day through Apple/Google/CapCut against "would I post this?". *Any time before the M1 exit; recommended early.*
+- **CP-3 — performance spike**: confirm the ES-001 §9 ≤5-min targets on the target Mac. *At the M1 internal checkpoint, before §9 is treated as a gate.*
+
+These add early evidence without restoring validation-first. The binding real-user gate (ADR-006/007) still stands, before the product is called *good*.
 
 ## Stop / de-scope triggers
 

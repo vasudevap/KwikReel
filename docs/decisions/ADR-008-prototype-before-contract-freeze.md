@@ -1,6 +1,7 @@
 # ADR-008 — Prototype the interface before freezing contracts as code
 
 **Status:** Accepted — owner-approved 2026-07-23
+**Narrowed by:** ADR-013 (2026-07-24) — rule 3's "real thumbnails" is reconciled with ADR-002: committed fixtures are synthetic only; real thumbnails are owner-only, local, untracked.
 **Relates to:** [ADR-007](ADR-007-build-sequencing.md) (build sequencing — unchanged), [ES-001](../specs/ES-001-manual-editor-core.md)
 
 This adds a step at the start of M1. It does not change the milestone sequence, the pairing rule, or the hardening rule from ADR-007. It does **not** authorize implementation — that still requires an authorized ADP.

@@ -1,5 +1,7 @@
 # Sample-media testing strategy
 
+> **⚠️ PRE-PIVOT — retained for history (banner added 2026-07-24).** This references `VALIDATION-PLAN.md` (retired) as authoritative for thresholds and lists pre-registered gates (≥95% recall, etc.) — a regime **retired by ADR-006.** Per-stage acceptance on real footage plus the ADR-012 checkpoints replace it. The **corpus shape and consent handling** below remain a useful reference under ADR-002/013; the **thresholds and held-out discipline do not apply.**
+
 **Status:** Draft — owner approval required.
 **Relationship to other artifacts:** this document defines the corpus shape and evaluation *protocol*. `docs/specs/VALIDATION-PLAN.md` is authoritative for **which experiments run, in what order, and against which pre-registered thresholds**. Where the two disagree on a threshold, the validation plan wins.
 **Consent and data handling are governed by ADR-002.** No media may be collected before it is accepted.

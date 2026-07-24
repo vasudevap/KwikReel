@@ -1,5 +1,7 @@
 # System Vision — the Reel Agent and Atlas
 
+> **⚠️ PRE-PIVOT — retained for history (banner added 2026-07-24).** This document predates the 2026-07-23 pivot and the 2026-07-24 course correction. Its present-tense claims — a **local CLI** agent surface, `timeline.json`, ADR-001 as operative, pre-registered thresholds, a held-out day, Phases 1–5 — are **superseded.** The product is a local **web app** (ADR-005) with `project.json` canonical (ADR-010 adds `disposition`); the build is three milestones with **five approval gates.** **`PROJECT.md`, `ROADMAP.md`, `ES-001`, and the ADRs govern.** The Atlas dock remains a deferred, unaccepted projection.
+
 **Status:** Draft · **forward-looking projection** — owner approval required. Introduces **no accepted decision** and relaxes no constraint. The operative decision on Atlas is still [ADR-001](../decisions/ADR-001-prototype-shape.md) (deferral); the real dock decision is a Phase 5 concern under [ROADMAP.md](../../ROADMAP.md).
 **Companion:** [reel-atlas-overview.html](reel-atlas-overview.html) is the at-a-glance visual of everything below. [INTEGRATION-PLAN.md](INTEGRATION-PLAN.md) covers *when* and *in what order*.
 **Governing:** subordinate to [PROJECT.md](../../PROJECT.md), which remains authoritative for product direction. This document only adds the systems-level view of the two components and their linkage.

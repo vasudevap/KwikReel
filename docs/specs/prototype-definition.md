@@ -1,5 +1,7 @@
 # Prototype definition and architecture assessment
 
+> **⚠️ PRE-PIVOT — retained for history (banner added 2026-07-24).** This describes the **superseded CLI POC** shape (`timeline.json`, must-include marking, "speed changes are advisory flags only"). The product is now a local **web app** (ADR-005) with per-stage approval; **speed ramping is a core M3 stage**, not advisory; the canonical state is `project.json` (ES-001 §4). Its **technology assessment** (FFmpeg/OpenCV/librosa, licence hygiene) remains broadly useful; its **shape and sequencing do not.** `ES-001` governs M1.
+
 **Status:** Draft; implementation is not authorized.
 
 ## Smallest technically credible POC
