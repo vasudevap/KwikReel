@@ -21,6 +21,12 @@ Each milestone ships **a usable product to the owner**, who is the sole user at 
 
 **Every exit gate additionally requires the milestone to work on a real full day of footage (~50 clips), not a curated subset** (ADR-007). Hardening is folded into each milestone; there is no trailing hardening phase.
 
+## M1 starts with a prototype
+
+Per **ADR-008**, the first work in M1 is a clickable prototype with fake data — real thumbnails, faked waiting times, and deliberately bad AI suggestions. It produces two things: an agreed flow, and a list of gaps in the ES-001 schema. Those gaps are amended before any schema becomes code.
+
+It is not a design exercise. Changing a screen with fake data behind it takes minutes. Changing a schema after eight Work Orders have implemented it is a migration across every saved project.
+
 ## The internal checkpoint inside M1
 
 M1 is the largest and riskiest milestone — it carries the media pipeline *and* the first assist. Within it, the pipeline must work first: **import → timeline → render → export**, proving FFmpeg concat and 9:16 crop, *before* the trim proposer is layered on.

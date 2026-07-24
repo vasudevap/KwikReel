@@ -6,7 +6,9 @@ This file mirrors `CLAUDE.md` so that Codex, Antigravity, and Claude Code sessio
 
 ## Where the project is
 
-**Stage A — Direction: closed 2026-07-23.** `PROJECT.md`, `ROADMAP.md`, and the governing ADRs are all accepted following the **2026-07-23 pivot** to a human-directed, approval-gated editor. **Stage B (Specification) is next. Documents only — no code, no media, no remote repository exists.** Read `handoff.md` before assuming anything exists.
+**Stage A closed; Stage B specification done for M1.** `PROJECT.md`, `ROADMAP.md`, `ES-001`, and six ADRs are accepted following the **2026-07-23 pivot** to a human-directed, approval-gated editor. The M1 Work Order backlog is drafted and awaiting approval.
+
+**Still documents only — no code and no media exist.** Nothing may be built until the owner approves the backlog and authorizes an ADP. When that happens, **the first work is WO-100: a clickable prototype with fake data** (ADR-008), not backend code. Read `handoff.md` before assuming anything exists.
 
 **Accepted:** ADR-002 (privacy), ADR-003 (music/licensing), ADR-005 (local web app form factor), ADR-006 (incremental staged build).
 **Superseded:** ADR-001 (by ADR-005), ADR-004 (by ADR-006).

@@ -1,6 +1,7 @@
 # ES-001 — M1: working pipe + AI trim
 
 **Status:** **Accepted — owner-approved 2026-07-23.** Definition of Ready met; contracts frozen.
+**Amendment expected:** per [ADR-008](../decisions/ADR-008-prototype-before-contract-freeze.md), the WO-100 prototype runs before any schema becomes code and produces a list of gaps in §4. Whatever it finds is amended here **before WO-101 starts.** Treat §4 as frozen pending that check.
 **Governing:** [PROJECT.md](../../PROJECT.md), [ROADMAP.md](../../ROADMAP.md), [ADR-005](../decisions/ADR-005-editor-form-factor.md) (local web app; `project.json` canonical), [ADR-006](../decisions/ADR-006-incremental-staged-build.md) (approval gate; transparency), [ADR-007](../decisions/ADR-007-build-sequencing.md) (AI trim in M1; pairing rule), [ADR-002](../decisions/ADR-002-privacy-and-data-posture.md), [ADR-003](../decisions/ADR-003-music-and-licensing-posture.md). Contracts elaborate [COMPONENT-DECOMPOSITION.md](COMPONENT-DECOMPOSITION.md).
 **Covers:** ROADMAP milestone **M1** only.
 **Authorizes nothing.** Implementation requires an authorized ADP.
