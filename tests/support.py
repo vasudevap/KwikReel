@@ -17,16 +17,27 @@ TEST_TOKEN = "test-capability-token"
 AUTH = {"X-Capability-Token": TEST_TOKEN}
 
 
-def build_app(tmp_path: Path):
+def build_app(tmp_path: Path, with_ai: bool = False):
     proxy_root = tmp_path / "proxies"
     output_root = tmp_path / "renders"
-    services = Services(
+    analysis_root = tmp_path / "analysis"
+    kwargs = dict(
         store=FileProjectStore(tmp_path / "projects"),
         ingest=FFmpegIngest(proxy_root=proxy_root),
         renderer=FFmpegRenderer(output_root=output_root),
         qa=FFmpegOutputQA(),
     )
-    config = ApiConfig(proxy_root=proxy_root, output_root=output_root, capability_token=TEST_TOKEN)
+    if with_ai:  # WO-111/112 — injected only when a test needs the trim assist
+        from backend.analysis import OpenCVAnalysis
+        from backend.propose import TrimRuleProposer
+
+        kwargs["analysis"] = OpenCVAnalysis()
+        kwargs["proposer"] = TrimRuleProposer()
+    services = Services(**kwargs)
+    config = ApiConfig(
+        proxy_root=proxy_root, output_root=output_root,
+        analysis_root=analysis_root if with_ai else None, capability_token=TEST_TOKEN,
+    )
     app = create_app(services, config)
     # base_url on 127.0.0.1 so the Host allow-list passes by default.
     client = TestClient(app, base_url="http://127.0.0.1")

@@ -119,15 +119,15 @@ def _check_cross_save(prior: Project, incoming: Project) -> None:
         for field, (new_origin, new_value, new_proposal) in _field_view(clip).items():
             prior_origin, prior_value, _ = prior_view[field]
             if prior_origin == "user" and new_origin == "proposed" and new_value != prior_value:
-                backed = (
-                    new_proposal is not None
-                    and new_proposal.disposition == "accepted"
-                    and new_proposal.value == new_value
-                )
+                # A machine write over a user-owned field is legitimate only when it
+                # applies that field's own retained proposal — i.e. an explicit AI
+                # trim / re-run (disposition pending) or an accept (§5.3). A value that
+                # matches no proposal is an unsolicited overwrite and is rejected.
+                backed = new_proposal is not None and new_proposal.value == new_value
                 if not backed:
                     raise OriginProtectionError(
                         f"machine write to clip {clip.source_id!r} field {field!r} would "
-                        f"overwrite a user-owned value; an explicit re-run + accept is required"
+                        f"overwrite a user-owned value with no matching proposal; an explicit re-run is required"
                     )
 
 

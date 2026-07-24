@@ -27,6 +27,7 @@ from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import FileResponse, JSONResponse, Response
 
+from backend.analysis import FileAnalysisStore
 from backend.api.errors import envelope, install_error_handlers, scrub
 from backend.api.jobs import JobRunner, ProgressFn
 from backend.api.services import Services
@@ -53,6 +54,7 @@ MUTATING = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 class ApiConfig:
     proxy_root: Path
     output_root: Path
+    analysis_root: Path | None = None
     allowed_hosts: frozenset[str] = LOCAL_HOSTS
     allowed_origin_hosts: frozenset[str] = LOCAL_HOSTS
     capability_token: str | None = None  # generated per launch if not supplied
@@ -93,6 +95,10 @@ class ExportBody(BaseModel):
     audio_mode: AudioMode
 
 
+class ProposeBody(BaseModel):
+    source_ids: list[str] | None = None  # omit for all included clips
+
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
@@ -112,6 +118,7 @@ def _music_for(track_ref: str) -> Music:
 def create_app(services: Services, config: ApiConfig) -> FastAPI:
     token = config.capability_token or secrets.token_urlsafe(32)
     runner = JobRunner(scrub=scrub)
+    analysis_store = FileAnalysisStore(config.analysis_root) if config.analysis_root else None
 
     app = FastAPI(title="AI Vacation Reel Agent", version=APP_VERSION)
     app.state.capability_token = token
@@ -197,20 +204,52 @@ def create_app(services: Services, config: ApiConfig) -> FastAPI:
         services.store.load(project_id)
         if services.analysis is None:
             return envelope("not_implemented", "Per-clip analysis arrives in WO-111.", "Not available in this build.", 501)
-        def work(progress: ProgressFn) -> None:  # pragma: no cover - WO-111
+
+        def work(progress: ProgressFn) -> None:
             project = services.store.load(project_id)
-            for i, s in enumerate(project.sources):
-                if s.readable:
-                    services.analysis.analyze(s)
-                progress((i + 1) / max(len(project.sources), 1))
+            readable = [s for s in project.sources if s.readable]
+            for i, s in enumerate(readable):
+                analysis = services.analysis.analyze(s)
+                if analysis_store is not None:
+                    analysis_store.save(project_id, analysis)
+                progress((i + 1) / max(len(readable), 1))
+
         return {"job_id": runner.submit(work)}
 
     @app.post("/api/propose/trim/{project_id}")
-    def propose_trim(project_id: str):
+    def propose_trim(project_id: str, body: ProposeBody | None = None):
         services.store.load(project_id)
-        if services.proposer is None:
+        if services.proposer is None or services.analysis is None:
             return envelope("not_implemented", "The trim proposer arrives in WO-112.", "Not available in this build.", 501)
-        return envelope("not_implemented", "The trim proposer arrives in WO-112.", "Not available in this build.", 501)
+        wanted = set(body.source_ids) if body and body.source_ids else None
+
+        def work(progress: ProgressFn) -> None:
+            project = services.store.load(project_id)
+            by_id = {s.source_id: s for s in project.sources}
+            targets = [
+                c for c in project.clips
+                if c.included and not c.deleted and by_id.get(c.source_id) and by_id[c.source_id].readable
+                and (wanted is None or c.source_id in wanted)
+            ]
+            for i, clip in enumerate(targets):
+                src = by_id[clip.source_id]
+                if analysis_store is not None and analysis_store.exists(project_id, src.source_id):
+                    analysis = analysis_store.load(project_id, src.source_id)
+                else:
+                    analysis = services.analysis.analyze(src)
+                    if analysis_store is not None:
+                        analysis_store.save(project_id, analysis)
+                proposal = services.proposer.propose_trim(src, analysis)
+                # Apply the proposal as the effective trim, pending the user's review
+                # (§5.3): segments become the proposal, origin -> "proposed", the
+                # proposal is retained with disposition "pending".
+                clip.segments = list(proposal.value)
+                clip.origin.segments = "proposed"
+                clip.proposals.segments = proposal
+                progress((i + 1) / max(len(targets), 1))
+            services.store.save(project)
+
+        return {"job_id": runner.submit(work)}
 
     # --- jobs -------------------------------------------------------------
 

@@ -105,6 +105,31 @@ def test_accepted_proposal_may_set_origin_proposed(tmp_path) -> None:
     assert _clip(saved, "s2").origin.segments == "proposed"
 
 
+def test_rerun_pending_proposal_may_overwrite_user_field(tmp_path) -> None:
+    # §5.3: an explicit re-run applies a fresh proposal (disposition pending) over a
+    # user-edited clip. The guard allows it because the new value matches the proposal.
+    store = _store(tmp_path)
+    s1 = store.save(build_example())
+    proj = s1.model_copy(deep=True)
+    _clip(proj, "s2").segments = [Segment(in_s=1.0, out_s=6.0, speed=[])]
+    _clip(proj, "s2").origin.segments = "user"
+    s2 = store.save(proj)
+
+    rerun = s2.model_copy(deep=True)
+    new_seg = [Segment(in_s=2.5, out_s=6.5, speed=[])]
+    clip = _clip(rerun, "s2")
+    clip.segments = new_seg
+    clip.origin.segments = "proposed"
+    clip.proposals.segments = SegmentsProposal(
+        value=new_seg,
+        at="2026-07-24T21:00:00Z",
+        reasons=[ReasonRecord(code="RERUN", human_text="re-proposed", evidence_refs=["signals.blur[0:1]"], score=0.5, confidence="med")],
+        disposition="pending",
+    )
+    saved = store.save(rerun)  # allowed — value matches the retained proposal
+    assert _clip(saved, "s2").origin.segments == "proposed"
+
+
 def test_delete_then_restore_is_exact(tmp_path) -> None:
     store = _store(tmp_path)
     original = build_example()

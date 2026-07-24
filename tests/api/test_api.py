@@ -66,6 +66,32 @@ def test_create_scan_export_finalize_end_to_end(tmp_path) -> None:
     assert client.get(f"/api/render/{pid}/draft").status_code == 200
 
 
+@pytest.mark.skipif(not ffmpeg_available(), reason="ffmpeg/ffprobe not installed (ES-001 §3)")
+def test_analyze_then_propose_writes_explained_proposals(tmp_path) -> None:
+    media = tmp_path / "media"
+    make_corpus(media)
+    music = make_music(tmp_path / "bed.m4a")
+    _, client, _ = build_app(tmp_path, with_ai=True)
+
+    pid = client.post(
+        "/api/project", json={"media_root": str(media), "track_ref": str(music)}, headers=AUTH
+    ).json()["project_id"]
+    for path in (f"/api/import/{pid}/scan", f"/api/analyze/{pid}"):
+        assert wait_job(client, client.post(path, headers=AUTH).json()["job_id"])["state"] == "done"
+
+    job = client.post(f"/api/propose/trim/{pid}", json={}, headers=AUTH).json()["job_id"]
+    assert wait_job(client, job)["state"] == "done"
+
+    project = client.get(f"/api/project/{pid}").json()
+    proposed = [c for c in project["clips"] if c["included"] and c["proposals"]["segments"]]
+    assert proposed, "expected trim proposals on the included clips"
+    for clip in proposed:
+        assert clip["origin"]["segments"] == "proposed"
+        seg = clip["proposals"]["segments"]
+        assert seg["disposition"] == "pending"
+        assert seg["reasons"] and all(r["human_text"] and r["evidence_refs"] for r in seg["reasons"])
+
+
 def test_job_not_found_is_404(tmp_path) -> None:
     _, client, _ = build_app(tmp_path)
     assert client.get("/api/jobs/nope").status_code == 404

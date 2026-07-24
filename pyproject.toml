@@ -16,7 +16,7 @@ dependencies = [
   "fastapi",
   "uvicorn",
   "pydantic>=2",
-  "opencv-python",
+  "opencv-python-headless",  # headless variant: server-side analysis, no GUI/Qt libs (was opencv-python)
   "numpy",
 ]
 

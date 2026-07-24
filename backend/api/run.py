@@ -12,8 +12,10 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from backend.analysis import OpenCVAnalysis
 from backend.api import ApiConfig, Services, create_app
 from backend.ingest import FFmpegIngest
+from backend.propose import TrimRuleProposer
 from backend.qa import FFmpegOutputQA
 from backend.render import FFmpegRenderer
 from backend.store import FileProjectStore
@@ -22,13 +24,16 @@ from backend.store import FileProjectStore
 def build_app(data_root: Path):
     proxy_root = data_root / "proxies"
     output_root = data_root / "renders"
+    analysis_root = data_root / "analysis"
     services = Services(
         store=FileProjectStore(data_root / "projects"),
         ingest=FFmpegIngest(proxy_root=proxy_root),
         renderer=FFmpegRenderer(output_root=output_root),
         qa=FFmpegOutputQA(),
+        analysis=OpenCVAnalysis(),
+        proposer=TrimRuleProposer(),
     )
-    config = ApiConfig(proxy_root=proxy_root, output_root=output_root)
+    config = ApiConfig(proxy_root=proxy_root, output_root=output_root, analysis_root=analysis_root)
     app = create_app(services, config)
     print(f"capability token (this launch): {app.state.capability_token}")
     return app
