@@ -1,7 +1,7 @@
 # ES-001 — M1: working pipe + AI trim
 
 **Status:** **Accepted — owner-approved 2026-07-23.** Definition of Ready met; contracts frozen.
-**Amendment expected:** per [ADR-008](../decisions/ADR-008-prototype-before-contract-freeze.md), the WO-100 prototype runs before any schema becomes code and produces a list of gaps in §4. Whatever it finds is amended here **before WO-101 starts.** Treat §4 as frozen pending that check.
+**WO-100 prototype check applied 2026-07-24 (ADR-008):** the clickable prototype ran against §4 and surfaced ten schema gaps ([WO-100-schema-gaps.md](WO-100-schema-gaps.md)). All ten are resolved into this spec (see the changelog in §4.5). The prototype flow is owner-approved; **§4 is now frozen for WO-101** — the pre-freeze check ADR-008 required is complete.
 **Amended 2026-07-24 (pre-ADP course correction):** manual curation added to M1 (ADR-009 → §1, §5.5, §10); proposal `disposition` added (ADR-010 → §4.1, §5.3); local delivery security specified (ADR-011 → §9); prototype thumbnails reconciled with ADR-002 (ADR-013 → WO-100 in the backlog); audio expanded to three modes — `music`/`clip`/`silent`, adding natural clip audio in M1 (§8.1–8.3, §4.1 export, §6, §10–12), per-clip ducking under music still deferred. These are recorded amendments to an Accepted spec (ADR-008), visible in history — not quiet edits.
 **Governing:** [PROJECT.md](../../PROJECT.md), [ROADMAP.md](../../ROADMAP.md), [ADR-005](../decisions/ADR-005-editor-form-factor.md) (local web app; `project.json` canonical), [ADR-006](../decisions/ADR-006-incremental-staged-build.md) (approval gate; transparency), [ADR-007](../decisions/ADR-007-build-sequencing.md) (AI trim in M1; pairing rule), [ADR-009](../decisions/ADR-009-manual-curation-in-m1.md) (manual curation in M1), [ADR-010](../decisions/ADR-010-proposal-provenance-disposition.md) (proposal `disposition`), [ADR-011](../decisions/ADR-011-local-delivery-security.md) (local delivery security), [ADR-013](../decisions/ADR-013-prototype-thumbnails-consent.md) (prototype thumbnails), [ADR-002](../decisions/ADR-002-privacy-and-data-posture.md), [ADR-003](../decisions/ADR-003-music-and-licensing-posture.md). Contracts elaborate [COMPONENT-DECOMPOSITION.md](COMPONENT-DECOMPOSITION.md).
 **Covers:** ROADMAP milestone **M1** only.
@@ -59,6 +59,7 @@ Within ADR-005's envelope (local web app + local FFmpeg backend):
   "created_at": "ISO-8601", "updated_at": "ISO-8601",
   "app_version": "0.1.0",
 
+  "name": "Beach Day",                   // G-2: display-only title; basename(media_root) when unset
   "media_root": "/absolute/path — opened read-only, never written",
   "target_duration_s": 75,               // M1: displayed reference only (running total vs target); no optimizer
 
@@ -82,9 +83,9 @@ Within ADR-005's envelope (local web app + local FFmpeg backend):
       ],
       "audio": { "retain": false, "gain_db": 0.0 },   // always false in v1 (§8.2)
 
-      "origin": {                         // did the effective value come from machine or human?
+      "origin": {                         // G-1: "default" (system initial, unedited) | "proposed" (machine) | "user" (human)
         "included": "user", "order": "user",
-        "segments": "proposed|user", "speed": "user", "audio": "user"
+        "segments": "default|proposed|user", "speed": "user", "audio": "user"
       },
 
       "proposals": {                      // what the AI last proposed — RETAINED after override
@@ -108,14 +109,17 @@ Within ADR-005's envelope (local web app + local FFmpeg backend):
 
   "export": {
     "audio_modes": ["music", "clip", "silent"],   // modes the user has chosen to export (was with_music/without_music)
-    "last_render": { "path": "…", "audio_mode": "music", "rendered_at": "…", "qa": { /* QAReport §8.3 */ } }
+    "last_render": {                              // G-5: one entry per audio_mode — the flow renders one file per mode
+      "music": { "path": "…", "rendered_at": "…", "qa": { /* QAReport §8.3 */ } }
+      // "clip": {…}, "silent": {…} — added as each mode is rendered; null/absent until then
+    }
   }
 }
 ```
 
 **Why `proposals` exists — and why it is not optional.** `origin` records *whether* a value came from the machine; it does not record *what the machine said.* Without retaining the proposal, an override destroys the only evidence of what was proposed — and "proposals kept versus discarded" is the evidence that fires ADR-006's *assists-earn-their-place* trigger. Keeping `proposals` makes that trigger measurable as a query over saved projects rather than a study.
 
-**Why `disposition`, not just `origin` (ADR-010).** `origin` is binary (`proposed|user`) and distinguishes only two of the five proposal states — it cannot separate a minor accepted adjustment from a total override, nor a dismissal from an adjust-to-full-clip. `disposition` records the user's **terminal action**: `pending` (not yet acted on; promoted to `accepted` when the stage is approved), `accepted`, `adjusted`, or `dismissed`. The assists-earn-their-place metric reads `disposition` at the trim-stage approval snapshot — `accepted` and `adjusted-within-tolerance` count as **kept**, `dismissed` and `adjusted-beyond-tolerance` as **not kept** (tolerance is a config/UI value, not pre-registered). Proposal *history* across re-runs is **bounded and deferred to M2**; M1 keeps only the latest proposal per field plus its `disposition`, so nothing grows without bound inside the gitignored project file.
+**Why `disposition`, not just `origin` (ADR-010).** `origin` is coarse (`default|proposed|user`) and still distinguishes only two of the five proposal states — it cannot separate a minor accepted adjustment from a total override, nor a dismissal from an adjust-to-full-clip. `disposition` records the user's **terminal action**: `pending` (not yet acted on; promoted to `accepted` when the stage is approved), `accepted`, `adjusted`, or `dismissed`. The assists-earn-their-place metric reads `disposition` at the trim-stage approval snapshot — `accepted` and `adjusted-within-tolerance` count as **kept**, `dismissed` and `adjusted-beyond-tolerance` as **not kept** (tolerance is a config/UI value, not pre-registered). Proposal *history* across re-runs is **bounded and deferred to M2**; M1 keeps only the latest proposal per field plus its `disposition`, so nothing grows without bound inside the gitignored project file.
 
 **Invariants (enforced, not conventional):**
 - Every field mutation writes `origin`. A machine write sets `"proposed"`; any user edit sets `"user"`.
@@ -124,6 +128,8 @@ Within ADR-005's envelope (local web app + local FFmpeg backend):
 - `order` is dense and unique across non-deleted clips.
 - `media_root` and `sources[].path` are opened **read-only**; no code path writes or deletes beneath `media_root`.
 - Every proposal carries a `disposition`; a user adjust sets `adjusted`, a remove-suggestion sets `dismissed`, approving the stage over an untouched proposal sets `accepted`, and an explicit re-run resets it to `pending`.
+- **A clip initialises with `origin.* = "default"`** (system initial, unedited) and a single `segments` entry spanning the whole clip; the first machine proposal sets the touched field to `"proposed"`, the first human edit to `"user"`. A field never returns to `"default"` once it leaves it. *(G-1)*
+- **An unreadable source** (`readable:false`) initialises `included:false` with `origin.included:"default"`; the UI blocks including it and it never renders. *(G-4)*
 
 ### 4.2 · `SourceIndex` (immutable facts)
 
@@ -137,6 +143,8 @@ Within ADR-005's envelope (local web app + local FFmpeg backend):
   "readable": true,       // false → surfaced to the user, never silently dropped
   "proxy_path": "derived; separate output directory" }
 ```
+
+**Display label (G-3).** `SourceIndex` has no `label` field, and none is added — **`basename(path)` is the canonical display label** for a clip card. The dependency on `path`'s basename is by contract, not accident; a future rename field is an M2+ concern.
 
 ### 4.3 · `analysis.json` (facts, not decisions)
 
@@ -167,6 +175,23 @@ Shape frozen; M1 populates only the trim-relevant signals.
   "score": 0.12, "confidence": "high|med|low" }
 ```
 
+### 4.5 · WO-100 prototype gap resolutions (2026-07-24)
+
+The clickable prototype (WO-100) ran against §4 and surfaced ten gaps ([WO-100-schema-gaps.md](WO-100-schema-gaps.md)). All are resolved here before WO-101 turns any schema into code (ADR-008):
+
+| Gap | Resolution | Where |
+|---|---|---|
+| G-1 | `origin` gains a third value `"default"` (system initial, unedited); clips init `default` | §4.1 origin + invariants |
+| G-2 | `project.json.name` added (display-only; `basename(media_root)` when unset) | §4.1 |
+| G-3 | `basename(path)` is the canonical source display label — derived, no field added | §4.2 |
+| G-4 | unreadable ⇒ `included:false`, `origin.included:"default"`; UI blocks inclusion | §4.1 invariants |
+| G-5 | `export.last_render` becomes a map keyed by `audio_mode` (one entry per rendered mode) | §4.1 export |
+| G-6 | manual curation stays **un-gated** (human editing, no approval timestamp) — confirmed | §7.1 |
+| G-7 | the canonical **nine stages** are enumerated with their five gates | §7.1 |
+| G-8 | resume point is **derived** from `stage_approvals` (no `current_stage` field) | §7.1 |
+| G-9 | the 1.0 s minimum window is a **universal timeline floor** (applies to user adjust too) | §5.2.5, §5.3 |
+| G-10 | not a schema gap — scroll-reset on stage change deferred to WO-107/108 | — |
+
 ## 5 · The trim assist
 
 ### 5.1 · Signals (C-7)
@@ -177,14 +202,14 @@ Per-second, from proxies: **sharpness** (Laplacian variance), **exposure** clipp
 2. Choose the **longest contiguous window** clearing the floors.
 3. Trim leading/trailing spans that are blurry, shaky, badly exposed, or **static** (low motion *and* low audio RMS — the dead air at the head and tail of most phone clips).
 4. Do not propose a window crossing a scene cut; if a clip contains multiple shots, propose the best single shot.
-5. Enforce a **minimum window of 1.0 s**. If nothing clears the floors, **propose the full clip and say so** — never emit an empty or silent result.
+5. Enforce a **minimum window of 1.0 s** — a **universal timeline floor (G-9)**, not merely a proposer rule: no segment may be shorter than 1.0 s, whether the machine proposed it *or the user set it by hand* (§5.3). If nothing clears the floors, **propose the full clip and say so** — never emit an empty or silent result.
 6. Emit one `ReasonRecord` per contributing factor, citing the actual signal range.
 
 Thresholds live in config, are surfaced in the UI, and are **not** pre-registered — ADR-006 retired that regime. Tuning them is normal work, not drift.
 
 ### 5.3 · Controls (C-3) — the pairing rule, ADR-007
 - **Per-clip "AI trim"** button, and a **"Trim all"** bulk action.
-- **Adjust** — drag in/out handles; sets `origin.segments = "user"`, `proposals.segments.disposition = "adjusted"`, retains `proposals.segments`.
+- **Adjust** — drag in/out handles (**clamped to the 1.0 s minimum window — §5.2.5 / G-9**); sets `origin.segments = "user"`, `proposals.segments.disposition = "adjusted"`, retains `proposals.segments`.
 - **Remove suggestion** — reverts to the full clip; sets `origin.segments = "user"`, `proposals.segments.disposition = "dismissed"`, retains `proposals.segments`.
 - **Accept** — approving the trim stage promotes every untouched (`pending`) proposal to `disposition = "accepted"`; `origin.segments` stays `"proposed"`.
 - **Re-run** per clip, explicitly, which is the only way a machine write may overwrite a `"user"` value; it writes a fresh proposal with `disposition = "pending"`.
@@ -227,6 +252,26 @@ Errors return `{error_code, human_text, remediation}` — surfaced, never swallo
 - **Live in M1:** `ingest`, `trim`, `finalize`. `selection` and `speed` remain `null` and inert. Manual curation (§5.5) is part of user-driven editing and adds **no** gate; the `selection` approval records approval of the *M2 assist*, not of manual curation.
 - **Any clip edit invalidates `finalize`** (reset to `null`), forcing re-approval before re-render. Approving a render you then edited is the drift ADR-006 guards against.
 - Approvals are timestamps in `project.json`, so they survive reload and are auditable.
+
+### 7.1 · The nine-stage pipeline (G-7)
+
+Enumerated so the UI stepper and the five-gate set agree by reference, not by invention.
+
+| # | Stage | Machine-proposing? | Gate |
+|---|---|---|---|
+| 1 | Create project | no | — |
+| 2 | Sources (pick folder + track) | no | — |
+| 3 | Import (probe, proxies) | no | **`ingest`** |
+| 4 | AI-select / order | yes (M2) | **`selection`** — inert in M1 |
+| 5 | Curate (include/exclude/delete/restore/reorder) | **no — human editing** | **none (G-6)** |
+| 6 | AI-trim | yes | **`trim`** |
+| 7 | Speed | yes (M3) | **`speed`** — inert in M1 |
+| 8 | Finalize (render) | no | **`finalize`** |
+| 9 | Export (per audio mode) | no | — |
+
+**Curation is intentionally un-gated (G-6).** It is human editing, not a machine proposal, so it carries no approval-of-a-proposal timestamp; it sits at stage 5, bounded by the `ingest` and `trim` gates on either side. The "five gates across nine stages" framing holds exactly — gates at stages 3, 4, 6, 7, 8 (two inert in M1).
+
+**Resume is derived, not stored (G-8).** The stage to reopen at is the earliest live stage whose gate is unmet — the stage after the last non-null `stage_approvals` entry, skipping inert (`selection`, `speed`) gates in M1. `project.json` gains no `current_stage` field; the resume point is computed from the approval timestamps, keeping the saved file authoritative-only.
 
 ## 8 · Render and export
 

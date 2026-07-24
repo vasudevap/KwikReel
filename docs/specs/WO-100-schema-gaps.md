@@ -1,6 +1,6 @@
 # WO-100 → WO-101 · ES-001 schema gaps found by the prototype
 
-**Status:** Proposed findings — for owner/spec-owner decision before WO-101 freezes contracts
+**Status:** ✅ **Resolved — 2026-07-24.** Prototype flow owner-approved; **all ten gaps signed off and amended into [ES-001 §4.5](ES-001-manual-editor-core.md)** before WO-101. This document is now the historical record of what the prototype found — the authoritative resolutions live in ES-001.
 **Source:** The WO-100 clickable prototype (`frontend/`), built against [ES-001 §4](ES-001-manual-editor-core.md) on fake data
 **Governing:** [ADR-008](../decisions/ADR-008-prototype-before-contract-freeze.md) (prototype before contract freeze). Per the M1 backlog, *every gap here is amended into ES-001 first; WO-101 does not start until ES-001 reflects what the screen actually needs.*
 
