@@ -8,7 +8,7 @@ An explainable, local-first, human-directed reel editor for private family foota
 
 The AI proposes a first pass at the edit — which clips, in what order, where to trim, where to change speed — each with a plain-language reason. The user reviews everything, can override anything, and **approves each machine-proposing stage before the next runs — five approval gates across the nine-stage pipeline.** The AI proposes; the human decides.
 
-The repository name predates this framing. The framing governs.
+Renamed to KwikReel 2026-07-24; the repository directory is `kwikreel`.
 
 ## Where the project is
 
@@ -22,7 +22,7 @@ The repository name predates this framing. The framing governs.
 - **`PROJECT.md`, `ROADMAP.md`, and `ES-001` are accepted** (owner-approved 2026-07-23).
 - **Three milestones**, each shipping something the owner can use: **M1** working pipe + AI trim · **M2** AI selection and ordering · **M3** AI speed ramping.
 - **`ES-001` freezes** the `project.json` schema, `SourceIndex`, `analysis.json`, `ReasonRecord`, the HTTP contract, and the trim proposer's signals and rules.
-- **A GitHub remote exists** — `origin` → `https://github.com/vasudevap/ai-vacation-reel-agent`, and **it is PUBLIC**. Everything in this repository is visible to anyone.
+- **A GitHub remote exists** — `origin` → `https://github.com/vasudevap/KwikReel`, and **it is PUBLIC**. Everything in this repository is visible to anyone.
 - **As of 2026-07-24, the first code exists:** the WO-100 clickable prototype (`frontend/`, fake data) and the WO-101 **contract kernel** — Pydantic models + generated TS types + service interfaces (`backend/contracts/`, `frontend/src/types/contracts.ts`), with a green round-trip + drift-guard test suite. Everything else is still documents.
 
 ## What does not exist

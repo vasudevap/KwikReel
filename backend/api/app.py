@@ -123,7 +123,7 @@ def create_app(services: Services, config: ApiConfig) -> FastAPI:
     runner = JobRunner(scrub=scrub)
     analysis_store = FileAnalysisStore(config.analysis_root) if config.analysis_root else None
 
-    app = FastAPI(title="AI Vacation Reel Agent", version=APP_VERSION)
+    app = FastAPI(title="KwikReel", version=APP_VERSION)
     app.state.capability_token = token
     app.add_middleware(
         SecurityMiddleware,

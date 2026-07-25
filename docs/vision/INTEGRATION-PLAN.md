@@ -1,9 +1,9 @@
-# Integration Plan — docking the Reel Agent into Atlas
+# Integration Plan — docking KwikReel into Atlas
 
 > **⚠️ PRE-PIVOT — retained for history (banner added 2026-07-24).** Preconditions and phases below (ADR-001–004 accepted; validation plan with pre-registered thresholds; Phases 1–5) are **superseded** by the 2026-07-23 pivot and the 2026-07-24 course correction. ADR-001/004 are superseded; the build is now three milestones (ADR-006/007/009). The Atlas dock stays a **deferred, unaccepted projection.** `PROJECT.md`, `ROADMAP.md`, and the ADRs govern.
 
 **Status:** Draft · **forward-looking projection** — owner approval required. Authorizes nothing. The integration described here is **deferred and conditional**; it does not begin until validation succeeds and a future ADR accepts the boundary contract.
-**Companion:** [SYSTEM-VISION.md](SYSTEM-VISION.md) is the *what*; this is the *when and in what order*. [reel-atlas-overview.html](reel-atlas-overview.html) is the visual.
+**Companion:** [SYSTEM-VISION.md](SYSTEM-VISION.md) is the *what*; this is the *when and in what order*. [kwikreel-atlas-overview.html](kwikreel-atlas-overview.html) is the visual.
 **Governing:** [ROADMAP.md](../../ROADMAP.md) (phase gates), [ADR-001](../decisions/ADR-001-prototype-shape.md) (deferral + independent interfaces).
 
 ---

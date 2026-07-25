@@ -2,15 +2,15 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "reel-prototype",
+      "name": "kwikreel-prototype",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "cwd": "frontend",
       "port": 5178
     },
     {
-      "name": "reel-app",
-      "runtimeExecutable": "/Users/pv/bootcamp/projects/ai-vacation-reel-agent/.venv/bin/python",
+      "name": "kwikreel-app",
+      "runtimeExecutable": "/Users/pv/bootcamp/projects/kwikreel/.venv/bin/python",
       "runtimeArgs": ["-m", "backend.api.run", "--port", "8000"],
       "port": 8000,
       "url": "http://127.0.0.1:8000"

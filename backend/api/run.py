@@ -4,7 +4,7 @@ Binding beyond 127.0.0.1 is a stop-and-ask. Prints the per-launch capability
 token; the frontend obtains it by being served with it injected (WO-107), never
 from an unauthenticated endpoint.
 
-    python -m backend.api.run --data ~/.reel-agent --port 8000
+    python -m backend.api.run --data ~/.kwikreel --port 8000
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def main() -> None:  # pragma: no cover - operational entrypoint
     import uvicorn
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data", default=str(Path.home() / ".reel-agent"))
+    parser.add_argument("--data", default=str(Path.home() / ".kwikreel"))
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
 

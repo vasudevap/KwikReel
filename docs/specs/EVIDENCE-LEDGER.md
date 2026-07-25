@@ -33,7 +33,7 @@ Separate from claims, per the playbook's *committed is not shipped* discipline.
 | Media / corpus / consent records / annotations | **none** |
 | Experiment / checkpoint results | **none** — CP-1/CP-2/CP-3 not yet run |
 | Accepted ADRs | 002, 003, 005, 006, 007, 008, and the 2026-07-24 set **009, 010, 011, 012, 013**. ADR-001 superseded by 005; ADR-004 superseded by 006. |
-| Git | Public remote `origin` → `github.com/vasudevap/ai-vacation-reel-agent` (**PUBLIC**). Local `main` is ahead of `origin/main`; each push is a separate owner decision. |
+| Git | Public remote `origin` → `github.com/vasudevap/KwikReel` (**PUBLIC**). Local `main` is ahead of `origin/main`; each push is a separate owner decision. |
 
 ## Log
 

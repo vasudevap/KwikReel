@@ -1,7 +1,7 @@
 # Phase-1 backlog — proposed deltas
 
 **Status:** **RETIRED 2026-07-23 — superseded by ADR-006**, together with its parent [phase-1-backlog.md](phase-1-backlog.md). These deltas propose changes to a validation apparatus that has been withdrawn. **Nothing here was ever approved or executed.** Retained for history; the text below is the original draft, unedited.
-**Origin:** the architecture review / three-way triangulation (independent design ↔ project decisions ↔ generic reel-agent best-practice). Companion design: [../specs/COMPONENT-DECOMPOSITION.md](../specs/COMPONENT-DECOMPOSITION.md).
+**Origin:** the architecture review / three-way triangulation (independent design ↔ project decisions ↔ generic first-draft-reel-editor best practice). Companion design: [../specs/COMPONENT-DECOMPOSITION.md](../specs/COMPONENT-DECOMPOSITION.md).
 **Governing:** [ADR-004](../decisions/ADR-004-validation-first-sequencing.md), [VALIDATION-PLAN.md](../specs/VALIDATION-PLAN.md), [ADR-002](../decisions/ADR-002-privacy-and-data-posture.md), [ADR-003](../decisions/ADR-003-music-and-licensing-posture.md).
 
 Two kinds of delta. **Part A** proposes build items (proto-WOs) buildable only after the ADR/validation/ADP gates. **Part B** proposes corrections to owner-gated documents — several are **stop-and-ask** (they touch pre-registered experiments, thresholds, or held-out discipline) and are therefore listed for owner ratification, **not applied here**.

@@ -25,7 +25,7 @@ Notion may hold only non-sensitive project metadata and summaries. The source fi
 
 ## Hub and databases
 
-The private Notion hub is [AI Vacation Reel Agent — Delivery Hub](https://app.notion.com/p/3a4e3a7fd96481b29af7f4ba709c866a).
+The private Notion hub is [KwikReel — Delivery Hub](https://app.notion.com/p/3a4e3a7fd96481b29af7f4ba709c866a).
 
 | Notion database | Repository source | Update trigger |
 |---|---|---|

@@ -1,4 +1,4 @@
-<title>[PRE-PIVOT] Reel Agent × Atlas — Interaction Map (Projection)</title>
+<title>[PRE-PIVOT] KwikReel × Atlas — Interaction Map (Projection)</title>
 <style>
   :root{
     --ground:#eef1f4; --paper:#fbfcfd; --paper-2:#f3f6f9; --inset:#eaeef2;
@@ -249,7 +249,7 @@
 
   <header>
     <p class="eyebrow"><span class="dot"></span>Projection · not an accepted plan · nothing here is built</p>
-    <h1>The Reel Agent, docked into Atlas</h1>
+    <h1>KwikReel, docked into Atlas</h1>
     <p class="dek">A picture of <b>where you'd look to do what</b> — the local editing pipeline on one side, Atlas's governance console on the other, and the trust boundary between them. Every element is tagged with what it actually is today. In the current docs, Atlas is a <b>deliberately deferred option</b> (ADR-001, Option 5): "premature before a standalone editorial pipeline exists." This map shows how it <i>would</i> fit, grounded in both projects' real documents — it does not describe anything that has been decided or written.</p>
     <p class="dek mono" style="font-size:12px;margin-top:12px;color:var(--ink-3);">Companion docs · <b style="color:var(--ink-2);font-weight:600;">SYSTEM-VISION.md</b> (the what) · <b style="color:var(--ink-2);font-weight:600;">INTEGRATION-PLAN.md</b> (the when &amp; order) · both in <span style="color:var(--ink-2);">docs/vision/</span></p>
 
@@ -351,7 +351,7 @@
         <div class="scard-body">
           <div class="mock">
             <div class="bar"><span class="lamp"></span>zsh — ~/footage/hawaii-2026</div>
-            <div class="body"><span class="prompt">$</span> reel generate ./clips --track song.mp3 --keep 3,8,14 --dur 60
+            <div class="body"><span class="prompt">$</span> kwikreel generate ./clips --track song.mp3 --keep 3,8,14 --dur 60
 
 <span class="c-key">report.txt</span>
 <span class="c-ok">kept</span> clip_014 · audio: laughter peak 0.82 · steady
@@ -443,26 +443,26 @@
     <p class="sec-sub">So the picture above is never mistaken for a spec. Each piece, and exactly what it is right now.</p>
 
     <div class="ledger">
-      <div class="lrow"><span class="status st-defer">Deferred option</span><div class="lt">Atlas as this project's orchestrator</div><div class="ld">Named as future-apt but "premature before a standalone editorial pipeline exists." No integration designed.</div><div class="src">reel · ADR-001, Option 5</div></div>
+      <div class="lrow"><span class="status st-defer">Deferred option</span><div class="lt">Atlas as this project's orchestrator</div><div class="ld">Named as future-apt but "premature before a standalone editorial pipeline exists." No integration designed.</div><div class="src">kwikreel · ADR-001, Option 5</div></div>
 
-      <div class="lrow"><span class="status st-prop">Proposed</span><div class="lt">Local CLI POC + independent interfaces</div><div class="ld">The whole "build local first, keep planner independent so Atlas can dock later" decision — still Proposed, not accepted.</div><div class="src">reel · ADR-001 (status: Proposed)</div></div>
+      <div class="lrow"><span class="status st-prop">Proposed</span><div class="lt">Local CLI POC + independent interfaces</div><div class="ld">The whole "build local first, keep planner independent so Atlas can dock later" decision — still Proposed, not accepted.</div><div class="src">kwikreel · ADR-001 (status: Proposed)</div></div>
 
-      <div class="lrow"><span class="status st-prop">Proposed</span><div class="lt">CLI + report + manifest as the review surface</div><div class="ld">"No polished review UI in the POC." The agent-side surface is deliberately a command line, not a GUI.</div><div class="src">reel · ADR-001 · prototype-definition</div></div>
+      <div class="lrow"><span class="status st-prop">Proposed</span><div class="lt">CLI + report + manifest as the review surface</div><div class="ld">"No polished review UI in the POC." The agent-side surface is deliberately a command line, not a GUI.</div><div class="src">kwikreel · ADR-001 · prototype-definition</div></div>
 
-      <div class="lrow"><span class="status st-lock">Locked</span><div class="lt">No identity recognition · media stays on device</div><div class="ld">Hard constraints. Map them onto Atlas's Policy Engine as denials no approval can override.</div><div class="src">reel · CLAUDE.md · ADR-002</div></div>
+      <div class="lrow"><span class="status st-lock">Locked</span><div class="lt">No identity recognition · media stays on device</div><div class="ld">Hard constraints. Map them onto Atlas's Policy Engine as denials no approval can override.</div><div class="src">kwikreel · CLAUDE.md · ADR-002</div></div>
 
       <div class="lrow"><span class="status st-real">Accepted in Atlas</span><div class="lt">The approval console &amp; lifecycle itself</div><div class="ld">Queue, evidence, approve/reject/clarify, single reviewer, audit — a real, Approved architecture. But accepted <i>in Atlas</i>, for Atlas's own agents.</div><div class="src">atlas · 13-human-approvals (Approved)</div></div>
 
-      <div class="lrow"><span class="status st-defer">Not designed</span><div class="lt">The reel-agent ↔ Atlas wiring</div><div class="ld">Every crossing arrow, the export-approval hook, the run-state dock — this map's projection. Neither repo specifies it.</div><div class="src">projection from both repos</div></div>
+      <div class="lrow"><span class="status st-defer">Not designed</span><div class="lt">The kwikreel ↔ Atlas wiring</div><div class="ld">Every crossing arrow, the export-approval hook, the run-state dock — this map's projection. Neither repo specifies it.</div><div class="src">projection from both repos</div></div>
     </div>
   </section>
 
   <footer>
     <div class="quote">The system proposes, a human decides — that principle is what both planes exist to enforce.</div>
     <div class="src-list">
-      reel · ADR-001-prototype-shape.md<br>
-      reel · PROJECT.md · prototype-definition.md<br>
-      reel · CLAUDE.md · ADR-002-privacy-and-data-posture.md<br>
+      kwikreel · ADR-001-prototype-shape.md<br>
+      kwikreel · PROJECT.md · prototype-definition.md<br>
+      kwikreel · CLAUDE.md · ADR-002-privacy-and-data-posture.md<br>
       atlas · docs/architecture/13-human-approvals.md
     </div>
   </footer>

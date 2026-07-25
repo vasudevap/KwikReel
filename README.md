@@ -1,8 +1,8 @@
-# AI Vacation Reel Agent
+# KwikReel
 
 An **explainable, local-first, human-directed first-draft reel editor** for private family footage. It proposes a transparent first pass at the edit — which clips, in what order, where to trim, where to change speed — each with a plain-language reason. The user reviews everything, overrides anything, and **approves each machine-proposing stage before the next runs.** The AI proposes; the human decides.
 
-Not an autonomous editor, and not a claim of editorial intelligence. The repository name predates this framing; the framing governs.
+Not an autonomous editor, and not a claim of editorial intelligence. Renamed to KwikReel 2026-07-24; the repository directory is `kwikreel`.
 
 ## Status
 

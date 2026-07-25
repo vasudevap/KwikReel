@@ -1,4 +1,4 @@
-# Roadmap — AI Vacation Reel Agent
+# Roadmap — KwikReel
 
 **Status:** **Accepted — owner-approved 2026-07-23; amended 2026-07-24 (pre-ADP course correction, ADR-009/012).** Re-sequenced per ADR-007.
 **Governing:** `_oversight/DELIVERY-PLAYBOOK.md` (normal Direction → Specification → build flow); build method **ADR-006**; sequencing **ADR-007** (amended by **ADR-009** — manual curation in M1); evidence checkpoints **ADR-012**; form factor **ADR-005**.

@@ -1,4 +1,4 @@
-# Project — AI Vacation Reel Agent
+# Project — KwikReel
 
 **Status:** **Accepted — owner-approved 2026-07-23; amended 2026-07-24 (pre-ADP course correction — ADR-009/010/011/012/013).** Supersedes the prior ranking-centric draft (pivot 2026-07-23).
 **Governing methodology:** `_oversight/DELIVERY-PLAYBOOK.md`, normal flow (Direction → Specification → incremental staged build). Validation-first sequencing and the PROP-01 pilot are **retired** for this project by ADR-006 (Accepted 2026-07-23); ADR-001's CLI-first prototype shape is superseded by ADR-005 (Accepted 2026-07-23). ADR-002 (privacy) and ADR-003 (music/licensing) stand. This project is at **Stage A — Direction (re-opened by the pivot)**. No implementation, media collection, or remote repository is authorized.
@@ -9,7 +9,7 @@ Build an **explainable, local-first, human-directed first-draft reel editor for 
 
 Three words are load-bearing. *Human-directed* — the user makes every editorial decision, by approving or overriding. *Assisted* — the heavy first pass is done for them, as a starting point. *Transparent* — every pick, rejection, trim, and speed change carries a plain-language reason and is auditable. The **staged, confirmation-gated pipeline and the timeline where the user finishes the edit are the product;** the automated assists are what make that finishing fast.
 
-> **Naming note.** The repository is `ai-vacation-reel-agent` and predates this framing. The name is retained to avoid breaking paths; wherever the product is described, the framing above governs. "Agent" here means a governed pipeline that *proposes at each stage and waits for approval*, not an autonomous editor that decides.
+> **Naming note.** The product is called **KwikReel** (effective 2026-07-24), and the repository directory is `kwikreel`. The system remains a governed pipeline that *proposes at each stage and waits for approval*, not an autonomous editor that decides.
 
 ## What changed in this pivot (and why)
 

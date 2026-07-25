@@ -1,9 +1,9 @@
-# System Vision — the Reel Agent and Atlas
+# System Vision — KwikReel and Atlas
 
 > **⚠️ PRE-PIVOT — retained for history (banner added 2026-07-24).** This document predates the 2026-07-23 pivot and the 2026-07-24 course correction. Its present-tense claims — a **local CLI** agent surface, `timeline.json`, ADR-001 as operative, pre-registered thresholds, a held-out day, Phases 1–5 — are **superseded.** The product is a local **web app** (ADR-005) with `project.json` canonical (ADR-010 adds `disposition`); the build is three milestones with **five approval gates.** **`PROJECT.md`, `ROADMAP.md`, `ES-001`, and the ADRs govern.** The Atlas dock remains a deferred, unaccepted projection.
 
 **Status:** Draft · **forward-looking projection** — owner approval required. Introduces **no accepted decision** and relaxes no constraint. The operative decision on Atlas is still [ADR-001](../decisions/ADR-001-prototype-shape.md) (deferral); the real dock decision is a Phase 5 concern under [ROADMAP.md](../../ROADMAP.md).
-**Companion:** [reel-atlas-overview.html](reel-atlas-overview.html) is the at-a-glance visual of everything below. [INTEGRATION-PLAN.md](INTEGRATION-PLAN.md) covers *when* and *in what order*.
+**Companion:** [kwikreel-atlas-overview.html](kwikreel-atlas-overview.html) is the at-a-glance visual of everything below. [INTEGRATION-PLAN.md](INTEGRATION-PLAN.md) covers *when* and *in what order*.
 **Governing:** subordinate to [PROJECT.md](../../PROJECT.md), which remains authoritative for product direction. This document only adds the systems-level view of the two components and their linkage.
 
 ---
@@ -12,11 +12,11 @@
 
 So volume is never mistaken for a plan — the honesty discipline of [handoff.md](../../handoff.md) applies here too:
 
-- **The Reel Agent does not exist.** No code, no corpus, no experiments. Stage A, documents only.
+- **KwikReel does not exist.** No code, no corpus, no experiments. Stage A, documents only.
 - **Atlas is not built by this project.** It is a separate, pre-existing platform (`agent-control-center`) with its own accepted architecture. This project would *integrate with* it, not build it.
 - **The linkage between them is a projection.** Every crossing arrow, approval hook, and run-state dock described below is drawn from both repos' real documents but is **not specified in either**. Nothing here is designed, accepted, or authorized.
 
-The two components are **not co-equal deliverables.** This project delivers the Reel Agent. Atlas is an external governance surface it *may* dock into once — and only once — editorial quality is proven.
+The two components are **not co-equal deliverables.** This project delivers KwikReel. Atlas is an external governance surface it *may* dock into once — and only once — editorial quality is proven.
 
 ---
 
@@ -31,11 +31,11 @@ A governed system needs the media to stay private *and* the consequential action
 
 The trust boundary between them is the load-bearing element. **Original media never crosses it.** The single narrow exception is the ADR-002 opt-in keyframe experiment — extracted keyframes only, per-run, and itself an approval-gated action.
 
-> **The principle both planes exist to enforce:** the system proposes, a human decides. The Reel Agent produces a proposal; Atlas is where a person accepts or rejects it, with a recorded reason and an audit trail.
+> **The principle both planes exist to enforce:** the system proposes, a human decides. KwikReel produces a proposal; Atlas is where a person accepts or rejects it, with a recorded reason and an audit trail.
 
 ---
 
-## Component 1 — The Reel Agent (what this project builds)
+## Component 1 — KwikReel (what this project builds)
 
 A local, deterministic pipeline on Apple Silicon: folder in, one defensible draft plus a plain-language account out. Capabilities below are drawn from [PROJECT.md](../../PROJECT.md) and [prototype-definition.md](../specs/prototype-definition.md); all are **proposed**, none validated.
 
@@ -52,13 +52,13 @@ A local, deterministic pipeline on Apple Silicon: folder in, one defensible draf
 | Assisted review | Lock / remove / restore / regenerate; iterate the edit | Proposed (Phase 3) |
 | Cloud keyframe scoring | Optional VLM-on-keyframes scorer to measure the quality/privacy trade-off | Proposed · **experiment**, opt-in ([ADR-002](../decisions/ADR-002-privacy-and-data-posture.md)) |
 
-**Agent-side surface (today's plan):** a **local CLI** plus the report and manifests — *not* a GUI. [ADR-001](../decisions/ADR-001-prototype-shape.md): "No polished review UI in the POC; report/manifest are the review surface." A desktop review app is an addable-later surface, not designed — see [reel-agent-ui-mockup.html](reel-agent-ui-mockup.html) for a labeled projection of both surfaces.
+**Agent-side surface (today's plan):** a **local CLI** plus the report and manifests — *not* a GUI. [ADR-001](../decisions/ADR-001-prototype-shape.md): "No polished review UI in the POC; report/manifest are the review surface." A desktop review app is an addable-later surface, not designed — see [kwikreel-ui-mockup.html](kwikreel-ui-mockup.html) for a labeled projection of both surfaces.
 
 ---
 
 ## Component 2 — Atlas (the governance surface it may dock into)
 
-Atlas contributes governance the Reel Agent would otherwise have to build itself. Capabilities below are **accepted within Atlas** ([13-human-approvals.md](../../../agent-control-center/docs/architecture/13-human-approvals.md), Approved) — but their *use by this project* is unbuilt and undesigned.
+Atlas contributes governance KwikReel would otherwise have to build itself. Capabilities below are **accepted within Atlas** ([13-human-approvals.md](../../../agent-control-center/docs/architecture/13-human-approvals.md), Approved) — but their *use by this project* is unbuilt and undesigned.
 
 | Atlas capability | What the user gets | For this project |
 |---|---|---|

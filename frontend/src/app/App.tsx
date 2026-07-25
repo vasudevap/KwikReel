@@ -92,7 +92,7 @@ export function App({ client }: { client: ReelClient }) {
       </div>
       <div className="shell">
         <div className="row spread wrap">
-          <h1 style={{ margin: 0 }}>🎬 Reel Agent <span className="muted small">— first-draft editor</span></h1>
+          <h1 style={{ margin: 0 }}>🎬 KwikReel <span className="muted small">— first-draft editor</span></h1>
           {project && <button onClick={() => { setProject(null); setStage('create'); setError(null) }}>Start over</button>}
         </div>
         <Stepper steps={STEPS} currentIdx={currentIdx} doneIds={doneIds} />

@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "reel-agent"
+name = "kwikreel"
 version = "0.1.0"
-description = "AI Vacation Reel Agent — local-first, human-directed reel editor (M1 backend)."
+description = "KwikReel — local-first, human-directed reel editor (M1 backend)."
 requires-python = ">=3.11"
 
 # WO-101 owns the manifests and pre-declares the WHOLE M1 dependency set, so no

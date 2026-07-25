@@ -1,4 +1,4 @@
-# AI Vacation Reel Agent — session instructions
+# KwikReel — session instructions
 
 Read `../_oversight/DELIVERY-PLAYBOOK.md`. We follow it for this project.
 
@@ -14,7 +14,7 @@ Read `../_oversight/DELIVERY-PLAYBOOK.md`. We follow it for this project.
 
 ## Framing
 
-An **explainable, local-first, human-directed first-draft reel editor** for private family footage — not a claim of autonomous editorial intelligence. The repository name predates this framing; the framing governs.
+An **explainable, local-first, human-directed first-draft reel editor** for private family footage — not a claim of autonomous editorial intelligence. Renamed to KwikReel 2026-07-24; the repository directory is `kwikreel`.
 
 The system proposes a transparent first pass at the whole edit — **which clips, in what order, where to trim, where to change speed** — and the human reviews it, overrides anything, and **approves each machine-proposing stage before the next runs — five approval gates (ingest, selection, trim, speed, finalize) across the nine-stage pipeline.** The AI proposes; the human decides.
 

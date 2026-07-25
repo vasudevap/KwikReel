@@ -1,4 +1,4 @@
-# Pre‑ADP Review — AI Vacation Reel Agent
+# Pre‑ADP Review — KwikReel
 
 **Status:** **Independent review — advisory.** Introduces **no accepted decision**, authorizes nothing, and relaxes no constraint. This document is *input to the owner's ADP decision*; it does not itself gate, approve, or supersede anything. Findings are recommendations, not applied changes.
 **Actioned 2026-07-24:** the owner accepted the REVISE verdict and applied a course correction — ADR-009 (manual curation in M1), ADR-010 (proposal `disposition`), ADR-011 (local delivery security), ADR-012 (evidence checkpoints), ADR-013 (prototype thumbnails under ADR-002), plus amendments to ES-001 / ROADMAP / PROJECT / m1-backlog and a pivot pass over README / EVIDENCE-LEDGER / risk-register. Blocking levels were re-calibrated (evidence probes are checkpoints, **not** ADP blockers; "nine gates" → five; **bounded**, not unbounded, proposal history). See `handoff.md`.

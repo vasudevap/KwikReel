@@ -1,9 +1,9 @@
 {
-  "name": "reel-agent-frontend",
+  "name": "kwikreel-frontend",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "AI Vacation Reel Agent frontend (M1). WO-101 owns this manifest; deps stay within the declared M1 set (react, typescript, vite). src/types/contracts.ts is generated from the backend models — do not hand-edit.",
+  "description": "KwikReel frontend (M1). WO-101 owns this manifest; deps stay within the declared M1 set (react, typescript, vite). src/types/contracts.ts is generated from the backend models — do not hand-edit.",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

@@ -1,4 +1,4 @@
-# Validation Plan — AI Vacation Reel Agent
+# Validation Plan — KwikReel
 
 **Status:** **Retired 2026-07-23 — superseded by ADR-006** (incremental staged build with per-stage human approval). **No experiment ever ran; no corpus was collected; no media exists.** Per-stage acceptance on real footage replaces this plan. Retained for history; the text below is the original draft, unedited.
 **Governing:** `_oversight/DELIVERY-PLAYBOOK.md` Stage B; sequencing locked by ADR-004; data handling governed by ADR-002
