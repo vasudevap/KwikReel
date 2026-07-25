@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import json
 import secrets
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -25,7 +26,8 @@ from uuid import uuid4
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import FileResponse, JSONResponse, Response
+from starlette.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from starlette.staticfiles import StaticFiles
 
 from backend.analysis import FileAnalysisStore
 from backend.api.errors import envelope, install_error_handlers, scrub
@@ -55,6 +57,7 @@ class ApiConfig:
     proxy_root: Path
     output_root: Path
     analysis_root: Path | None = None
+    frontend_dist: Path | None = None
     allowed_hosts: frozenset[str] = LOCAL_HOSTS
     allowed_origin_hosts: frozenset[str] = LOCAL_HOSTS
     capability_token: str | None = None  # generated per launch if not supplied
@@ -312,5 +315,20 @@ def create_app(services: Services, config: ApiConfig) -> FastAPI:
             services.store.save(fresh)
 
         return {"job_id": runner.submit(work)}
+
+    # Serve the built frontend as one local web app (ADR-005). The per-launch
+    # capability token is injected into index.html here, at serve time — the
+    # frontend never fetches it from an unauthenticated endpoint.
+    if config.frontend_dist:
+        dist = Path(config.frontend_dist)
+        assets = dist / "assets"
+        if assets.is_dir():
+            app.mount("/assets", StaticFiles(directory=str(assets)), name="assets")
+
+        @app.get("/")
+        def index() -> Response:
+            html = (dist / "index.html").read_text(encoding="utf-8")
+            inject = f"<script>window.__REEL_TOKEN__={json.dumps(token)}</script>"
+            return HTMLResponse(html.replace("</head>", inject + "</head>"))
 
     return app

@@ -108,24 +108,21 @@ def _ts_type(node: dict) -> str:
     return "unknown"
 
 
+# Fields are emitted REQUIRED: this is the serialization shape, and the backend
+# always dumps every field (defaults included), so a value read from the API has
+# them all. Nullable fields keep `| null`. (A field's optionality on *input* is
+# not modelled here — the frontend PUTs whole objects it first read.)
 def _inline_object(schema: dict) -> str:
     props = schema.get("properties", {})
-    required = set(schema.get("required", []))
-    fields = []
-    for prop, sub in props.items():
-        opt = "" if prop in required else "?"
-        fields.append(f"{prop}{opt}: {_ts_type(sub)}")
+    fields = [f"{prop}: {_ts_type(sub)}" for prop, sub in props.items()]
     return "{ " + "; ".join(fields) + " }"
 
 
 def _emit_interface(name: str, schema: dict) -> str:
     props = schema.get("properties", {})
-    required = set(schema.get("required", []))
     lines = [f"export interface {name} {{"]
     for prop, sub in props.items():  # property order follows field definition order
-        optional = prop not in required
-        ts = _ts_type(sub)
-        lines.append(f"  {prop}{'?' if optional else ''}: {ts};")
+        lines.append(f"  {prop}: {_ts_type(sub)};")
     lines.append("}")
     return "\n".join(lines)
 

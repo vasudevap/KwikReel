@@ -1,6 +1,6 @@
 # M1 Work Order backlog — working pipe + AI trim
 
-**Status:** Approved — 2026-07-24. Execution authorized under [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md). **Progress (2026-07-24, synthetic fixtures, local build only):** WO-100/101 ✅ · **WO-102/103/104/105 ✅** (ES-001 §10 internal checkpoint proven) · **WO-106 (api) ✅** · **WO-111/112 (analysis + trim proposer) ✅** (the trim assist — analyze→propose wired through the API, explained per §5.2/ADR-006) · **WO-113 (guards) ◑ partial**. **61 tests green.** The backend is M1-feature-complete. Remaining: **WO-107–110 (real frontend)** · WO-114 (full integration) · the WO-113 frontend-bundle guard. Real-footage gates stay deferred to the ADR-002 consent record.**
+**Status:** Approved — 2026-07-24. Execution authorized under [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md). **Progress (2026-07-24, synthetic fixtures, local build only):** WO-100/101 ✅ · **WO-102–106 ✅** (backend pipe; ES-001 §10 checkpoint proven) · **WO-111/112 ✅** (explainable trim assist) · **WO-107–110 ✅** (real frontend — mock + live client, **verified live in the browser**: import→curate→AI-trim with real reasons→export) · **WO-113 ◑** (security + hygiene guards). **61 backend tests green; frontend typechecks & builds clean.** **M1 is functionally complete on synthetic fixtures.** Remaining: WO-114 (full integration test), the WO-113 frontend-bundle/egress guards, and the **owner gates that need real footage + ADR-002 consent** (the real 50-clip day and the Apple Photos Memory comparison, ES-001 §10).**
 **Governing:** [ES-001](../specs/ES-001-manual-editor-core.md) (Accepted), [ROADMAP.md](../../ROADMAP.md), [ADR-005](../decisions/ADR-005-editor-form-factor.md), [ADR-006](../decisions/ADR-006-incremental-staged-build.md), [ADR-007](../decisions/ADR-007-build-sequencing.md), [ADR-008](../decisions/ADR-008-prototype-before-contract-freeze.md)
 **Execution authority:** granted by [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md) (Authorized 2026-07-24), scoped to *local build only* — pushes, CI, and real-media execution remain gated (ADP-001 §3). WO-100 runs first.
 
@@ -80,24 +80,28 @@ WO-100 creates the frontend directories; later frontend WOs fill in their own. W
 - **Depends:** WO-101
 
 ### WO-107 · Frontend — app shell and API client
+- **Status:** ✅ **Complete — 2026-07-24.** `frontend/src/app/`: a `ReelClient` interface with `LiveClient` (real §6, sends the ADR-011 token on mutations) + `MockClient` (in-memory) — `main.tsx` auto-selects live vs mock by whether the server injected a token, so switching changes **no** component code. Staged shell (create→sources→import→curate→trim→finalize→export) with job-progress polling. Runs fully in mock mode (`vite dev`) and live (the backend serves the built app with the token injected into `index.html`). **Verified live in the browser end-to-end.** The superseded WO-100 prototype source was replaced (kept in git history).
 - **Scope:** Promote the prototype shell to real: routing, project create/open, job progress handling, and an **API client with a mock mode**. Runs on the prototype's fake data until WO-106 merges, then switches to the real API.
 - **File scope:** `frontend/src/app/` · **Excludes:** timeline, edit controls, proposals. **No remote assets of any kind**
 - **Gates:** Runs fully in mock mode · switching to the real client changes no component code
 - **Depends:** WO-101 *(not WO-106 — this is what keeps the frontend off the critical path)*
 
 ### WO-108 · Frontend — timeline and preview
+- **Status:** ✅ **Complete — 2026-07-24.** `frontend/src/timeline/`: ordered included clips with trim bars (kept vs proposal), running total vs `target_duration_s`, the music track, and a proxy preview `<video>` — served live with **range requests** (verified 206 Partial Content). **Deferred:** the 50-clip no-stall/scrub-responsiveness gate (a real-day scale test).
 - **Scope:** Timeline sequence view showing clips, trims, and the music track. Proxy preview player with scrubbing.
 - **File scope:** `frontend/src/timeline/` · **Excludes:** editing controls
 - **Gates:** 50 clips render without stalling · scrubbing is responsive on proxies
 - **Depends:** WO-107
 
 ### WO-109 · Frontend — manual curation, edit controls, and approval
+- **Status:** ✅ **Complete — 2026-07-24.** `frontend/src/edit/`: include/exclude, delete/restore (non-deleted `order` renumbered to keep the store's dense-order invariant), reorder; every edit sets `origin:"user"` and persists through the store (optimistic-concurrency safe). Unreadable clips can't be included. Stage approvals recorded via the API. **Verified live.**
 - **Scope:** **Manual curation — include/exclude, delete, restore ([ADR-009](../decisions/ADR-009-manual-curation-in-m1.md) §5.5)** — plus trim handles, reorder, and the stage-approval UI. Excluded clips do not render; deleted clips are flag-retained for exact restore. The timeline shows running total vs `target_duration_s` (reference only). Every edit sets `origin: "user"`.
 - **File scope:** `frontend/src/edit/` · **Excludes:** AI proposals; any *proposer* for inclusion/order (M2)
 - **Gates:** Every edit survives reload · exclude→restore and delete→restore round-trip exactly · excluded clips are absent from the render · editing after a finalize approval visibly resets that approval
 - **Depends:** WO-108
 
 ### WO-110 · Frontend — trim proposal UI
+- **Status:** ✅ **Complete — 2026-07-24.** `frontend/src/trim/`: each proposal shows its `human_text` + code + confidence + `evidence_refs` inline (ADR-006); **adjust** (→ `disposition:"adjusted"`, clamped to the 1.0 s floor) and **remove** (→ `"dismissed"`) both set `origin:"user"` and retain `proposals.segments`; **accept** promotes untouched `pending`→`accepted` on the trim gate. **Verified live** — real reasons rendered, including the `NO_CLEAR_WINDOW` fallback. (The "no-reason proposal" case is prevented at the proposer, WO-112, not a frontend build guard.)
 - **Scope:** Per-clip *AI trim* button and *Trim all* bulk action. Each proposal's `human_text` displayed inline. Adjust a proposal (→ `disposition: "adjusted"`); remove a proposal (→ `"dismissed"`); accept untouched proposals on stage approval (→ `"accepted"`); explicitly re-run one clip (→ fresh `"pending"`). All retain `proposals.segments`.
 - **File scope:** `frontend/src/trim/` · **Excludes:** proposal logic — that is WO-112
 - **Gates:** A proposal with no readable reason fails the build · adjust and remove both set `origin: "user"`, set `disposition` accordingly, and retain the proposal · re-run is the only path that overwrites a user value

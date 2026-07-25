@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the backlog approved, and **[ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) authorized 2026-07-24** (course-correction ADR-009–013 landed; [pre-ADP review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)). **WO-100 (prototype) and WO-101 (contract kernel) complete 2026-07-24**; ES-001 amended with the prototype's ten schema gaps (§4.5). The first product code exists: the **frozen contracts**, the **backend compute lanes** (WO-102 ingest · WO-103 store · WO-104 render · WO-105 qa), and the **HTTP API** (WO-106) with its ADR-011 security guards (WO-113 partial). The **ES-001 §10 internal checkpoint is proven end-to-end** on synthetic fixtures, and the **trim assist (WO-111/112) is built and explained** (analyze→propose wired through the API); **61 tests green.** The backend is M1-feature-complete; the **real frontend (WO-107–110)** remains.
+**Updated:** 2026-07-24. Direction pivoted (2026-07-23), Stage A closed, M1 specified, the backlog approved, and **[ADP-001](docs/implementation-plans/ADP-001-m1-working-pipe-and-trim.md) authorized 2026-07-24** (course-correction ADR-009–013 landed; [pre-ADP review](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)). **WO-100 (prototype) and WO-101 (contract kernel) complete 2026-07-24**; ES-001 amended with the prototype's ten schema gaps (§4.5). The first product code exists: the **frozen contracts**, the **backend compute lanes** (WO-102 ingest · WO-103 store · WO-104 render · WO-105 qa), and the **HTTP API** (WO-106) with its ADR-011 security guards (WO-113 partial). The **ES-001 §10 internal checkpoint is proven end-to-end** on synthetic fixtures, the **trim assist (WO-111/112)** is built and explained, and the **real frontend (WO-107–110)** is done — a mock + live `ReelClient`, **verified live in the browser** (import→curate→AI-trim→export against the running backend). **61 backend tests green; the frontend typechecks and builds clean.** **M1 is functionally complete on synthetic fixtures**; what remains needs the owner's real footage + ADR-002 consent.
 
 ## What this is
 
@@ -27,10 +27,10 @@ The repository name predates this framing. The framing governs.
 
 ## What does not exist
 
-- **The backend is M1-feature-complete; the real UI is not.** WO-102–106 + WO-111/112 implement ingest, store, render, QA, the API (ADR-011 security, WO-113 partial), and the **explainable trim assist** (analyze→propose) against the WO-101 interfaces (synthetic fixtures, 61 tests). Still absent: the **real frontend** (WO-107–110 — still the fake-data prototype talking to no backend).
+- **M1 is functionally complete on synthetic fixtures.** WO-102–106 + WO-111/112 (backend pipe + explainable trim assist) and WO-107–110 (the real frontend — mock + live client, verified live in the browser) are all built against the WO-101 interfaces. The whole loop — import → curate → AI-trim (explained) → finalize → export, with ADR-011 security — runs locally end to end. Run it: `python -m backend.api.run` after `npm --prefix frontend run build`.
 - **No media.** No corpus, no consent records, no annotations.
 - **No experiment ever ran.** Every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded `assumed`.
-- No real frontend yet — the whole backend (WO-102–106, WO-111/112) + WO-113 security/hygiene guards are done on synthetic fixtures with the internal checkpoint proven; WO-107–110 (frontend), WO-114 (full integration), and the WO-113 frontend-bundle guard remain.
+- What remains is **not agent-deferrable code** — it needs **real footage + ADR-002 consent**: the ES-001 §10 real-50-clip-day run and the Apple Photos Memory comparison. Also open (code): WO-114 (a full integration test), the WO-113 frontend-bundle/egress guards, and the deferred perf/scale gates (50-clip timeline responsiveness).
 
 ## What is only proposed
 

@@ -33,7 +33,11 @@ def build_app(data_root: Path):
         analysis=OpenCVAnalysis(),
         proposer=TrimRuleProposer(),
     )
-    config = ApiConfig(proxy_root=proxy_root, output_root=output_root, analysis_root=analysis_root)
+    dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+    config = ApiConfig(
+        proxy_root=proxy_root, output_root=output_root, analysis_root=analysis_root,
+        frontend_dist=dist if (dist / "index.html").exists() else None,
+    )
     app = create_app(services, config)
     print(f"capability token (this launch): {app.state.capability_token}")
     return app
