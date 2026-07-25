@@ -31,6 +31,7 @@ Renamed to KwikReel 2026-07-24; the repository directory is `kwikreel`.
 - **No media.** No corpus, no consent records, no annotations.
 - **No experiment ever ran.** Every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded `assumed`.
 - What remains needs **real footage + a recorded ADR-002 consent**: the ES-001 §10 real-~50-clip-day run and the Apple Photos Memory comparison — the only two exit gates left. All guard/integration code is done (WO-113 guards + the synthetic-runnable WO-114 §10 checks pass). Still deferred (code, low priority): the 50-clip timeline-responsiveness perf gate. The branch is **unpushed** — a push to the public `origin` needs owner authorization.
+- **Noted during the real-footage review, not yet actioned:** `FFmpegIngest.make_proxy` ([backend/ingest/ffmpeg_ingest.py](backend/ingest/ffmpeg_ingest.py)) is slow on real clips — no `-preset` (libx264 defaults to `medium`), full-duration transcode, no hardware encoder, and the scan job ([backend/api/app.py](backend/api/app.py) `scan`) builds proxies sequentially, one clip at a time. Not spec-locked (ES-001 says "generate preview proxies," not how fast). Candidate fixes, independent of each other: `-preset veryfast`/`ultrafast`, macOS `h264_videotoolbox` hardware encoder, parallelize proxy builds across a small pool. Do this after the current review finishes.
 
 ## What is only proposed
 

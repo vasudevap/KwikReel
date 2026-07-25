@@ -22,6 +22,7 @@ export interface CreateInput {
 /** The whole backend surface (ES-001 §6) the frontend needs, mode-agnostic. */
 export interface ReelClient {
   readonly mode: 'mock' | 'live'
+  pickFolder(): Promise<string | null>
   createProject(input: CreateInput): Promise<Project>
   getProject(id: string): Promise<Project>
   saveProject(project: Project): Promise<Project>

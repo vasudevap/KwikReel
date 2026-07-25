@@ -78,6 +78,7 @@ export function createMockClient(): ReelClient {
 
   return {
     mode: 'mock',
+    async pickFolder() { return '/Users/you/Movies/Beach Day' },
     async createProject(input: CreateInput) {
       const id = uid()
       const now = nowIso()

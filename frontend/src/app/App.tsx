@@ -69,6 +69,10 @@ export function App({ client }: { client: ReelClient }) {
     await refresh(p.project_id)
     setStage('import')
   })
+  const browseFolder = () => guard(async () => {
+    const path = await client.pickFolder()
+    if (path) setMediaRoot(path)
+  })
   const approveIngest = () => guard(async () => { setProject(await client.approve(project!.project_id, 'ingest')); setStage('curate') })
   const runTrim = () => guard(async () => {
     await runJob('Analysing clips…', () => client.analyze(project!.project_id))
@@ -113,7 +117,7 @@ export function App({ client }: { client: ReelClient }) {
           <div className="panel">
             <h2>Pick footage &amp; music</h2>
             <p className="small muted">Point at a folder of clips and a local music track. {client.mode === 'live' ? 'Paths are on this Mac.' : 'In mock mode any values work.'}</p>
-            <div><label>Folder <input style={{ width: 360 }} placeholder="/Users/you/Movies/Beach Day" value={mediaRoot} onChange={(e) => setMediaRoot(e.target.value)} /></label></div>
+            <div><label>Folder <input style={{ width: 360 }} placeholder="/Users/you/Movies/Beach Day" value={mediaRoot} onChange={(e) => setMediaRoot(e.target.value)} /></label> <button type="button" onClick={browseFolder}>Browse…</button></div>
             <div style={{ marginTop: 8 }}><label>Music <input style={{ width: 360 }} placeholder="/Users/you/Music/track.m4a" value={track} onChange={(e) => setTrack(e.target.value)} /></label></div>
             <StageBar left={<button onClick={() => setStage('create')}>◀ Back</button>} right={<button className="primary" disabled={!mediaRoot} onClick={createAndImport}>Create &amp; import ▶</button>} />
           </div>
@@ -146,9 +150,8 @@ export function App({ client }: { client: ReelClient }) {
         {stage === 'trim' && project && (
           <div className="panel">
             <h2>Review the AI trims</h2>
-            <p className="small muted">Each clip has a proposed in/out with a reason. Adjust or remove any of them, then approve. Reviewing is the product.</p>
-            <Timeline project={project} client={client} />
-            <TrimView project={project} onMutate={mutate} />
+            <p className="small muted">Each clip has a proposed in/out with a reason. Preview the trim, adjust or remove it, then approve. Reviewing is the product.</p>
+            <TrimView project={project} onMutate={mutate} client={client} />
             <StageBar left={<button onClick={() => setStage('curate')}>◀ Curate</button>} right={<button className="primary" onClick={approveTrim}>Approve trims ▶</button>} />
           </div>
         )}

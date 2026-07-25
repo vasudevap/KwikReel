@@ -92,6 +92,33 @@ def test_analyze_then_propose_writes_explained_proposals(tmp_path) -> None:
         assert seg["reasons"] and all(r["human_text"] and r["evidence_refs"] for r in seg["reasons"])
 
 
+def test_pick_folder_returns_the_chosen_path(tmp_path, monkeypatch) -> None:
+    from backend.api import app as app_module
+
+    monkeypatch.setattr(app_module, "_choose_folder", lambda: "/Users/x/Movies/Beach Day")
+    _, client, _ = build_app(tmp_path)
+    res = client.post("/api/pick-folder", headers=AUTH)
+    assert res.status_code == 200
+    assert res.json()["path"] == "/Users/x/Movies/Beach Day"
+
+
+def test_pick_folder_returns_null_on_cancel(tmp_path, monkeypatch) -> None:
+    from backend.api import app as app_module
+
+    monkeypatch.setattr(app_module, "_choose_folder", lambda: None)
+    _, client, _ = build_app(tmp_path)
+    res = client.post("/api/pick-folder", headers=AUTH)
+    assert res.status_code == 200
+    assert res.json()["path"] is None
+
+
+def test_pick_folder_requires_capability_token(tmp_path) -> None:
+    _, client, _ = build_app(tmp_path)
+    res = client.post("/api/pick-folder")  # no token
+    assert res.status_code == 401
+    assert res.json()["error_code"] == "missing_capability"
+
+
 def test_job_not_found_is_404(tmp_path) -> None:
     _, client, _ = build_app(tmp_path)
     assert client.get("/api/jobs/nope").status_code == 404

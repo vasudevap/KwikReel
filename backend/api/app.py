@@ -17,6 +17,7 @@ import hashlib
 import hmac
 import json
 import secrets
+import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -106,6 +107,22 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def _choose_folder() -> str | None:
+    """Launch the native macOS folder-choose dialog; None if canceled or unavailable.
+
+    Runs on the same Mac as the backend (ADR-005), so this never crosses a network
+    boundary — it is the local user picking a local path, same as typing one.
+    """
+    script = 'POSIX path of (choose folder with prompt "Select a folder of clips")'
+    try:
+        result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, timeout=600)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return None
+    if result.returncode != 0:  # user canceled, or no dialog available
+        return None
+    return result.stdout.strip()
+
+
 def _music_for(track_ref: str) -> Music:
     p = Path(track_ref)
     content_hash = ""
@@ -139,6 +156,10 @@ def create_app(services: Services, config: ApiConfig) -> FastAPI:
         return FileResponse(str(path), media_type="video/mp4")  # Starlette handles Range
 
     # --- projects ---------------------------------------------------------
+
+    @app.post("/api/pick-folder")
+    def pick_folder():
+        return {"path": _choose_folder()}
 
     @app.post("/api/project")
     def create_project(body: CreateProjectBody):

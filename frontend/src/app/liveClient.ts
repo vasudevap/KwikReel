@@ -25,6 +25,7 @@ async function req<T>(method: string, path: string, body?: unknown): Promise<T> 
 export function createLiveClient(): ReelClient {
   return {
     mode: 'live',
+    pickFolder: () => req<{ path: string | null }>('POST', '/pick-folder').then((r) => r.path),
     createProject: (input: CreateInput) => req<Project>('POST', '/project', input),
     getProject: (id) => req<Project>('GET', `/project/${id}`),
     saveProject: (p) => req<Project>('PUT', `/project/${p.project_id}`, p),
