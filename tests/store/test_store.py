@@ -180,6 +180,22 @@ def test_clip_referencing_unknown_source_is_rejected(tmp_path) -> None:
         store.save(bad)
 
 
+def test_editing_a_clip_after_finalize_resets_it(tmp_path) -> None:
+    # ES-001 §7: a finalize approval is invalidated by any subsequent clip edit.
+    store = _store(tmp_path)
+    p = store.save(build_example())
+    approved = p.model_copy(deep=True)
+    approved.stage_approvals.finalize = "2026-07-24T21:00:00Z"
+    approved = store.save(approved)  # only stage_approvals changed -> finalize kept
+    assert approved.stage_approvals.finalize is not None
+
+    edited = approved.model_copy(deep=True)
+    _clip(edited, "s2").included = False
+    _clip(edited, "s2").origin.included = "user"
+    edited = store.save(edited)
+    assert edited.stage_approvals.finalize is None
+
+
 def test_unknown_schema_version_on_load_raises(tmp_path) -> None:
     store = _store(tmp_path)
     path = tmp_path / "weird" / "project.json"

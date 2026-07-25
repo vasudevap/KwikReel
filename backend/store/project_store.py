@@ -171,5 +171,11 @@ class FileProjectStore:
         if prior is not None and saved.updated_at == prior.updated_at:
             saved.updated_at = _now_iso()  # guarantee monotonic advance
 
+        # ES-001 §7: editing any clip after a finalize approval invalidates it,
+        # forcing re-approval before the next render. (Approving a stage or writing
+        # export.last_render leaves clips unchanged, so it is not affected.)
+        if prior is not None and prior.stage_approvals.finalize is not None and project.clips != prior.clips:
+            saved.stage_approvals.finalize = None
+
         _atomic_write(path, _serialize(saved))
         return saved
