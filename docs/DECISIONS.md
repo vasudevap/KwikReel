@@ -6,6 +6,16 @@ This is the record `SPEC.md` is written against. It outranks anything older.
 Where it disagrees with an archived document, this file wins and the archived
 one is not to be cited.
 
+**This file is append-only, and it is also the amendment path for
+[`CONSTRAINTS.md`](CONSTRAINTS.md).** New decisions are added as dated sections
+below; existing entries are never rewritten. Where two entries touch the same
+subject, the later one governs — **nothing supersedes by cross-reference**,
+because a web of records pointing at each other is precisely the document graph
+the 2026-07-28 clean cut removed.
+
+A decision that changes a guardrail must **name the constraint and say what is
+being given up**. One that only records a preference needs neither.
+
 ---
 
 ## 1 · What was decided

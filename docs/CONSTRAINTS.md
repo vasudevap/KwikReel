@@ -15,6 +15,39 @@ proposal `disposition`, whether reasons are displayed — are deliberately **not
 here. They are open, and belong to the decision session recorded in
 [PLAN-v3z-rebuild.md §1](implementation-plans/PLAN-v3z-rebuild.md).
 
+## How a constraint changes
+
+**Only by a dated entry in [`DECISIONS.md`](DECISIONS.md) that names the
+constraint it changes, and says what is being given up.** Then this file is
+edited to match, citing that entry.
+
+Three things follow, and they are the point of the clause:
+
+- **Agreement in a session is not an amendment.** A constraint stands as written
+  until the entry exists, whatever was said in conversation. Asking the owner is
+  how a change *starts*; the written entry is how it *lands*. Without this, a
+  verbal "yes, go ahead" erodes a guardrail leaving no trace, and the next
+  session cannot tell a weakened constraint from an original one.
+- **The cost is named, not just the change.** These constraints each cost
+  something real — excluding face recognition forecloses per-person coverage,
+  local-only forecloses frontier-model quality. An amendment that does not say
+  what it is buying and at what price is not a decision, it is a drift.
+- **`DECISIONS.md` is append-only.** Entries are dated and never rewritten;
+  where two touch the same subject, the later one governs. Nothing supersedes by
+  cross-reference — that is what produced the document graph the 2026-07-28
+  clean cut removed, and it is not to be rebuilt here.
+
+This clause exists because archiving the ADRs removed the old answer
+("changeable only by a new ADR") without replacing it. It is the replacement.
+
+**One thing this file does not carry: the reasoning.** The archived ADRs argued
+for these postures at length; the transcription kept the rules and dropped the
+arguments. A constraint whose cost is concrete and whose benefit is abstract is
+exactly the one that gets weakened by someone who cannot see why it is there. If
+you are about to argue for relaxing one, read its archived ADR **for context
+first** — reading the archive is always allowed; only citing it as authority is
+not.
+
 ---
 
 ## Privacy and data posture
