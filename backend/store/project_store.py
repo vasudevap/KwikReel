@@ -1,16 +1,38 @@
-"""File-backed `project.json` store enforcing the ES-001 §4.1 invariants.
+"""WO-118 · File-backed `project.json` store, schema v2 (`SPEC.md` §3).
 
-One project per directory: `<root>/<project_id>/project.json`. Persistence is
-lossless (byte-equivalent round-trip) and every save is guarded:
+One project per directory: `<root>/<project_id>/project.json`, with `log.json`
+beside it (§7.3, `log_store.py`). Persistence is lossless — a byte-equivalent
+round trip — and every save is guarded:
 
-  * optimistic concurrency on `updated_at` (stale write -> ConflictError -> HTTP 409)
-  * a machine write may not overwrite a field whose origin is "user"
-    (OriginProtectionError) unless an accepted proposal backs the new value
-  * `deleted` is a flag: a clip object is never dropped across a save
-  * `order` is dense (1..N) and unique across non-deleted clips
-  * unknown `schema_version` on load -> SchemaVersionError (no migrations in M1)
+  * optimistic concurrency on `updated_at` (stale write -> ConflictError -> 409)
+  * **an assist never changes a field whose `origin` is `"user"`** (§4.4)
+  * a clip object is never dropped across a save
+  * `order` is dense (1..N) and unique
+  * the §3.2 field invariants that make the §3.1 derivation total
+  * unknown `schema_version` on load -> SchemaVersionError (v2 has no migrations)
 
-No HTTP concerns here — the API layer (WO-106) maps these errors to responses.
+No HTTP concerns here — WO-123 maps these errors to responses.
+
+## What v2 changed, and why the origin guard is now a backstop
+
+Gone with schema v1: `stage_approvals` (and the finalize-invalidation rule that
+went with it), `included`, `deleted`, and `Origin.included`. §3.4 makes reel
+membership **derived** — a clip is out when it is trimmed to nothing, unlinked
+or damaged — so there is no boolean to protect and no approval to invalidate.
+
+The §4.4 guarantee also changed shape, and the change is worth stating because
+it moves where the guarantee lives. In v1 the cross-save guard *was* the
+mechanism: the assists wrote clip fields, and the store stopped them writing
+over a user's. In v2 they write `proposals.*` and never touch clip fields at
+all, and `derive.effective_trim` stops consulting proposals the moment `origin`
+says `"user"`. **Stickiness is structural now** (§3.1).
+
+What the store contributes to §4.4 is therefore two invariants rather than one
+guard. `segment` and `speed_ranges` are tied to `origin == "user"`, so an
+assist-written value is **unrepresentable** — the v1-shaped attack cannot even
+be serialised. What remains expressible is an assist flipping the origin to take
+a user-owned field *back*, and `_check_cross_save` refuses that. Both halves are
+tested: the structural one in `tests/store/test_derive.py`, these below.
 """
 
 from __future__ import annotations
@@ -21,9 +43,9 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from backend.contracts.models import Clip, Project
+from backend.contracts.models import Project
 
-SUPPORTED_SCHEMA_VERSION = 1
+SUPPORTED_SCHEMA_VERSION = 2
 
 
 class StoreError(Exception):
@@ -39,28 +61,28 @@ class ConflictError(StoreError):
 
 
 class InvariantError(StoreError):
-    """The project violates an ES-001 §4.1 structural invariant."""
+    """The project violates a SPEC.md §3 structural invariant."""
 
 
 class OriginProtectionError(InvariantError):
-    """A machine write tried to overwrite a field whose origin is 'user'."""
+    """An assist tried to overwrite a field whose origin is 'user' (§4.4)."""
 
 
 class SchemaVersionError(StoreError):
-    """Unsupported schema_version on load — M1 has no migrations."""
+    """Unsupported schema_version on load — v2 has no migrations."""
 
 
-def _now_iso() -> str:
-    # Microsecond precision so successive saves always advance updated_at.
+def now_iso() -> str:
+    """ISO-8601, UTC, microsecond precision so successive saves always advance."""
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _serialize(project: Project) -> str:
-    # Canonical form: exactly what the contract round-trip test asserts.
+    # Canonical form: exactly what the round-trip gate asserts.
     return project.model_dump_json(indent=2) + "\n"
 
 
-def _atomic_write(path: Path, text: str) -> None:
+def atomic_write(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
     try:
@@ -72,67 +94,154 @@ def _atomic_write(path: Path, text: str) -> None:
             os.remove(tmp)
 
 
-# Fields that carry an origin marker and a comparable effective value. `speed`
-# and `audio` have no independent M1 value/proposal and are left to M3/M2.
-def _field_view(clip: Clip):
-    return {
-        "included": (clip.origin.included, clip.included, clip.proposals.included),
-        "order": (clip.origin.order, clip.order, clip.proposals.order),
-        "segments": (clip.origin.segments, clip.segments, clip.proposals.segments),
-    }
+ORIGIN_FIELDS = ("order", "segments", "speed", "audio")
+
+# Only these two are ever proposed: §3.2's `Proposals` carries `segments` and
+# `speed` and nothing else. No assist proposes an order or an audio setting.
+PROPOSED_FIELDS = ("segments", "speed")
+
+
+def _check_speed_ranges(source_id: str, label: str, ranges) -> None:
+    """§3.2 shape rules, plus the one §3.4's arithmetic needs.
+
+    `rate > 0` and `to_s > from_s` are the contract's own annotations. **Ranges
+    within one clip must not overlap**: §3.4's played-duration formula sums
+    `overlap / rate` and subtracts the ramped time from the kept time, which is
+    only well defined for disjoint ranges — overlapping ones would double-count
+    and could report a negative unramped remainder. §4.2's proposer produces
+    disjoint ranges by construction (contiguous dull seconds, merged when the
+    gap is under 0.5 s), and the Editor has one speed lane per clip, so this
+    rejects a malformed document rather than constraining anything the product
+    can express.
+    """
+    ordered = sorted(ranges, key=lambda r: r.from_s)
+    previous_to = None
+    for rng in ordered:
+        if rng.rate <= 0:
+            raise InvariantError(
+                f"clip {source_id!r} {label} range has rate {rng.rate!r}; SPEC.md §3.2 requires rate > 0"
+            )
+        if rng.to_s <= rng.from_s:
+            raise InvariantError(
+                f"clip {source_id!r} {label} range {rng.from_s}..{rng.to_s} is not a forward span"
+            )
+        if previous_to is not None and rng.from_s < previous_to:
+            raise InvariantError(
+                f"clip {source_id!r} {label} ranges overlap at {rng.from_s}; "
+                f"SPEC.md §3.4's played-duration formula requires disjoint ranges"
+            )
+        previous_to = rng.to_s
 
 
 def _check_invariants(project: Project) -> None:
     known_sources = {s.source_id for s in project.sources}
     for clip in project.clips:
         if clip.source_id not in known_sources:
-            raise InvariantError(
-                f"clip references unknown source_id {clip.source_id!r}"
-            )
-        # Pydantic already guarantees a disposition on every present proposal.
+            raise InvariantError(f"clip references unknown source_id {clip.source_id!r}")
 
-    orders = sorted(c.order for c in project.clips if not c.deleted)
+        # §3.2: `segment` holds the USER's trim and is null unless origin says so.
+        # Enforced both ways, which is what makes `derive.effective_trim` total —
+        # there is no "user-owned but no value" case for it to guess at. Binning
+        # writes a zero-length segment, so it does not need one.
+        if (clip.segment is not None) != (clip.origin.segments == "user"):
+            raise InvariantError(
+                f"clip {clip.source_id!r}: segment is "
+                f"{'set' if clip.segment is not None else 'null'} but origin.segments is "
+                f"{clip.origin.segments!r}; SPEC.md §3.2 ties them together"
+            )
+
+        # §3.2: `speed_ranges` holds the USER's ramps. One direction only — a
+        # user may own the field with no ramps at all (they removed the assist's
+        # by hand, and no assist may put them back).
+        if clip.speed_ranges and clip.origin.speed != "user":
+            raise InvariantError(
+                f"clip {clip.source_id!r}: speed_ranges is set but origin.speed is "
+                f"{clip.origin.speed!r}; only the user's ramps live on the clip (SPEC.md §3.2)"
+            )
+
+        # No assist proposes an order or an audio setting, so those two origins
+        # only ever read "default" or "user".
+        for field in ("order", "audio"):
+            if getattr(clip.origin, field) == "proposed":
+                raise InvariantError(
+                    f"clip {clip.source_id!r}: origin.{field} is 'proposed', but nothing "
+                    f"proposes {field} — SPEC.md §3.2's Proposals carries segments and speed only"
+                )
+
+        # "proposed" means a machine touched the field, which it does by leaving
+        # a proposal. An origin saying so with nothing retained is incoherent.
+        for field in PROPOSED_FIELDS:
+            if getattr(clip.origin, field) == "proposed" and getattr(clip.proposals, field) is None:
+                raise InvariantError(
+                    f"clip {clip.source_id!r}: origin.{field} is 'proposed' with no retained "
+                    f"{field} proposal (SPEC.md §3.1 — proposals are what the derivation reads)"
+                )
+
+        _check_speed_ranges(clip.source_id, "speed_ranges", clip.speed_ranges)
+        if clip.proposals.speed is not None:
+            _check_speed_ranges(clip.source_id, "proposed speed", clip.proposals.speed.value)
+
+    # §3.4 retired `deleted`, so `order` is dense across every clip. A clip that
+    # is out of the reel still holds its place — removal is trimming to nothing,
+    # not renumbering the reel around a gap.
+    orders = sorted(c.order for c in project.clips)
     if len(set(orders)) != len(orders):
-        raise InvariantError(f"order values are not unique across non-deleted clips: {orders}")
+        raise InvariantError(f"order values are not unique: {orders}")
     if orders and orders != list(range(1, len(orders) + 1)):
-        raise InvariantError(f"order is not dense (must be 1..N across non-deleted clips): {orders}")
+        raise InvariantError(f"order is not dense (must be 1..N): {orders}")
 
 
 def _check_cross_save(prior: Project, incoming: Project) -> None:
     prior_by_src = {c.source_id: c for c in prior.clips}
     incoming_ids = {c.source_id for c in incoming.clips}
 
-    # deleted is a flag: a clip object is never dropped across a save.
+    # A clip object is never dropped. §8.3 keeps a clip whose file has gone as
+    # **unlinked**, and §3.4 removes one by trimming it to nothing — neither
+    # takes it out of the document.
     for src in prior_by_src:
         if src not in incoming_ids:
             raise InvariantError(
-                f"clip {src!r} was dropped; deletion must set deleted=true, not remove the clip"
+                f"clip {src!r} was dropped; a clip leaves the reel by being trimmed to "
+                f"nothing (SPEC.md §3.4), never by leaving the document"
             )
 
-    # A machine write ("proposed") may not overwrite a field whose prior origin
-    # is "user", unless an accepted proposal for that field backs the new value.
+    # §4.4 · **an assist may not take a user-owned field back.** In v2 that is
+    # the only shape the attempt can have: the assists never write clip fields
+    # (§3.1), and the invariants above already tie `segment` and `speed_ranges`
+    # to `origin == "user"`, so a machine cannot put a value there. What it can
+    # do is flip the origin away from the user — reclaiming the field for the
+    # derivation — and that is what this refuses.
+    #
+    # The reclaim is legitimate only where something is retained to reclaim it
+    # for: §4.3's re-run key, and §4.3's restore handing a binned clip back to
+    # the derivation it came from.
+    #
+    # **Two things this deliberately does not test.** It does not require the
+    # proposal to be *fresh* (`disposition: "pending"`): that reads as a
+    # stronger check and false-rejects a legitimate bin-then-restore on a clip
+    # whose proposal has since been accepted at export. And it cannot tell a
+    # bulk assist sweep from a per-clip re-run — the two are identical in the
+    # document. Neither gap weakens §4.4, because the store is not where §4.4
+    # lives: `derive.effective_trim` is, by not consulting a proposal at all
+    # once the origin says "user".
     for clip in incoming.clips:
         pc = prior_by_src.get(clip.source_id)
         if pc is None:
             continue
-        prior_view = _field_view(pc)
-        for field, (new_origin, new_value, new_proposal) in _field_view(clip).items():
-            prior_origin, prior_value, _ = prior_view[field]
-            if prior_origin == "user" and new_origin == "proposed" and new_value != prior_value:
-                # A machine write over a user-owned field is legitimate only when it
-                # applies that field's own retained proposal — i.e. an explicit AI
-                # trim / re-run (disposition pending) or an accept (§5.3). A value that
-                # matches no proposal is an unsolicited overwrite and is rejected.
-                backed = new_proposal is not None and new_proposal.value == new_value
-                if not backed:
-                    raise OriginProtectionError(
-                        f"machine write to clip {clip.source_id!r} field {field!r} would "
-                        f"overwrite a user-owned value with no matching proposal; an explicit re-run is required"
-                    )
+        for field in ORIGIN_FIELDS:
+            if getattr(pc.origin, field) != "user" or getattr(clip.origin, field) != "proposed":
+                continue
+            proposal = getattr(clip.proposals, field) if field in PROPOSED_FIELDS else None
+            if proposal is None:
+                raise OriginProtectionError(
+                    f"clip {clip.source_id!r}: origin.{field} moved from 'user' to 'proposed' "
+                    f"with nothing retained behind it; an assist may not take a user-owned "
+                    f"field back (SPEC.md §4.4)"
+                )
 
 
 class FileProjectStore:
-    """A `ProjectStore` backed by one JSON file per project under `root`."""
+    """A `ProjectStore` (WO-117 `interfaces.py`) backed by one JSON file per project."""
 
     def __init__(self, root: str | os.PathLike) -> None:
         self.root = Path(root)
@@ -150,12 +259,13 @@ class FileProjectStore:
         data = json.loads(path.read_text(encoding="utf-8"))
         version = data.get("schema_version")
         if version != SUPPORTED_SCHEMA_VERSION:
-            raise SchemaVersionError(f"unsupported schema_version {version!r} (M1 supports {SUPPORTED_SCHEMA_VERSION})")
+            raise SchemaVersionError(
+                f"unsupported schema_version {version!r} (this build supports "
+                f"{SUPPORTED_SCHEMA_VERSION}); v1 documents are not migrated"
+            )
         return Project.model_validate(data)
 
     def save(self, project: Project) -> Project:
-        _check_invariants(project)
-
         path = self._path(project.project_id)
         prior: Project | None = None
         if path.exists():
@@ -164,18 +274,18 @@ class FileProjectStore:
                 raise ConflictError(
                     f"stale updated_at: on-disk {prior.updated_at!r} != incoming {project.updated_at!r}"
                 )
+            # §4.4 is checked **before** the shape rules on purpose. A reclaim
+            # trips both, and the caller is better served by an error that names
+            # the rule it broke than by a generic "origin says proposed with
+            # nothing retained".
             _check_cross_save(prior, project)
 
+        _check_invariants(project)
+
         saved = project.model_copy(deep=True)
-        saved.updated_at = _now_iso()
+        saved.updated_at = now_iso()
         if prior is not None and saved.updated_at == prior.updated_at:
-            saved.updated_at = _now_iso()  # guarantee monotonic advance
+            saved.updated_at = now_iso()  # guarantee a monotonic advance
 
-        # ES-001 §7: editing any clip after a finalize approval invalidates it,
-        # forcing re-approval before the next render. (Approving a stage or writing
-        # export.last_render leaves clips unchanged, so it is not affected.)
-        if prior is not None and prior.stage_approvals.finalize is not None and project.clips != prior.clips:
-            saved.stage_approvals.finalize = None
-
-        _atomic_write(path, _serialize(saved))
+        atomic_write(path, _serialize(saved))
         return saved
