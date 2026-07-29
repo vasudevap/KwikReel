@@ -1,9 +1,9 @@
 # ADP-002: Contract v2 and Backend Realignment
 
 **Status:** **AUTHORIZED — owner, 2026-07-28, as drafted; amended same day to add
-WO-118a and to unhold WO-120.** Scope: WO-117 – WO-124, **all unheld**, under the
-§2 grant (local build to green on synthetic fixtures). Pushes, CI and real-media
-runs stay separately gated in §3.
+WO-118a, to unhold WO-120, and to add WO-116a.** Scope: **WO-116a**, WO-117 –
+WO-124, **all unheld**, under the §2 grant (local build to green on synthetic
+fixtures). Pushes, CI and real-media runs stay separately gated in §3.
 
 > **Amendment 1, owner, 2026-07-28 — WO-118a added.** As drafted, this ADP gave
 > WO-120 `speed_proposer.py` and left **`trim_proposer.py` owned by nothing**,
@@ -20,6 +20,17 @@ runs stay separately gated in §3.
 > §4.2. **WO-120 is unheld** and joins WO-118, WO-118a, WO-119, WO-121 – WO-123
 > as dependency-ready under the §2 grant. §6's reasoning for why it was held no
 > longer applies — the parameters are recorded, not guessed.
+
+> **Amendment 3, owner, 2026-07-28 — WO-116a added.** WO-124 found that
+> **`make_proxy` passes `-an`, so every proxy is silent**, and this ADP assigned
+> `backend/ingest/` to no Work Order. The plan called ingest "survives", and
+> against `SPEC.md` §3 the *contract* does — its **proxy recipe** does not. A
+> silent proxy means the Monitor cannot preview clip audio at all, which leaves
+> `clip_level` acting on nothing, the Sound unit drawing traces for audio that
+> cannot play, and §6's "preview loudness must match export loudness"
+> unsatisfiable. **WO-116a is unheld**, owns `backend/ingest/`, and also carries
+> the proxy GOP change WO-124 recommended.
+
 **Program ID:** ADP-002
 **Type:** Autonomous Delivery Program
 **Owner:** Repository Owner
@@ -100,6 +111,7 @@ That is the whole grant: **local build to green, on synthetic fixtures.**
 
 | WO | Scope | Owns | Completion gate |
 |---|---|---|---|
+| **WO-116a · Proxy recipe v2** | The proxy must be previewable as `SPEC.md` §5 and §6 assume. **Carry the source's audio** instead of `-an`, and set a keyframe interval of ~1 s instead of x264's 250-frame default | `backend/ingest/` | A proxy built from a source **with** audio carries a decodable AAC track — *the assertion that did not exist*; a proxy from a silent source still builds and plays; keyframe interval ≤ 1.0 s; the existing invariants hold unchanged (540×960, H.264, nothing written beneath `media_root`) |
 | **WO-117 · Contract kernel v2** | `SPEC.md` §3 frozen as code: Pydantic models, regenerated TS types, updated service Protocols, the dependency manifest | `backend/contracts/`, `frontend/src/types/`, `pyproject.toml`, `package.json` | Models validate a §3.2 example; save→load byte-equivalent; `origin`/`proposals` retained across a round trip; TS and Pydantic are one source of truth. **Runs alone** |
 | **WO-118 · Store v2** | Drop `stage_approvals` and `included`; **retain `disposition`** (A-3) with its three writers; add `stashed_segment`, `AudioMix`, output resolution, the music in-point. The §3.1 derivation — `effective_trim` / `effective_speed` — lives here | `backend/store/` | An assist never changes a field whose `origin` is `"user"` (§4.4), **with its own tests** — this is a correctness requirement, not a behaviour; toggle off restores exactly, hand-edits untouched; bin→restore exact; `out_s <= in_s` reads as out-of-reel with no `included` field anywhere |
 | **WO-118a · Trim proposer v2** | `SPEC.md` §4.1 as code against the v2 shapes: one `Segment`, not a list. **Remove the 1.0 s floor** (DECISIONS A-6) and emit the sub-second and empty cases the Log has to warn about | `backend/propose/trim_proposer.py` | Proposals carry a single `Segment`; a clip whose best window is under a second **gets it**, and one where nothing clears the floors gets `NO_CLEAR_WINDOW` on the whole clip; an empty proposal is returned, not raised. The floor test is rewritten to assert A-6's behaviour rather than the rule it retired |

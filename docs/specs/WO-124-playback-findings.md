@@ -208,19 +208,28 @@ starts with the music ~0.19 s out.
 
 ---
 
-## 6 · Two things this spike found that nobody owns
+## 6 · Two things this spike found that nobody owned — **now fixed**
 
-Both remedies are in **`backend/ingest/`**, which ADP-002 §4 assigns to no Work
-Order — the plan called ingest "survives", and against `SPEC.md` §3 the
-*contract* does survive. Its **proxy recipe** does not.
+Both remedies were in **`backend/ingest/`**, which ADP-002 §4 assigned to no
+Work Order — the plan called ingest "survives", and against `SPEC.md` §3 the
+*contract* does survive. Its **proxy recipe** did not.
 
 | Finding | Remedy | Severity |
 |---|---|---|
-| Proxies are silent (`-an`) | Encode an AAC track | **Blocks §5 and §6 as written.** The Sound unit cannot do its job |
-| 8.333 s keyframe interval | `-g 30` | Optimisation. Seeking is already correct; this only reduces a 45 ms worst case |
+| Proxies are silent (`-an`) | Encode an AAC track, downmixed to stereo | **Blocked §5 and §6 as written.** The Sound unit could not do its job |
+| 8.333 s keyframe interval | `-g` at one keyframe per second | Optimisation. Seeking was already correct; this only reduces a 45 ms worst case |
 
-**Raised as a stop-and-ask, not absorbed.** The first is not optional if the
-Sound unit is to be built as specified.
+> **Resolved 2026-07-28 by ADP-002 Amendment 3 · WO-116a**, which gives
+> `backend/ingest/` an owner and lands both. A proxy of a source with audio now
+> carries a decodable AAC track; a silent source still gets **no** track, rather
+> than a fabricated one that would be indistinguishable from a muted clip.
+>
+> **The missing test is the real fix.** The suite's one proxy assertion used
+> `landscape_silent` — a source with no audio — so an audio check would have
+> found nothing missing and passed. Three tests now cover it, and both new
+> assertions were confirmed to **fail against the old recipe** before being
+> accepted; a test written against a bug it cannot detect is what produced this
+> finding in the first place.
 
 ---
 

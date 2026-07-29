@@ -81,6 +81,81 @@ def test_make_proxy_is_540x960_h264(corpus, tmp_path) -> None:
     assert (probed.width, probed.height) == (540, 960)
 
 
+# --- WO-116a · the proxy is the thing the Monitor plays -------------------
+#
+# None of this existed, which is how `-an` survived. The one proxy assertion in
+# the suite used `landscape_silent` — a source with NO audio — so an audio check
+# would have found nothing missing and passed. That is the same shape of blind
+# spot as the letterbox fault WO-116 fixed, where the only exposure assertion
+# used a black *portrait* clip that letterboxed to nothing.
+
+def _streams(path: str, kind: str) -> list[dict]:
+    import json
+    import subprocess
+    out = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", kind[0],
+         "-show_streams", "-print_format", "json", str(path)],
+        capture_output=True, text=True, check=True,
+    )
+    return json.loads(out.stdout).get("streams", [])
+
+
+def test_proxy_of_a_source_with_audio_carries_audio(corpus, tmp_path) -> None:
+    """The assertion whose absence let every proxy ship silent.
+
+    The Monitor plays proxies. A silent proxy means `clip_level` (SPEC.md §5)
+    has nothing to act on and preview loudness cannot match export loudness
+    (§6) — so this is a contract requirement, not a nicety.
+    """
+    ing = FFmpegIngest(proxy_root=tmp_path / "proxies")
+    src = ing.probe_clip(str(corpus["portrait_audio"]))
+    assert src.has_audio, "fixture precondition: this source must have audio"
+
+    audio = _streams(ing.make_proxy(src), "audio")
+    assert audio, "proxy has no audio track — the Monitor would preview silence"
+    assert audio[0]["codec_name"] == "aac"
+    assert int(audio[0]["channels"]) == 2   # downmixed, per make_proxy
+
+
+def test_proxy_of_a_silent_source_still_builds(corpus, tmp_path) -> None:
+    """No fabricated silence: a source that never had sound gets no track.
+
+    Inventing one would make it indistinguishable from a clip the user muted.
+    """
+    ing = FFmpegIngest(proxy_root=tmp_path / "proxies")
+    src = ing.probe_clip(str(corpus["landscape_silent"]))
+    assert not src.has_audio
+
+    proxy_path = ing.make_proxy(src)
+    assert Path(proxy_path).exists()
+    assert not _streams(proxy_path, "audio")
+    assert ing.probe_clip(proxy_path).width == 540  # still a valid proxy
+
+
+def test_proxy_keyframes_are_about_a_second_apart(corpus, tmp_path) -> None:
+    """WO-124 measured seek latency rising with distance past a keyframe.
+
+    x264's default 250-frame GOP put keyframes 8.3 s apart and cost up to 45 ms
+    on a seek. Seeking was already frame-accurate; this guards the latency the
+    trim handles and the scrub pay on every drag.
+    """
+    import json
+    import subprocess
+    ing = FFmpegIngest(proxy_root=tmp_path / "proxies")
+    src = ing.probe_clip(str(corpus["portrait_audio"]))
+    proxy_path = ing.make_proxy(src)
+
+    out = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "v:0",
+         "-show_entries", "frame=pts_time,key_frame", "-print_format", "json", proxy_path],
+        capture_output=True, text=True, check=True,
+    )
+    keys = [float(f["pts_time"]) for f in json.loads(out.stdout)["frames"] if f.get("key_frame") == 1]
+    assert len(keys) >= 2, f"only {len(keys)} keyframe(s) — the GOP is still the x264 default"
+    gaps = [b - a for a, b in zip(keys, keys[1:])]
+    assert max(gaps) <= 1.05, f"keyframes up to {max(gaps):.2f}s apart, want ~1s"
+
+
 def test_originals_are_never_written(corpus, tmp_path) -> None:
     media_root = corpus["portrait_audio"].parent
     before = {p.name: _sha256(p) for p in sorted(media_root.iterdir()) if p.is_file()}
