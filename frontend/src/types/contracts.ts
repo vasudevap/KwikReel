@@ -1,5 +1,5 @@
 // GENERATED FILE — DO NOT EDIT.
-// Source of truth: backend/contracts/models.py (ES-001 §4, as amended §4.5).
+// Source of truth: backend/contracts/models.py (SPEC.md §3, accepted 2026-07-28).
 // Regenerate with:  python -m backend.contracts.gen_types
 // Drift is caught by tests/contracts/test_ts_in_sync.py.
 
@@ -12,6 +12,11 @@ export interface Analysis {
   run_id: string;
 }
 
+export interface AudioMix {
+  music_level: number;
+  clip_level: number;
+}
+
 export interface AudioSettings {
   retain: boolean;
   gain_db: number;
@@ -19,44 +24,27 @@ export interface AudioSettings {
 
 export interface Clip {
   source_id: string;
-  included: boolean;
   order: number;
-  deleted: boolean;
-  segments: Segment[];
+  segment: Segment | null;
+  speed_ranges: SpeedRange[];
+  stashed_segment: Segment | null;
   audio: AudioSettings;
   origin: Origin;
   proposals: Proposals;
 }
 
 export interface Export {
-  audio_modes: ("music" | "clip" | "silent")[];
-  last_render: { [key: string]: RenderRecord };
-}
-
-export interface IncludedProposal {
-  value: boolean;
-  at: string;
-  reasons: ReasonRecord[];
-  disposition: "pending" | "accepted" | "adjusted" | "dismissed";
+  last_render: RenderRecord | null;
 }
 
 export interface Music {
   track_ref: string;
   content_hash: string;
   duration_s: number;
-  beats_s: number[];
-  sections: unknown[];
-}
-
-export interface OrderProposal {
-  value: number;
-  at: string;
-  reasons: ReasonRecord[];
-  disposition: "pending" | "accepted" | "adjusted" | "dismissed";
+  in_s: number;
 }
 
 export interface Origin {
-  included: "default" | "proposed" | "user";
   order: "default" | "proposed" | "user";
   segments: "default" | "proposed" | "user";
   speed: "default" | "proposed" | "user";
@@ -64,7 +52,7 @@ export interface Origin {
 }
 
 export interface Project {
-  schema_version: 1;
+  schema_version: 2;
   project_id: string;
   created_at: string;
   updated_at: string;
@@ -72,17 +60,18 @@ export interface Project {
   name: string | null;
   media_root: string;
   target_duration_s: number;
-  music: Music;
+  output_resolution: "720p" | "1080p" | "4k";
+  trim_assist_on: boolean;
+  speed_assist_on: boolean;
+  audio: AudioMix;
+  music: Music | null;
   sources: SourceIndex[];
   clips: Clip[];
-  stage_approvals: StageApprovals;
   export: Export;
 }
 
 export interface Proposals {
   segments: SegmentsProposal | null;
-  included: IncludedProposal | null;
-  order: OrderProposal | null;
   speed: SpeedProposal | null;
 }
 
@@ -118,11 +107,10 @@ export interface RenderRecord {
 export interface Segment {
   in_s: number;
   out_s: number;
-  speed: SpeedRange[];
 }
 
 export interface SegmentsProposal {
-  value: Segment[];
+  value: Segment;
   at: string;
   reasons: ReasonRecord[];
   disposition: "pending" | "accepted" | "adjusted" | "dismissed";
@@ -166,12 +154,4 @@ export interface SpeedRange {
   from_s: number;
   to_s: number;
   rate: number;
-}
-
-export interface StageApprovals {
-  ingest: string | null;
-  trim: string | null;
-  selection: string | null;
-  speed: string | null;
-  finalize: string | null;
 }

@@ -4,14 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kwikreel"
-version = "0.1.0"
-description = "KwikReel — local-first, human-directed reel editor (M1 backend)."
+version = "0.2.0"
+description = "KwikReel — local-first, human-directed reel editor (SPEC.md, schema v2)."
 requires-python = ">=3.11"
 
-# WO-101 owns the manifests and pre-declares the WHOLE M1 dependency set, so no
+# WO-117 owns the manifests and pre-declares the WHOLE dependency set, so no
 # later Work Order edits this file. Anything outside this set is a stop-and-ask
-# (see docs/work-orders/m1-backlog.md). WO-101 itself uses only pydantic; the
-# rest are declared now for WO-102+ (ingest/analysis/render/api).
+# (ADP-002 §3).
+#
+# The v2 rebuild adds NOTHING to the v1 set. The lanes it authorizes need no new
+# package: WO-119's thumbnails and peaks come from the ffmpeg/ffprobe binaries
+# already required at runtime, and WO-124's spike is browser-side. If a lane
+# finds it needs a dependency, that is a stop-and-ask, not an edit here.
 dependencies = [
   "fastapi",
   "uvicorn",
