@@ -81,17 +81,13 @@ see below.
    and WO-133, which are ADP-004's and not authorized. The suite does not go
    fully green inside this ADP, by design.
 
-## ⚠️ Stop-and-ask, open
+## The stop-and-ask that was raised, and closed
 
-**No Work Order owns `backend/propose/trim_proposer.py`.** ADP-002 §4 gives
-WO-120 `speed_proposer.py` and nothing else in `backend/propose/`. But the trim
-proposer needs real work under v2: it returns the v1 `list[Segment]` shape, and
-it still enforces the 1.0 s floor that **DECISIONS A-6 retired** —
-`tests/propose/test_proposer.py::test_respects_the_one_second_floor` currently
-asserts behaviour `SPEC.md` §4.1 rule 4 explicitly forbids.
-
-Left alone, A-6 is a decision that was made and never implemented. Adding a WO
-to a signed ADP is a §3 governance stop-and-ask, so it waits for the owner.
+**No Work Order owned `backend/propose/trim_proposer.py`** — ADP-002 as drafted
+gave WO-120 `speed_proposer.py` and nothing else in `backend/propose/`, while
+`SPEC.md` §4.1 changes the trim proposer substantially. Found during WO-117,
+when the v1 test `test_respects_the_one_second_floor` turned out to assert
+behaviour A-6 forbids. **Closed by ADP-002 Amendment 1: WO-118a, unheld.**
 
 ## Owner actions required
 

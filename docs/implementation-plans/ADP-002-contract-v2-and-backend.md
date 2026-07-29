@@ -1,9 +1,17 @@
 # ADP-002: Contract v2 and Backend Realignment
 
-**Status:** **AUTHORIZED — owner, 2026-07-28, as drafted.** Scope: WO-117 – WO-119
-and WO-121 – WO-124, under the §2 grant (local build to green on synthetic
-fixtures). WO-120 remains held per §3. Pushes, CI and real-media runs stay
-separately gated in §3.
+**Status:** **AUTHORIZED — owner, 2026-07-28, as drafted; amended same day to add
+WO-118a.** Scope: WO-117 – WO-119, **WO-118a**, and WO-121 – WO-124, under the §2
+grant (local build to green on synthetic fixtures). WO-120 remains held per §3.
+Pushes, CI and real-media runs stay separately gated in §3.
+
+> **Amendment 1, owner, 2026-07-28 — WO-118a added.** As drafted, this ADP gave
+> WO-120 `speed_proposer.py` and left **`trim_proposer.py` owned by nothing**,
+> while `SPEC.md` §4.1 changes it substantially: the v2 segment shape, and the
+> retirement of the 1.0 s floor (A-6). Found during WO-117, when the v1 test
+> `test_respects_the_one_second_floor` turned out to assert behaviour the spec
+> now forbids. Left unowned, A-6 would have been a decision that was made and
+> never implemented. **WO-118a is unheld** — it depends on nothing SO-1 blocks.
 **Program ID:** ADP-002
 **Type:** Autonomous Delivery Program
 **Owner:** Repository Owner
@@ -90,6 +98,7 @@ That is the whole grant: **local build to green, on synthetic fixtures.**
 |---|---|---|---|
 | **WO-117 · Contract kernel v2** | `SPEC.md` §3 frozen as code: Pydantic models, regenerated TS types, updated service Protocols, the dependency manifest | `backend/contracts/`, `frontend/src/types/`, `pyproject.toml`, `package.json` | Models validate a §3.2 example; save→load byte-equivalent; `origin`/`proposals` retained across a round trip; TS and Pydantic are one source of truth. **Runs alone** |
 | **WO-118 · Store v2** | Drop `stage_approvals` and `included`; **retain `disposition`** (A-3) with its three writers; add `stashed_segment`, `AudioMix`, output resolution, the music in-point. The §3.1 derivation — `effective_trim` / `effective_speed` — lives here | `backend/store/` | An assist never changes a field whose `origin` is `"user"` (§4.4), **with its own tests** — this is a correctness requirement, not a behaviour; toggle off restores exactly, hand-edits untouched; bin→restore exact; `out_s <= in_s` reads as out-of-reel with no `included` field anywhere |
+| **WO-118a · Trim proposer v2** | `SPEC.md` §4.1 as code against the v2 shapes: one `Segment`, not a list. **Remove the 1.0 s floor** (DECISIONS A-6) and emit the sub-second and empty cases the Log has to warn about | `backend/propose/trim_proposer.py` | Proposals carry a single `Segment`; a clip whose best window is under a second **gets it**, and one where nothing clears the floors gets `NO_CLEAR_WINDOW` on the whole clip; an empty proposal is returned, not raised. The floor test is rewritten to assert A-6's behaviour rather than the rule it retired |
 | **WO-119 · Media services** | Thumbnails and peaks on demand + cached; music probe and peaks **keyed by content hash**, working with no project in existence (§8 `GET /api/music/peaks`); `pick-file` via `osascript … choose file`, serving both track selection and relink | `backend/media/` (new) | Peaks for a track chosen before any project exists; cache hit on second call; picker returns a path or a clean cancel |
 | **WO-120 · Speed proposer** | `SPEC.md` §4.2 as code: multiple `SpeedRange`s per clip in **source time**, retained proposals for reversibility | `backend/propose/speed_proposer.py` | **HELD — see §3 and §6.** Gate: deterministic on a fixture; ranges survive a trim-handle move (§3.2); the assist never proposes above 2.0× |
 | **WO-121 · Renderer v2** | `amix` weighted by the two levels, replacing three non-composable mode branches. `setpts` + chained `atempo` per effective speed range. Skip out-of-reel clips. Resolution from the setting — `TARGET_W`/`TARGET_H` stop being constants | `backend/render/` | Duration ±0.5 s of computed reel length; **upscaling past the source refused or flagged, never silent**; every-clip-out fails with a stated reason, not an empty concat; GPS and identifying metadata stripped |
@@ -106,13 +115,14 @@ That is the whole grant: **local build to green, on synthetic fixtures.**
 WO-124 (spike) ──────────────────────────────► [numbers in hand] ──► gates ADP-003
    starts immediately, parallel to everything
 
-WO-117 (alone, contract freeze)
+WO-117 (alone, contract freeze) ── DONE, merged
    │
-   ├── WO-118 store
-   ├── WO-119 media
-   ├── WO-121 renderer ──┐
-   ├── WO-122 QA ────────┤
-   └── WO-123 API        │
+   ├── WO-118  store
+   ├── WO-118a trim proposer
+   ├── WO-119  media
+   ├── WO-121  renderer ─┐
+   ├── WO-122  QA ───────┤
+   └── WO-123  API       │
                          └─► [ADP-002 closes: all merged green on fixtures]
 
 WO-120 speed proposer ····· HELD on SPEC.md §14 SO-1
@@ -165,8 +175,10 @@ Three options were available and the middle one is taken:
 
 ```
 Authorized:            2026-07-28   by  Repository Owner (via session chat)
-Scope granted:         WO-117 – WO-119, WO-121 – WO-124  (WO-120 held per §3)
-Narrowing / notes:     None. Authorized as drafted.
+Scope granted:         WO-117 – WO-119, WO-118a, WO-121 – WO-124
+                       (WO-120 held per §3)
+Narrowing / notes:     None. Authorized as drafted; amended same day to add
+                       WO-118a — see Amendment 1 at the head of this file.
 ```
 
 The grant does **not** extend to pushes to the public `origin`, to CI, to
