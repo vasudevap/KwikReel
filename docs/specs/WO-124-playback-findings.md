@@ -119,30 +119,93 @@ the assist's 2.0× ceiling, which N-6 permits by hand:
 | 2.5× | 2.5 | no | 2.500 | 0 % |
 
 **The disagreement is on the renderer's side.** `setpts` + `atempo` overshoots
-the arithmetic duration, and the overshoot grows with rate:
+the arithmetic duration.
 
-| Rate | Expected | Rendered | Error |
+> **Corrected 2026-07-29.** This section first reported the overshoot as a
+> **percentage** — +0.42 % to +1.39 % — measured at a single clip length. That
+> framing was wrong and it pointed at the wrong remedy. A follow-up measurement
+> across four clip lengths shows the overshoot is **not proportional to anything
+> about the clip.** The original percentages are arithmetically correct and
+> causally misleading; what follows replaces them.
+
+### 3.1 · It is a fixed 1–2 frames per ramped clip
+
+The same overshoot, in milliseconds, at every source duration tested:
+
+| Rate | 2 s source | 6 s | 12 s | 30 s | Spread |
+|---|---|---|---|---|---|
+| 1.0× *(control)* | +20 ms | +14 ms | +4 ms | 0 ms | — |
+| 1.5× | +33 ms | +33 ms | +33 ms | +33 ms | **0 ms** |
+| 2.0× | +66 ms | +66 ms | +66 ms | +66 ms | **0 ms** |
+| 2.5× | +66 ms | +66 ms | +66 ms | +66 ms | **0 ms** |
+
+`+33 ms` is exactly one frame at 30 fps; `+66 ms` is two. The mechanism is
+**resampling the compressed timeline back to CFR**: ffmpeg lands 1–2 frames over
+and the container duration is `nb_frames / fps` exactly. At 2.0× a 12 s clip
+wants 180 frames and gets 182.
+
+**So ramped *seconds* are irrelevant. Ramped *clip count* is the only variable.**
+A 30 s clip and a 2 s clip cost the same 66 ms.
+
+### 3.2 · It accumulates, and the budget is about seven clips
+
+Measured on a concatenation of six 2.0× clips: **+420 ms.** Linear.
+
+Against `SPEC.md` §9's ±0.5 s that is a budget of roughly **7 ramped clips at
+2.0×**, or ~15 at 1.5×. §10 scopes the product at **50+ clips**, and §4.2's rule
+is "ramp the dull stretches" — on a family day that is plausibly most of them.
+This is a normal reel, not an edge case.
+
+### 3.3 · It is a correctness bug, not a gate-tuning question
+
+The QA gate is the second victim, not the first. §3.4 defines *Played duration*
+as `Σ (overlap with a ramp) / rate + (kept time under no ramp)`, and **that same
+arithmetic is what the Reel unit displays as reel length** (§2.4).
+
+So a reel with twenty ramped clips does not merely fail a check — **it tells the
+user 1:23 and hands them a file of 1:24.3.** Any remedy that only adjusts the
+gate leaves the displayed length wrong.
+
+### 3.4 · The remedy: clamp each ramped clip to its arithmetic duration
+
+Pass `-t (kept_duration / rate)` per clip. Measured:
+
+| Strategy | Frames | Duration | Overshoot |
 |---|---|---|---|
-| 1.5× | 8.000 s | 8.033 s | +0.42 % |
-| 1.75× | 6.857 s | 6.900 s | +0.63 % |
-| 2.0× | 6.000 s | 6.067 s | +1.11 % |
-| 2.5× | 4.800 s | 4.867 s | +1.39 % *(chained `atempo`)* |
+| default | 92 | 3.0660 s | +66.0 ms |
+| **`-t` exact** | **90** | **3.0000 s** | **+0.0 ms** |
+| `-fps_mode passthrough` | 180 | 3.0333 s | +33.3 ms |
+| `-fps_mode passthrough` + `-t` | 179 | 3.0000 s | +0.0 ms |
 
-**This matters to a gate that already exists.** `SPEC.md` §9 requires QA to
-check "duration within ±0.5 s of the computed reel length." At +1.11 %, a reel
-with 45 s of 2.0× content overshoots by ~0.5 s **from this effect alone** — and
-that is before any per-clip rounding. A speed-heavy reel can fail QA while
-being, in every sense the user cares about, correct.
+Six clamped clips concatenated: **18.023 s against a wanted 18.000** — the
+residual 23 ms is container overhead and does **not** accumulate per clip.
 
-**Consequence for the build.** Two things, both cheap, and they belong to
-different lanes:
+**The clamp costs nothing editorially.** A 6 s source at 30 fps is 180 frames;
+at 2.0× the content is 90 frames, and clamping yields exactly 90. The frames it
+removes are **spurious tail frames the resampler invented**, not content.
 
-- **WO-121** should compute expected duration from what ffmpeg will actually
-  produce, not from `duration / rate`, or the renderer and the gate will
-  disagree by construction.
-- **WO-122** should either widen the tolerance for ramped reels or derive it
-  from the ramp content. **This is a `SPEC.md` §9 question, so it is a
-  stop-and-ask, not a lane decision** — the ±0.5 s is written down.
+**No `SPEC.md` change is required, and that is the argument for this remedy over
+the alternatives.** Clamping makes §3.4's formula *true*, so §9's ±0.5 s keeps
+meaning what it says and still catches the truncated-render and black-output
+faults it exists for.
+
+Rejected, with reasons:
+
+| Alternative | Why not |
+|---|---|
+| **Widen §9's tolerance** | A tolerance that scales with clip count stops catching a genuine one-second truncation on a 50-clip reel. It trades a working gate for a bug |
+| **Let QA model the quantisation** | Spreads renderer internals into the spec's user-facing maths, and leaves the displayed reel length wrong regardless |
+| **`-fps_mode passthrough` alone** | Halves the error rather than removing it, and produces VFR output |
+
+**Consequence for the build.**
+
+- **WO-121** clamps every ramped clip with `-t (kept_duration / rate)`.
+- **WO-122** keeps §9's ±0.5 s unchanged, and gains a regression test that a
+  multi-clip ramped reel lands inside it — the check that would have caught this.
+
+> **This was originally raised as a `SPEC.md` §9 stop-and-ask. It is not one.**
+> With the mechanism measured it is a renderer defect with a clean fix, and §9
+> stands exactly as written.
 
 ---
 
@@ -285,14 +348,20 @@ that holds sync (§5).
 **ADP-003 is unblocked on this axis.** It still waits on SO-2 (the Log) and SO-4
 (the rack invariant), which this spike says nothing about.
 
-**Four amendments `SPEC.md` §6 now warrants** — proposed here, an owner's to
-accept:
+**Three amendments `SPEC.md` §6 now warrants** — proposed here, an owner's to
+accept. Each records something measured; none decides anything:
 
-1. Record the two-element cross-swap as the specified mechanism, with the 0.8 ms
-   and 36.3 ms figures and the reason.
-2. Record that seeking is frame-accurate and that the GOP is a latency
+1. Record the **two-element cross-swap** as the specified mechanism, with the
+   0.8 ms and 36.3 ms figures and the reason.
+2. Record that **seeking is frame-accurate** and that the GOP is a latency
    consideration only.
-3. Add the renderer-vs-QA duration conflict from §3 to §9, which currently
-   states a ±0.5 s tolerance that ramped reels can breach legitimately.
-4. State that proxies **must** carry audio, which §5 and §6 assume and the
-   current ingest contradicts.
+3. State that **proxies must carry audio**, which §5 and §6 assume — landed in
+   ingest by WO-116a, but not yet written into the spec that requires it.
+
+> **A fourth was proposed here and is withdrawn.** It asked to amend §9's ±0.5 s
+> QA tolerance, on the strength of the percentage this document first reported
+> in §3. Re-measured 2026-07-29 across four clip lengths, the overshoot is a
+> fixed 1–2 frames per ramped clip and `-t` removes it exactly. **§9 stands as
+> written**, and the remedy is an ADP-002 §4 lane instruction for WO-121 and
+> WO-122 rather than a spec change. Withdrawing it is the finding, not an
+> oversight — see §3.4.

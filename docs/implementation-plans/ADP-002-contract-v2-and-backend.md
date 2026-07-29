@@ -117,8 +117,25 @@ That is the whole grant: **local build to green, on synthetic fixtures.**
 | **WO-118a · Trim proposer v2** | `SPEC.md` §4.1 as code against the v2 shapes: one `Segment`, not a list. **Remove the 1.0 s floor** (DECISIONS A-6) and emit the sub-second and empty cases the Log has to warn about | `backend/propose/trim_proposer.py` | Proposals carry a single `Segment`; a clip whose best window is under a second **gets it**, and one where nothing clears the floors gets `NO_CLEAR_WINDOW` on the whole clip; an empty proposal is returned, not raised. The floor test is rewritten to assert A-6's behaviour rather than the rule it retired |
 | **WO-119 · Media services** | Thumbnails and peaks on demand + cached; music probe and peaks **keyed by content hash**, working with no project in existence (§8 `GET /api/music/peaks`); `pick-file` via `osascript … choose file`, serving both track selection and relink | `backend/media/` (new) | Peaks for a track chosen before any project exists; cache hit on second call; picker returns a path or a clean cancel |
 | **WO-120 · Speed proposer** | `SPEC.md` §4.2 as code: multiple `SpeedRange`s per clip in **source time**, retained proposals for reversibility | `backend/propose/speed_proposer.py` | **Unheld — Amendment 2.** Gate: deterministic on a fixture; ranges survive a trim-handle move (§3.2); the assist never proposes above 2.0× |
-| **WO-121 · Renderer v2** | `amix` weighted by the two levels, replacing three non-composable mode branches. `setpts` + chained `atempo` per effective speed range. Skip out-of-reel clips. Resolution from the setting — `TARGET_W`/`TARGET_H` stop being constants | `backend/render/` | Duration ±0.5 s of computed reel length; **upscaling past the source refused or flagged, never silent**; every-clip-out fails with a stated reason, not an empty concat; GPS and identifying metadata stripped |
-| **WO-122 · QA v2** | `resolution_ok` against the *setting*, not a hardcoded 1080×1920. `audio_ok` re-derived from the levels | `backend/qa/` | `music_level > 0` ⇒ output not silent; both at zero ⇒ silent **and** still a valid AAC track; a bad render is blocked **with its reason stated** |
+| **WO-121 · Renderer v2** | `amix` weighted by the two levels, replacing three non-composable mode branches. `setpts` + chained `atempo` per effective speed range. Skip out-of-reel clips. Resolution from the setting — `TARGET_W`/`TARGET_H` stop being constants. **Clamp every ramped clip to `-t (kept_duration / rate)`** — see below | `backend/render/` | Duration ±0.5 s of computed reel length; **a ramped clip's rendered duration matches `SPEC.md` §3.4's arithmetic exactly**, not 1–2 frames over; **upscaling past the source refused or flagged, never silent**; every-clip-out fails with a stated reason, not an empty concat; GPS and identifying metadata stripped |
+| **WO-122 · QA v2** | `resolution_ok` against the *setting*, not a hardcoded 1080×1920. `audio_ok` re-derived from the levels. **`duration_ok` keeps §9's ±0.5 s unchanged** — the fix for the ramp overshoot is WO-121's clamp, not a wider tolerance | `backend/qa/` | `music_level > 0` ⇒ output not silent; both at zero ⇒ silent **and** still a valid AAC track; a bad render is blocked **with its reason stated**; **a multi-clip ramped reel lands inside ±0.5 s** — the regression test whose absence let the overshoot through |
+
+> **The ramp duration overshoot — binding on WO-121 and WO-122.** WO-124
+> measured `setpts` + `atempo` overshooting by a **fixed 1–2 frames per ramped
+> clip** (+33 ms at 1.5×, +66 ms at 2.0×), *identical at every clip length* — so
+> it scales with **clip count, not ramped seconds**, and accumulates linearly:
+> six 2.0× clips measured +420 ms against a ±0.5 s gate.
+>
+> It is a correctness bug before it is a gate problem. `SPEC.md` §3.4's played-
+> duration formula also drives **the reel length the user reads** (§2.4), so a
+> twenty-ramped-clip reel displays 1:23 and exports 1:24.3.
+>
+> **`-t (kept_duration / rate)` removes it exactly** — 90 frames instead of 92,
+> 3.0000 s instead of 3.0660 s, and the frames dropped are spurious tail frames
+> the CFR resampler invented, not content. **No `SPEC.md` change is needed**,
+> which is why this is a lane instruction and not the §9 stop-and-ask it was
+> first raised as. Full measurements and the rejected alternatives:
+> [WO-124-playback-findings.md §3](../specs/WO-124-playback-findings.md).
 | **WO-123 · API v2** | Delete `approve/{stage}` and every gate read. Add the §8 PATCH surface, relink, `download` with no `audio_mode`, thumb/peaks/pick-file. §8.2's optimistic-save failure path | `backend/api/` | Every §8 route present and no others; **each new mutating route has its own capability-token guard test that fails when the guard is removed**; 409 on `updated_at` mismatch; no path leaks |
 | **WO-124 · Playback engine spike** | **Throwaway code, deleted afterwards.** Answers `SPEC.md` §6 / §14 SO-3 with measurements, not opinion | a scratch directory, deleted at closeout | A written record of: transition gap at a cut, seek error against the proxy's keyframe interval, whether `playbackRate` preview matches rendered `setpts`, how pitch is handled preview-vs-export, and how the music bed holds sync across a transition and a seek. **A number for each, or a stated reason it could not be measured** |
 

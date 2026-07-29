@@ -102,10 +102,19 @@ apart, and the proxy path has three tests where it had one vacuous one.
 
 ## Owner actions required
 
-1. **Consider four `SPEC.md` §6/§9 amendments** the spike warrants — findings
-   §9. The substantive one: `setpts` overshoots duration by up to 1.39 %, so a
-   speed-heavy reel can breach §9's ±0.5 s QA tolerance while being correct.
-   **This is the last WO-124 item still open.**
+1. **Consider the `SPEC.md` §6 amendments** the spike warrants — findings §9 —
+   which write the two-element cross-swap, the frame-accurate seek result and
+   the proxy-must-carry-audio rule into the spec. All three are recording what
+   was measured, not deciding anything.
+
+   > **The §9 QA-tolerance item that was here is withdrawn.** It was raised as a
+   > stop-and-ask on the ±0.5 s tolerance, on the strength of a percentage
+   > measured at one clip length. Re-measured 2026-07-29: the overshoot is a
+   > **fixed 1–2 frames per ramped clip**, so it scales with clip *count*, not
+   > ramped seconds, and `-t (kept_duration / rate)` removes it exactly.
+   > **§9 stands as written**; the remedy is now a WO-121/WO-122 lane
+   > instruction in ADP-002 §4. See findings §3.
+
 2. **Close `SPEC.md` §14 SO-2** — the Log's retention, persistence and pinning
    behaviour. Blocks the Log unit only, not any WO in this ADP. (**SO-1 is
    closed**, 2026-07-28, ADP-002 Amendment 2 — WO-120 is unheld.)
