@@ -145,6 +145,18 @@ class FFmpegIngest:
 
         Never writes beneath media_root. Letterboxes any orientation into 540×960
         so the preview <video> is a consistent size.
+
+        **The proxy carries the source's audio** (WO-116a). It previously did
+        not — `-an` made every proxy silent — and the Monitor plays proxies, so
+        that left `SPEC.md` §5's `clip_level` acting on nothing, the Sound unit
+        drawing traces for audio that could not play, and §6's "preview loudness
+        must match export loudness" unsatisfiable with one side silent.
+
+        **Keyframes are ~1 s apart.** x264's default is 250 frames — 8.3 s at
+        30 fps — and WO-124 measured seek latency rising to 45 ms the further a
+        target lands past a keyframe. Seeking was already frame-*accurate*; this
+        only buys back the latency, which the trim handles and the scrub pay on
+        every drag.
         """
         self.proxy_root.mkdir(parents=True, exist_ok=True)
         out = self.proxy_root / f"{source.source_id}.mp4"
@@ -152,15 +164,27 @@ class FFmpegIngest:
             "scale=540:960:force_original_aspect_ratio=decrease,"
             "pad=540:960:(ow-iw)/2:(oh-ih)/2,setsar=1"
         )
-        proc = subprocess.run(
-            [
-                "ffmpeg", "-y", "-i", source.path,
-                "-vf", vf, "-c:v", "libx264", "-b:v", "1.5M",
-                "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an",
-                str(out),
-            ],
-            capture_output=True, text=True,
-        )
+        # One keyframe per second of source. fps is a float on real footage
+        # (29.97), and 0.0 on anything that failed to probe cleanly.
+        gop = max(1, round(source.fps)) if source.fps and source.fps > 0 else 30
+        cmd = [
+            "ffmpeg", "-y", "-i", source.path,
+            "-vf", vf, "-c:v", "libx264", "-b:v", "1.5M",
+            "-g", str(gop),
+            "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+        ]
+        if source.has_audio:
+            # Downmixed to stereo: a 5.1 source would otherwise give the preview
+            # a channel layout the mix in §5 was never specified against.
+            cmd += ["-c:a", "aac", "-b:a", "128k", "-ac", "2"]
+        else:
+            # No track rather than a fabricated silent one. `has_audio` already
+            # tells the UI, and inventing silence would make a source that never
+            # had sound indistinguishable from one the user muted.
+            cmd += ["-an"]
+        cmd += [str(out)]
+
+        proc = subprocess.run(cmd, capture_output=True, text=True)
         if proc.returncode != 0:
             raise ProbeError(f"proxy generation failed for {source.source_id}: {proc.stderr.strip()[:200]}")
         return str(out)
