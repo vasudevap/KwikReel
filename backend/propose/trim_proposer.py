@@ -1,4 +1,4 @@
-"""Deterministic trim proposal from analysis signals (ES-001 §5.2).
+"""Deterministic trim proposal from analysis signals (SPEC.md §4.1).
 
 Signals are per-second and normalised to 0..1 by the analysis lane:
   blur      = sharpness (higher = sharper) — must clear `sharpness_floor`
@@ -7,10 +7,15 @@ Signals are per-second and normalised to 0..1 by the analysis lane:
   motion_energy, audio_rms — used to spot static "dead air" at head/tail
 
 Rules: score each second against the floors; take the longest contiguous good run
-that does not cross a scene cut; trim leading/trailing static; enforce a 1.0 s
-universal floor (G-9); if nothing clears the floors, keep the whole clip and say
-so. Every trimmed span emits one ReasonRecord citing the signal range that drove
-it. Thresholds are config, surfaced in the UI, and tunable (not pre-registered).
+that does not cross a scene cut; trim leading/trailing static, unless that would
+consume the run entirely; if nothing clears the floors, keep the whole clip and
+say so. **There is no minimum window** (DECISIONS A-6) — the proposed segment may
+be shorter than a second (when the actual clip duration truncates the last good
+second) or empty (`out_s <= in_s`, when duration truncates it to nothing);
+neither case is an error here, both are the Log's to warn about (SPEC.md §4.1
+rule 4, §7). Every trimmed span emits one ReasonRecord citing the signal range
+that drove it. Thresholds are config, surfaced in the UI, and tunable (not
+pre-registered).
 """
 
 from __future__ import annotations
@@ -36,7 +41,6 @@ class TrimConfig:
     shake_ceiling: float = 0.50
     static_motion_ceiling: float = 0.10
     static_audio_ceiling: float = 0.10
-    min_window_s: float = 1.0          # universal timeline floor (G-9)
 
 
 def _now_iso() -> str:
@@ -100,9 +104,10 @@ class TrimRuleProposer:
 
         in_s = float(core_start)
         out_s = min(float(core_end + 1), dur)
-        if out_s - in_s < c.min_window_s:  # honour the 1.0 s floor
-            out_s = min(in_s + c.min_window_s, dur)
-            in_s = max(0.0, out_s - c.min_window_s)
+        # No minimum window (A-6): `out_s` may sit sub-second past `in_s` — the
+        # actual duration truncated the run's last second — or at/before it,
+        # which is an empty proposal (out_s <= in_s). Both are returned as-is;
+        # neither is padded and neither is an error.
 
         reasons: list[ReasonRecord] = []
         if start > 0:
@@ -123,7 +128,7 @@ class TrimRuleProposer:
             ))
 
         return SegmentsProposal(
-            value=[Segment(in_s=in_s, out_s=out_s, speed=[])],
+            value=Segment(in_s=in_s, out_s=out_s),
             at=_now_iso(),
             reasons=reasons,
             disposition="pending",
@@ -184,7 +189,7 @@ class TrimRuleProposer:
 
     def _fallback(self, dur: float, code: str, text: str, evidence: list[str], score: float) -> SegmentsProposal:
         return SegmentsProposal(
-            value=[Segment(in_s=0.0, out_s=dur, speed=[])],
+            value=Segment(in_s=0.0, out_s=dur),
             at=_now_iso(),
             reasons=[ReasonRecord(code=code, human_text=text, evidence_refs=evidence, score=score, confidence="low")],
             disposition="pending",
