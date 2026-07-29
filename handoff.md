@@ -58,9 +58,12 @@ not resolve on GitHub.
   the rest of the ADP-002 fan-out hasn't started.
 - **No frontend at all**, and no authorization for one. ADP-003 is not written —
   its content depends on what WO-124 measures.
-- **Three things `SPEC.md` does not settle** — its §14 SO-2, SO-3, SO-4: the
-  Log's retention and persistence, the playback engine, and the rack layout
-  invariant under real data. (SO-1, the speed parameters, closed 2026-07-28.)
+- **One thing `SPEC.md` does not settle** — its §14 **SO-4**, the rack layout
+  invariant under real data. SO-1 closed 2026-07-28; SO-2 (the Log) and SO-3
+  (the playback engine) closed 2026-07-29.
+- **No `log.json` yet.** `SPEC.md` §7.3 now specifies it and WO-118 owns it, but
+  nothing writes it, so the Log has no persistence and A-3b's export summary —
+  the only named measure for evidence claim C-03 — has nowhere to land.
 - **No media, no corpus, no consent record.** Every ledger claim is `assumed`.
 - **No real-footage run.** The two exit gates that need it have never run.
 
@@ -115,9 +118,10 @@ apart, and the proxy path has three tests where it had one vacuous one.
    > **§9 stands as written**; the remedy is now a WO-121/WO-122 lane
    > instruction in ADP-002 §4. See findings §3.
 
-2. **Close `SPEC.md` §14 SO-2** — the Log's retention, persistence and pinning
-   behaviour. Blocks the Log unit only, not any WO in this ADP. (**SO-1 is
-   closed**, 2026-07-28, ADP-002 Amendment 2 — WO-120 is unheld.)
+2. **Close `SPEC.md` §14 SO-4** — the rack layout invariant under real data:
+   minimum viewport, long clip and track names, the clip index at 200 clips, and
+   whether the invariant is enforced by a test or is an aspiration. **The last
+   one open.** SO-1 closed 2026-07-28; SO-2 and SO-3 closed 2026-07-29.
 3. **Record an ADR-002-style consent** before anything runs against real footage.
    Nothing under ADP-002 may touch real media without it.
 4. **Authorize pushes individually.** As of 2026-07-28 `origin/main` is at `HEAD`

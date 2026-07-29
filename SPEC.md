@@ -4,7 +4,7 @@
 contract document, outranked only by [CONSTRAINTS.md](docs/CONSTRAINTS.md).
 **Acceptance is not authorization to build.** Implementation is gated on an ADP,
 and the things this spec does not yet settle are listed in [§14](#14--what-this-spec-still-owes)
-— two of the original four remain open.
+— one of the original four remains open.
 Written 2026-07-28, forward from `docs/design-claude/mockup-v3z.html` and
 [DECISIONS.md](docs/DECISIONS.md).
 
@@ -91,8 +91,9 @@ every clip. The Editor keeps only what acts on time.
 ## 3 · The frozen contract
 
 Canonical state is a versioned `project.json` that round-trips losslessly.
-Sidecar `analysis.json` per source holds facts. Both are local; neither is ever
-committed.
+Sidecar `analysis.json` per source holds facts, and sidecar `log.json` per
+project holds the audit trail (§7.3) — history, deliberately kept out of the
+state document. All are local; none is ever committed.
 
 ### 3.1 · The central structural rule — effective values are derived
 
@@ -512,15 +513,88 @@ Each entry is **time · kind · message**, with three kinds:
 7. **Save failures** (§8.2). Never silent.
 8. **Speed warnings** — clip audio is time-stretched wherever rate ≠ 1.0×.
 
-### 7.2 · What the spec still owes
+### 7.2 · Retention, persistence, pinning and precedence
 
-Retention depth · whether the Log persists across reopening a project · how
-pinning composes with a newest-first list · and whether a forty-clip reel's forty
-reason lines belong in the same window as a live fault.
+**SO-2 closed — owner, 2026-07-29.** Four answers, all constrained by two things
+that were already decided: A-8 locks the Log to **three lines of glass**, so no
+answer may add a second surface; and the contract is frozen, so no answer may
+change `project.json`.
 
-> **Flagged as the most likely correction.** The Log was drawn as three lines for
-> occasional warnings and now has eight jobs. Reading back a history and catching
-> a live failure are different tasks, and one strip is doing both.
+#### It persists, in a sidecar
+
+**The Log survives closing and reopening a project.** A-3 makes it the audit
+trail and *"the way to learn whether the assists are earning their place"*, and
+A-3b's export summary is the **only named measure** for evidence claim C-03. A
+session-only Log discards that the moment the app closes, which would put C-03
+back where `disposition` was retired to rescue it from.
+
+**It lives in a per-project sidecar `log.json`, not in `project.json`.** Two
+reasons, and the second is the load-bearing one:
+
+- `project.json` is **state**; the Log is append-only **history**. Growing an
+  unbounded array inside the canonical state document confuses the two.
+- The contract is **frozen** (§3). A sidecar closes SO-2 **without amending it**,
+  and `analysis.json` already establishes the pattern.
+
+#### It holds 500 entries
+
+Evicted oldest-first. A 50-clip reel's full trim and speed run writes on the
+order of 110 entries, so 500 holds several such runs plus their export
+summaries — deep enough to read back a session's work, small enough that
+`log.json` stays a document rather than a database.
+
+#### Pinning is exemption from eviction, not a reserved row
+
+The standing lines of §7.1 are **never evicted**, sit at the foot of the
+scrollback, and are **what the three lines show when a project opens**, before
+any event has been logged.
+
+> **This is weaker than "always on screen", and deliberately so.** Three lines
+> cannot permanently reserve a row for each of two standing lines *and* carry a
+> live fault — that would leave one flowing line. A-7's decision was that the
+> assurance must not vanish; exemption from eviction plus the opening state
+> delivers that. Permanent visibility would need a fourth line, which A-8 does
+> not permit.
+
+#### Severity outranks recency in the visible window
+
+Two rules, and together they are what stop a forty-clip reel burying a failure:
+
+1. **A bulk run writes its detail first and its summary last.** A 19-clip trim
+   appends the per-clip reason lines, *then* the summary. Newest-first means the
+   summary — *"Trim proposed on 19 clips."* — is what you see, and every
+   individual reason is one scroll away. **Nothing is withheld**, satisfying A-2;
+   nothing floods, because the headline is written last.
+2. **An `info` entry never displaces a `WARN` or `FAULT` from the visible
+   strip.** The newest warning or fault holds its line until the user scrolls the
+   Log or a newer warning or fault takes it. Reason lines are `info`, so a clip
+   trimmed to nothing (`WARN`, required by A-6) cannot be pushed off by the
+   thirty-nine reasons logged after it.
+
+> **The risk this closes around, not away.** The Log was drawn as three lines for
+> occasional warnings and has eight jobs. Reading back a history and catching a
+> live failure are different tasks and one strip is still doing both. The rules
+> above make that survivable rather than safe, and the Log remains **the most
+> likely candidate for the correction pass A-8 anticipates.** If it fails in use,
+> it fails here.
+
+### 7.3 · `log.json`
+
+Per project, beside `project.json`, local, never committed.
+
+```
+LogEntry
+  at: str                     # ISO-8601
+  kind: "info" | "warn" | "fault"
+  text: str                   # written to be read — a ReasonRecord's human_text
+                              # goes here verbatim
+  code: str | null            # stable machine code where one exists (LEADING_BLUR)
+  source_id: str | null       # the clip it concerns, when it concerns one
+  standing: bool = false      # exempt from eviction (§7.2)
+```
+
+Entries logged before a project exists — a track chosen first (§8) — are held
+for the session and written on the project's first save.
 
 ---
 
@@ -659,14 +733,14 @@ Accepted with four things unsettled. They are recorded here rather than left in
 prose so that acceptance does not quietly swallow them. **Each blocks specific
 work and nothing else** — the rest of the build is unblocked by this document.
 
-**Two remain: SO-2 and SO-4.**
+**One remains: SO-4.**
 
 | # | Owed | Stated in | Blocks |
 |---|---|---|---|
 | **SO-1** | ~~The speed assist's parameters~~ — **closed 2026-07-28**, see §4.2 | §4.2 | Closed. WO-120 is unheld as of ADP-002 Amendment 2 |
-| **SO-2** | The Log's retention depth, whether it persists across reopening a project, how pinning composes with a newest-first list, and whether forty reason lines belong in the same window as a live fault | §7.2 | The Log unit. Load-bearing — it is the only warning surface (A-2 + A-6) |
+| **SO-2** | ~~The Log's retention, persistence and pinning~~ — **closed 2026-07-29**, see §7.2 and §7.3 | §7.2 | Closed. The Log unit is unblocked. The *design* risk it carries is not closed — §7.2's last note |
 | **SO-3** | ~~The playback engine~~ — **closed 2026-07-29**, measured by WO-124 and written into §6.1 – §6.7 | §6 | Closed. The Monitor is unblocked, and the v3z design survived the measurement. One number is still missing — §6.7 |
 | **SO-4** | The rack layout invariant under real data: minimum viewport, long clip and track names, the clip index at 200 clips, and whether the invariant is enforced by a test or is an aspiration | §2.1, §10 | The rack design system and the clip index |
 
-SO-1 and SO-3 are closed. SO-2 is closed by amending this document. SO-4 is
-closed by a decision on whether to test the invariant.
+SO-1, SO-2 and SO-3 are closed. SO-4 is closed by a decision on whether to test
+the invariant.
