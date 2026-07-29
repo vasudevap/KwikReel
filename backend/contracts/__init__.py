@@ -1,4 +1,4 @@
-"""Frozen M1 contracts (ES-001 §4) and the service interfaces coded against them.
+"""Frozen contracts v2 (SPEC.md §3) and the service interfaces coded against them.
 
 Import models from here: `from backend.contracts import Project, SourceIndex, ...`.
 """
@@ -6,26 +6,27 @@ Import models from here: `from backend.contracts import Project, SourceIndex, ..
 from backend.contracts.interfaces import (
     AnalysisService,
     IngestService,
+    MediaService,
     OutputQA,
     ProjectStore,
     Renderer,
+    SpeedProposer,
     TrimProposer,
 )
 from backend.contracts.models import (
     CONTRACT_MODELS,
     Analysis,
-    AudioMode,
+    AudioMix,
     AudioSettings,
     Clip,
     Confidence,
     Disposition,
     Export,
-    IncludedProposal,
     Music,
-    OrderProposal,
     Orientation,
     Origin,
     OriginValue,
+    OutputResolution,
     Project,
     Proposals,
     QAReport,
@@ -37,24 +38,22 @@ from backend.contracts.models import (
     SourceIndex,
     SpeedProposal,
     SpeedRange,
-    StageApprovals,
 )
 
 __all__ = [
     "CONTRACT_MODELS",
     "Analysis",
-    "AudioMode",
+    "AudioMix",
     "AudioSettings",
     "Clip",
     "Confidence",
     "Disposition",
     "Export",
-    "IncludedProposal",
     "Music",
-    "OrderProposal",
     "Orientation",
     "Origin",
     "OriginValue",
+    "OutputResolution",
     "Project",
     "Proposals",
     "QAReport",
@@ -66,12 +65,13 @@ __all__ = [
     "SourceIndex",
     "SpeedProposal",
     "SpeedRange",
-    "StageApprovals",
     # interfaces
     "AnalysisService",
     "IngestService",
+    "MediaService",
     "OutputQA",
     "ProjectStore",
     "Renderer",
+    "SpeedProposer",
     "TrimProposer",
 ]

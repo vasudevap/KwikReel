@@ -1,0 +1,278 @@
+{
+  "schema_version": 2,
+  "project_id": "6f9619ff-8b86-d011-b42d-00cf4fc964ff",
+  "created_at": "2026-07-28T18:55:02Z",
+  "updated_at": "2026-07-28T19:10:44Z",
+  "app_version": "0.2.0",
+  "name": "Beach Day",
+  "media_root": "/Users/example/Movies/BeachDay",
+  "target_duration_s": 75.0,
+  "output_resolution": "1080p",
+  "trim_assist_on": true,
+  "speed_assist_on": false,
+  "audio": {
+    "music_level": 0.62,
+    "clip_level": 0.78
+  },
+  "music": {
+    "track_ref": "/Users/example/Music/summer.m4a",
+    "content_hash": "sha256:1f0a…track",
+    "duration_s": 191.4,
+    "in_s": 12.5
+  },
+  "sources": [
+    {
+      "source_id": "s1",
+      "content_hash": "sha256:aa11…s1",
+      "path": "/Users/example/Movies/BeachDay/IMG_0001.mov",
+      "duration_s": 12.4,
+      "captured_at": "2026-07-20T09:15:00-07:00",
+      "orientation": "portrait",
+      "codec": "hevc",
+      "fps": 29.97,
+      "width": 1080,
+      "height": 1920,
+      "has_audio": true,
+      "has_gps": true,
+      "readable": true,
+      "proxy_path": "/Users/example/Movies/BeachDay/.proxies/s1.mp4"
+    },
+    {
+      "source_id": "s2",
+      "content_hash": "sha256:bb22…s2",
+      "path": "/Users/example/Movies/BeachDay/IMG_0002.mov",
+      "duration_s": 20.0,
+      "captured_at": "2026-07-20T09:18:30-07:00",
+      "orientation": "landscape",
+      "codec": "h264",
+      "fps": 30.0,
+      "width": 1920,
+      "height": 1080,
+      "has_audio": true,
+      "has_gps": false,
+      "readable": true,
+      "proxy_path": "/Users/example/Movies/BeachDay/.proxies/s2.mp4"
+    },
+    {
+      "source_id": "s3",
+      "content_hash": "sha256:cc33…s3",
+      "path": "/Users/example/Movies/BeachDay/IMG_0003.mov",
+      "duration_s": 8.0,
+      "captured_at": "2026-07-20T09:22:05-07:00",
+      "orientation": "portrait",
+      "codec": "h264",
+      "fps": 30.0,
+      "width": 1080,
+      "height": 1920,
+      "has_audio": false,
+      "has_gps": false,
+      "readable": true,
+      "proxy_path": "/Users/example/Movies/BeachDay/.proxies/s3.mp4"
+    },
+    {
+      "source_id": "s4",
+      "content_hash": "sha256:dd44…s4",
+      "path": "/Users/example/Movies/BeachDay/IMG_0004.mov",
+      "duration_s": 5.0,
+      "captured_at": null,
+      "orientation": "portrait",
+      "codec": "h264",
+      "fps": 30.0,
+      "width": 1080,
+      "height": 1920,
+      "has_audio": true,
+      "has_gps": false,
+      "readable": false,
+      "proxy_path": null
+    }
+  ],
+  "clips": [
+    {
+      "source_id": "s1",
+      "order": 1,
+      "segment": null,
+      "speed_ranges": [],
+      "stashed_segment": null,
+      "audio": {
+        "retain": true,
+        "gain_db": 0.0
+      },
+      "origin": {
+        "order": "default",
+        "segments": "proposed",
+        "speed": "default",
+        "audio": "default"
+      },
+      "proposals": {
+        "segments": {
+          "value": {
+            "in_s": 2.4,
+            "out_s": 9.1
+          },
+          "at": "2026-07-28T19:05:00Z",
+          "reasons": [
+            {
+              "code": "LEADING_BLUR",
+              "human_text": "Trimmed the first 2.4 s — too blurry to keep (sharpness 0.12 against a 0.35 floor)",
+              "evidence_refs": [
+                "signals.blur[0:2]"
+              ],
+              "score": 0.12,
+              "confidence": "high"
+            },
+            {
+              "code": "TRAILING_STATIC",
+              "human_text": "Trimmed the last 3.3 s — nothing moving and nothing audible",
+              "evidence_refs": [
+                "signals.motion_energy[9:12]",
+                "signals.audio_rms[9:12]"
+              ],
+              "score": 0.04,
+              "confidence": "med"
+            }
+          ],
+          "disposition": "pending"
+        },
+        "speed": null
+      }
+    },
+    {
+      "source_id": "s2",
+      "order": 2,
+      "segment": {
+        "in_s": 1.5,
+        "out_s": 16.0
+      },
+      "speed_ranges": [
+        {
+          "from_s": 6.0,
+          "to_s": 11.0,
+          "rate": 1.75
+        }
+      ],
+      "stashed_segment": null,
+      "audio": {
+        "retain": false,
+        "gain_db": 0.0
+      },
+      "origin": {
+        "order": "default",
+        "segments": "user",
+        "speed": "user",
+        "audio": "user"
+      },
+      "proposals": {
+        "segments": {
+          "value": {
+            "in_s": 0.8,
+            "out_s": 17.2
+          },
+          "at": "2026-07-28T19:05:00Z",
+          "reasons": [
+            {
+              "code": "TRAILING_SHAKE",
+              "human_text": "Trimmed the last 2.8 s — the camera was moving too much to hold",
+              "evidence_refs": [
+                "signals.shake[17:20]"
+              ],
+              "score": 0.71,
+              "confidence": "high"
+            }
+          ],
+          "disposition": "adjusted"
+        },
+        "speed": {
+          "value": [
+            {
+              "from_s": 5.5,
+              "to_s": 12.0,
+              "rate": 1.6
+            }
+          ],
+          "at": "2026-07-28T19:06:12Z",
+          "reasons": [
+            {
+              "code": "DULL_STRETCH",
+              "human_text": "Sped the middle 6.5 s to 1.6× — very little movement or sound through it",
+              "evidence_refs": [
+                "signals.motion_energy[5:12]",
+                "signals.audio_rms[5:12]"
+              ],
+              "score": 0.08,
+              "confidence": "med"
+            }
+          ],
+          "disposition": "adjusted"
+        }
+      }
+    },
+    {
+      "source_id": "s3",
+      "order": 3,
+      "segment": {
+        "in_s": 0.0,
+        "out_s": 0.0
+      },
+      "speed_ranges": [],
+      "stashed_segment": {
+        "in_s": 0.0,
+        "out_s": 8.0
+      },
+      "audio": {
+        "retain": true,
+        "gain_db": 0.0
+      },
+      "origin": {
+        "order": "default",
+        "segments": "user",
+        "speed": "default",
+        "audio": "default"
+      },
+      "proposals": {
+        "segments": null,
+        "speed": null
+      }
+    },
+    {
+      "source_id": "s4",
+      "order": 4,
+      "segment": null,
+      "speed_ranges": [],
+      "stashed_segment": null,
+      "audio": {
+        "retain": true,
+        "gain_db": 0.0
+      },
+      "origin": {
+        "order": "default",
+        "segments": "default",
+        "speed": "default",
+        "audio": "default"
+      },
+      "proposals": {
+        "segments": null,
+        "speed": null
+      }
+    }
+  ],
+  "export": {
+    "last_render": {
+      "path": "/Users/example/Movies/BeachDay/.out/beach-day.mp4",
+      "rendered_at": "2026-07-28T19:10:40Z",
+      "qa": {
+        "passed": true,
+        "not_black": true,
+        "audio_ok": true,
+        "duration_ok": true,
+        "resolution_ok": true,
+        "codec_ok": true,
+        "safe_margins_ok": true,
+        "frame_count_ok": true,
+        "duration_s": 21.0,
+        "width": 1080,
+        "height": 1920,
+        "reasons": []
+      }
+    }
+  }
+}

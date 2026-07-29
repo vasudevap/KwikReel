@@ -1,9 +1,9 @@
 {
   "name": "kwikreel-frontend",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "description": "KwikReel frontend (M1). WO-101 owns this manifest; deps stay within the declared M1 set (react, typescript, vite). src/types/contracts.ts is generated from the backend models — do not hand-edit.",
+  "description": "KwikReel frontend. WO-117 owns this manifest; deps stay within the declared set (react, typescript, vite). src/types/contracts.ts is generated from the backend models — do not hand-edit. No frontend is authorized yet: ADP-003 waits on WO-124's measurements.",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

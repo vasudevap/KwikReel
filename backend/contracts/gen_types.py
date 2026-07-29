@@ -1,11 +1,11 @@
-"""WO-101 · Generate `frontend/src/types/contracts.ts` from the Pydantic models.
+"""WO-117 · Generate `frontend/src/types/contracts.ts` from the Pydantic models.
 
 The Pydantic models in `models.py` are the single source of truth. This script
 walks their JSON Schema and emits matching TypeScript interfaces, so the two
 cannot drift. `tests/contracts/test_ts_in_sync.py` regenerates and asserts the
 committed `.ts` is byte-identical to this output — that test IS the "one source
 of truth" gate. Standard library only (no new dependency; the manifest set is
-frozen and WO-101-owned).
+frozen and WO-117-owned).
 
 Run `python -m backend.contracts.gen_types` to (re)write the committed file.
 """
@@ -25,7 +25,7 @@ TS_OUTPUT_PATH = Path(__file__).resolve().parents[2] / "frontend" / "src" / "typ
 
 _HEADER = """\
 // GENERATED FILE — DO NOT EDIT.
-// Source of truth: backend/contracts/models.py (ES-001 §4, as amended §4.5).
+// Source of truth: backend/contracts/models.py (SPEC.md §3, accepted 2026-07-28).
 // Regenerate with:  python -m backend.contracts.gen_types
 // Drift is caught by tests/contracts/test_ts_in_sync.py.
 """
