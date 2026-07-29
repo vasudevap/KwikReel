@@ -2,6 +2,8 @@
 
 **Status:** Re-based for the 2026-07-23 pivot and the 2026-07-24 course correction. Ratings are assessments, not measurements.
 
+> **⚠️ Needs re-basing to v3z (2026-07-28).** The risks themselves stand, but two mitigations cite mechanisms the v3z design removes: *"every proposal is overridable and **gated**"* and *"kept-vs-discarded is read from **`disposition`**"*. Both the approval gates and `disposition` are retired in v3z, so those mitigations currently name machinery that will not exist. Re-base this register when `SPEC.md` lands. The privacy, licensing, platform-absorption and performance rows are unaffected.
+
 **Stop / de-scope triggers, not kill criteria.** The pivot (ADR-006) replaced ADR-004's pre-committed kill criteria with stage-boundary **stop/de-scope triggers**: *no convenience win* → conclude as a portfolio piece; *an assist is net-negative* → de-scope that stage to manual (stage-level, not project-level); *platform absorption of this transparent, approvable flow* → reassess differentiation. Firing one is a successful outcome, not a failure to argue around.
 
 | Risk | Type | Likelihood / impact | Mitigation / trigger |
