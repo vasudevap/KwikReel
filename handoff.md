@@ -63,10 +63,15 @@ not resolve on GitHub.
 
 ## In flight right now
 
-**WO-124, the playback-engine spike.** Throwaway code under
-`spike/wo-124-playback/`, answering `SPEC.md` §6 / §14 SO-3 with measurements.
-Findings land in `docs/specs/WO-124-playback-findings.md`; the code is deleted at
-ADP-002 closeout.
+**WO-118a, the trim proposer**, in the working tree.
+
+**WO-124 is done.** [`docs/specs/WO-124-playback-findings.md`](docs/specs/WO-124-playback-findings.md)
+— **SO-3 is answered and the v3z design survives.** The Monitor uses **two
+`<video>` elements cross-swapped** (0.8 ms at the cut, against 36.3 ms for one
+element reloaded — a 45× difference). Seeking is **frame-accurate** despite an
+8.3 s GOP; `playbackRate` is exact; a plain `<audio>` music bed holds sync to
+within 3.4 ms across a cut. The spike code is throwaway and is deleted at
+ADP-002 closeout; the findings document is what survives.
 
 ## What happens next
 
@@ -74,12 +79,26 @@ ADP-002 closeout.
    WO-121 renderer ·
    WO-122 QA · WO-123 API**, in parallel. All are dependency-ready now that v2
    is merged and (as of Amendment 2) SO-1 is closed.
-2. **WO-124's numbers** decide whether ADP-003 can be written against v3z as
-   drawn, or whether the design changes first.
-3. ADP-002 closes when those merge green — **per-WO green, not whole-suite
+2. ADP-002 closes when those merge green — **per-WO green, not whole-suite
    green.** `tests/integration/` and parts of `tests/guards/` belong to WO-134
    and WO-133, which are ADP-004's and not authorized. The suite does not go
    fully green inside this ADP, by design.
+
+## ⚠️ Stop-and-ask, open — WO-124 found two things nobody owns
+
+Both are in **`backend/ingest/`**, which ADP-002 §4 assigns to no Work Order.
+The plan called ingest "survives", and against `SPEC.md` §3 the *contract* does.
+Its **proxy recipe** does not. Full detail in the findings §4 and §6.
+
+1. **Every proxy is silent — `make_proxy` passes `-an`.** This is the serious
+   one. The Monitor cannot preview clip audio at all, so `clip_level` has
+   nothing to act on, the Sound unit's "the display *is* the mix" describes
+   audio that cannot play, and §6's "preview loudness must match export
+   loudness" is unsatisfiable when one of them is silent. **Blocks §5 and §6 as
+   written.** No test caught it for the same reason the letterbox fault survived
+   to WO-116 — analysis tests call `probe_clip`, which never builds a proxy.
+2. **The proxy GOP is 8.333 s** (no `-g`). Only an optimisation — seeking is
+   already frame-accurate — but `-g 30` would quarter a 45 ms worst case.
 
 ## The stop-and-ask that was raised, and closed
 
@@ -91,7 +110,12 @@ behaviour A-6 forbids. **Closed by ADP-002 Amendment 1: WO-118a, unheld.**
 
 ## Owner actions required
 
-1. **Close `SPEC.md` §14 SO-2** — the Log's retention, persistence and pinning
+1. **Decide the ingest stop-and-ask above.** The silent proxy blocks the Sound
+   unit; it needs a Work Order that owns `backend/ingest/`.
+2. **Consider four `SPEC.md` §6/§9 amendments** the spike warrants — findings
+   §9. The substantive one: `setpts` overshoots duration by up to 1.39 %, so a
+   speed-heavy reel can breach §9's ±0.5 s QA tolerance while being correct.
+3. **Close `SPEC.md` §14 SO-2** — the Log's retention, persistence and pinning
    behaviour. Blocks the Log unit only, not any WO in this ADP. (**SO-1 is
    closed**, 2026-07-28, ADP-002 Amendment 2 — WO-120 is unheld.)
 2. **Record an ADR-002-style consent** before anything runs against real footage.
