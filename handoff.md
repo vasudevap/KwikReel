@@ -56,11 +56,14 @@ not resolve on GitHub.
 - **Store, media, speed proposer, render, QA and the API are still v1.**
   Contracts (WO-117), ingest (WO-116a) and the trim proposer (WO-118a) are v2;
   the rest of the ADP-002 fan-out hasn't started.
-- **No frontend at all**, and no authorization for one. ADP-003 is not written —
-  its content depends on what WO-124 measures.
-- **One thing `SPEC.md` does not settle** — its §14 **SO-4**, the rack layout
-  invariant under real data. SO-1 closed 2026-07-28; SO-2 (the Log) and SO-3
-  (the playback engine) closed 2026-07-29.
+- **No frontend at all**, and no authorization for one. **ADP-003 is now
+  unblocked on the spec side** — it was gated on WO-124's numbers plus SO-2 and
+  SO-4, and all three have landed. It still has to be written.
+- **`SPEC.md` owes nothing.** All four §14 items are closed: SO-1 2026-07-28,
+  SO-2/SO-3/SO-4 2026-07-29. Two things the closures leave open are tracked as
+  correction-pass risks rather than spec gaps — the unmeasured black-frame
+  duration (§6.7) and whether one three-line strip can carry the Log's eight
+  jobs (§7.2).
 - **No `log.json` yet.** `SPEC.md` §7.3 now specifies it and WO-118 owns it, but
   nothing writes it, so the Log has no persistence and A-3b's export summary —
   the only named measure for evidence claim C-03 — has nowhere to land.
@@ -105,29 +108,25 @@ apart, and the proxy path has three tests where it had one vacuous one.
 
 ## Owner actions required
 
-1. **Consider the `SPEC.md` §6 amendments** the spike warrants — findings §9 —
-   which write the two-element cross-swap, the frame-accurate seek result and
-   the proxy-must-carry-audio rule into the spec. All three are recording what
-   was measured, not deciding anything.
+**The `SPEC.md` list is empty.** Every item that stood here — the four §6
+amendments, SO-1, SO-2, SO-3, SO-4 — is closed. Two remain:
 
-   > **The §9 QA-tolerance item that was here is withdrawn.** It was raised as a
-   > stop-and-ask on the ±0.5 s tolerance, on the strength of a percentage
-   > measured at one clip length. Re-measured 2026-07-29: the overshoot is a
-   > **fixed 1–2 frames per ramped clip**, so it scales with clip *count*, not
-   > ramped seconds, and `-t (kept_duration / rate)` removes it exactly.
-   > **§9 stands as written**; the remedy is now a WO-121/WO-122 lane
-   > instruction in ADP-002 §4. See findings §3.
-
-2. **Close `SPEC.md` §14 SO-4** — the rack layout invariant under real data:
-   minimum viewport, long clip and track names, the clip index at 200 clips, and
-   whether the invariant is enforced by a test or is an aspiration. **The last
-   one open.** SO-1 closed 2026-07-28; SO-2 and SO-3 closed 2026-07-29.
-3. **Record an ADR-002-style consent** before anything runs against real footage.
-   Nothing under ADP-002 may touch real media without it.
-4. **Authorize pushes individually.** As of 2026-07-28 `origin/main` is at `HEAD`
+1. **Record an ADR-002-style consent** before anything runs against real footage.
+   Nothing under ADP-002 may touch real media without it. **This now gates the
+   end of the whole programme**: ADP-004's real-footage validation is the only
+   thing that can move a ledger claim off `assumed`, and every claim is still
+   `assumed`.
+2. **Authorize pushes individually.** As of 2026-07-28 `origin/main` is at `HEAD`
    — verified with a live `git fetch`, superseding an earlier handoff that
    claimed four commits were unpushed against a stale tracking ref. Everything
    built under ADP-002 stays local until you say otherwise.
+
+> **Withdrawn, and recorded so it does not come back.** A §9 QA-tolerance
+> stop-and-ask stood here, raised on a percentage measured at one clip length.
+> Re-measured 2026-07-29: the overshoot is a fixed 1–2 frames per ramped clip,
+> scaling with clip *count* rather than ramped seconds, and
+> `-t (kept_duration / rate)` removes it exactly. **§9 stands as written**; the
+> remedy is a WO-121/WO-122 lane instruction in ADP-002 §4. See findings §3.
 
 ## Things that will bite you
 

@@ -3,8 +3,8 @@
 **Status: ACCEPTED — owner, 2026-07-28. Normative.** The single product and
 contract document, outranked only by [CONSTRAINTS.md](docs/CONSTRAINTS.md).
 **Acceptance is not authorization to build.** Implementation is gated on an ADP,
-and the things this spec does not yet settle are listed in [§14](#14--what-this-spec-still-owes)
-— one of the original four remains open.
+and the four things it did not settle at acceptance are listed — **all now
+closed** — in [§14](#14--what-this-spec-still-owes).
 Written 2026-07-28, forward from `docs/design-claude/mockup-v3z.html` and
 [DECISIONS.md](docs/DECISIONS.md).
 
@@ -670,10 +670,86 @@ both at zero means it must be silent *and* still carry a valid AAC track.
 - Ingest, analysis and render on a real day's footage should each complete in a
   timeframe that keeps the whole edit within one sitting. **The existing targets
   are unvalidated** — no run against real footage has ever happened.
-- The timeline stays responsive at 50+ clips. The four-row window and its scroll
-  keys are the mechanism; that they are sufficient is untested.
 - ffmpeg and ffprobe are required and their absence is reported, never silently
   worked around.
+
+### 10.1 · The rack under real data
+
+**SO-4 closed — owner, 2026-07-29.** v3z's stated achievement is that no element
+differs in size between any two of the six states. That was drawn against fixed
+fake data, and the open question was what real data does to it. The answers below
+are **measured against the v3z mockup itself**, not estimated.
+
+**The invariant holds, and is now a recorded number.** The rack is **767 px tall
+in all six states**, unchanged at every viewport width from 1024 px to 1440 px.
+That is a measurement of the drawing, not a guarantee about the build.
+
+#### Minimum viewport: 960 px wide
+
+The Monitor column is a fixed **465 px**; the side column stops overflowing its
+units at about **470 px**; the rack's own padding and border are 20 px.
+**465 + 3 + 470 + 20 ≈ 960 px.** Below a ~470 px side column, six of the units
+overflow their boxes at once.
+
+**Below the minimum the page scrolls horizontally. It never reflows** — reflow
+would change element sizes between viewports, which is the same failure A-8's
+invariant exists to prevent, one axis over.
+
+> **The rack has no intrinsic width and must be given one.** Both columns are
+> absolutely positioned, so the rack contributes no min-content width: in a
+> narrow container it **collapses to its 20 px of chrome** rather than
+> overflowing, and a wrapper's `overflow-x: auto` never engages. A `min-width`
+> on the rack is what makes the scroll behaviour above actually happen. This is
+> a real defect in the mockup's CSS, found by measuring it.
+
+Height is not constrained: 767 px fits inside a 900 px viewport, the shortest
+Mac laptop screen in normal use.
+
+#### Long names truncate in the middle, not at the tail
+
+**Clip names are always the file's basename** (§1 — there is no rename), and
+camera basenames differ at the **end**: `IMG_20260720_093015_0001.mov` and
+`IMG_20260720_093015_0002.mov` share every character but one.
+
+v3z truncates at the tail (`text-overflow: ellipsis` on the index row and the
+Monitor overlay), which collapses those two to the **same string** — two
+different clips, indistinguishable in the index, on the one surface that
+identifies them.
+
+**Every displayed name — clip, track, reel — truncates in the middle, keeping
+head and tail.** A fixed character budget per surface, so a long name cannot
+change any element's size.
+
+#### The clip index at 200 clips
+
+**Scroll performance is a non-issue, and this was checked rather than assumed.**
+The key column is already windowed: **4 rows and 28 buttons in every one of the
+six states**, independent of clip count. Only the glass text rows render the
+whole list. At 200 clips that is 28 controls and 200 text rows — no
+virtualisation needed, and none is specified.
+
+**A position counter is needed and v3z has none.** The Monitor carries a queue
+counter (*"3 of 7"*); the index carries nothing, so a four-row window over 200
+clips leaves the user with no idea where they are. The Clip index gains a
+**window-range counter** — same yellow as every other counter, per §2.1's design
+law.
+
+#### The invariant is enforced by testing its causes, not its geometry
+
+Measuring rendered geometry needs a browser-driving dependency, which is outside
+WO-117's frozen manifest and a stop-and-ask under ADP-002 §3 — a heavy thing to
+add to a project with no CI, to guard a drawing.
+
+**Instead the build tests what makes the geometry stable**, all of which is
+unit-testable with no browser:
+
+- the clip index renders **exactly four key rows** at any clip count;
+- every displayed name is truncated to its surface's **fixed character budget**;
+- counters are **fixed-width**, so a reel going from 9 to 10 clips moves nothing.
+
+**The rendered 767 px stays an aspiration**, verified by eye in the correction
+pass A-8 anticipates. Recorded plainly: those three tests make the invariant
+*likely*, not *proven*.
 
 ---
 
@@ -688,6 +764,9 @@ Recorded rather than left to be discovered.
 | **The read-only line is pinned**, not merely present at startup | A-7's placement with the mechanism that makes it survive a newest-first three-line window |
 | **Trims are stored in seconds; v3z's generator uses fractions** | Fractions are a drawing convenience. Seconds are absolute, survive a re-probe, and render directly |
 | **Speed ranges are stored in source time; v3z's generator stores fractions of the kept region** | So a ramp stays on the content it was computed for when a trim handle moves |
+| **Names truncate in the middle; v3z truncates at the tail** | Clip names are file basenames and camera basenames differ at the end, so tail truncation renders two different clips as the same string (§10.1) |
+| **The Clip index gains a window-range counter; v3z has none** | A four-row window over 200 clips otherwise gives no sense of position. The Monitor already carries a queue counter; the index carries nothing (§10.1) |
+| **The rack is given a `min-width`; v3z's has none** | Both its columns are absolutely positioned, so it collapses instead of scrolling in a narrow container. Measured, not theorised (§10.1) |
 
 ---
 
@@ -733,14 +812,18 @@ Accepted with four things unsettled. They are recorded here rather than left in
 prose so that acceptance does not quietly swallow them. **Each blocks specific
 work and nothing else** — the rest of the build is unblocked by this document.
 
-**One remains: SO-4.**
+**All four are now closed** — SO-1 and SO-2 by decision, SO-3 and SO-4 by
+measurement. The table is kept rather than deleted: what a spec did not know at
+acceptance, and how each gap was shut, is part of the record.
 
 | # | Owed | Stated in | Blocks |
 |---|---|---|---|
 | **SO-1** | ~~The speed assist's parameters~~ — **closed 2026-07-28**, see §4.2 | §4.2 | Closed. WO-120 is unheld as of ADP-002 Amendment 2 |
 | **SO-2** | ~~The Log's retention, persistence and pinning~~ — **closed 2026-07-29**, see §7.2 and §7.3 | §7.2 | Closed. The Log unit is unblocked. The *design* risk it carries is not closed — §7.2's last note |
 | **SO-3** | ~~The playback engine~~ — **closed 2026-07-29**, measured by WO-124 and written into §6.1 – §6.7 | §6 | Closed. The Monitor is unblocked, and the v3z design survived the measurement. One number is still missing — §6.7 |
-| **SO-4** | The rack layout invariant under real data: minimum viewport, long clip and track names, the clip index at 200 clips, and whether the invariant is enforced by a test or is an aspiration | §2.1, §10 | The rack design system and the clip index |
+| **SO-4** | ~~The rack layout invariant under real data~~ — **closed 2026-07-29**, see §10.1 | §10.1 | Closed. The rack design system and the clip index are unblocked |
 
-SO-1, SO-2 and SO-3 are closed. SO-4 is closed by a decision on whether to test
-the invariant.
+Nothing here is outstanding. Two things the closures leave open are **not** spec
+gaps and are tracked elsewhere: the visible black-frame duration at a cut
+(§6.7), and whether one three-line strip can carry the Log's eight jobs (§7.2) —
+both for the correction pass A-8 anticipates.

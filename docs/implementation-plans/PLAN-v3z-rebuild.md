@@ -303,7 +303,7 @@ the contract WO alone**.
 
 | WO | Scope |
 |---|---|
-| **WO-133 · Guards and build gates v2** | ADR-011 token guards on every new mutating route, each proven to fail when violated. Origin guard, path scrubbing, the fixtures guard. **Plus the S-8 invariant check if it is to be enforced** — note that measuring rendered geometry needs a browser-driving dependency, which is outside the WO-117 manifest and therefore a **stop-and-ask** |
+| **WO-133 · Guards and build gates v2** | ADR-011 token guards on every new mutating route, each proven to fail when violated. Origin guard, path scrubbing, the fixtures guard. **Plus `SPEC.md` §10.1's three cause-tests** — four key rows at any clip count, names within their character budget, fixed-width counters. **The browser-driving stop-and-ask is withdrawn:** SO-4 closed by testing the invariant's causes rather than its rendered geometry, so no new dependency is needed |
 | **WO-134 · Integration verification v2** | S-10's rewritten exit gates, end to end through the API on synthetic fixtures |
 | **WO-135 · Real-footage validation** | **Owner-gated on a recorded ADR-002 consent.** The real ~50-clip-day run, the Apple Photos Memory comparison, and WO-115b's **CP-3** perf spike — the only work that can move ledger claim **C-05** off `assumed`. Absorbs **WO-115a** (ingest performance) and the rest of **WO-115b** |
 
