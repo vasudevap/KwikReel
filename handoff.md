@@ -4,13 +4,14 @@
 
 ## The one-paragraph version
 
-A complete M1 backend exists and passes 67 tests on synthetic fixtures. The
+A complete M1 backend exists and passes 72 tests on synthetic fixtures. The
 frontend it was built for has been deleted, because a 26-version design
 exploration ended at **v3z** — a materially different product. The documentation
 was consolidated: everything superseded moved to `docs/archive/`, the surviving
-guardrails were transcribed into `docs/CONSTRAINTS.md`, and the next document to
-write is a single `SPEC.md` cut forward from v3z. **No implementation is
-authorized.**
+guardrails were transcribed into `docs/CONSTRAINTS.md`, and the record was
+rebuilt forward from v3z as `docs/DECISIONS.md` and then **`SPEC.md`, accepted
+2026-07-28**. **ADP-002 is authorized** — the backend rebuild may proceed
+locally, on synthetic fixtures, WO-117 – WO-124.
 
 ## What exists
 
@@ -20,13 +21,14 @@ authorized.**
 |---|---|
 | `backend/contracts/` | Pydantic models + generated TS types + service Protocols. Schema v1, which v3z changes substantially |
 | `backend/ingest/` | ffprobe → `SourceIndex`, rotation-corrected, 540×960 proxies. **Slow on real footage** — no `-preset`, no hardware encoder, serial scan |
-| `backend/analysis/` | OpenCV per-second signals. **Carries a correctness bug being fixed now** — see below |
+| `backend/analysis/` | OpenCV per-second signals. The letterbox/exposure fault is **fixed** (WO-116, `3d0d0d6`), with two regression tests |
 | `backend/propose/` | Deterministic trim proposer with reason records |
 | `backend/store/` | Save/load byte-equivalent, optimistic concurrency, origin protection |
 | `backend/render/`, `backend/qa/` | FFmpeg render + output QA |
 | `backend/api/` | FastAPI, job runner, and the local-delivery security guards, each proven to fail when removed |
 
-Run it: `python -m backend.api.run`. Tests: `pytest` — 67 pass, 1 owner-gated skip.
+Run it: `python -m backend.api.run`. Tests: `pytest` — 73 collected, 72 pass, 1
+owner-gated skip. (Use the repo's `.venv`; the system `python3` has no pytest.)
 
 **Frontend — a placeholder.** `frontend/src/` holds only `main.tsx` (a stub that
 keeps the build green) and `types/contracts.ts` (generated). The WO-107–110 app
@@ -41,56 +43,47 @@ not resolve on GitHub.
 
 ## What does not exist
 
-- **No `SPEC.md`.** The single normative product + contract document has not been
-  written. Until it exists there is nothing legitimate to code against.
-- **No decisions on the v3z departures.** Gates, `disposition`, displayed
-  reasons, speed-in-M1, the audio model, the retired trim floor — all open.
+- **No code against schema v2 yet.** `backend/contracts/` is still v1. WO-117 is
+  the first thing that changes it, and it runs alone.
+- **No frontend at all**, and no authorization for one. ADP-003 is not written —
+  its content depends on what WO-124 measures.
+- **Four things `SPEC.md` does not settle** — its §14: the speed assist's
+  parameters, the Log's retention and persistence, the playback engine, and the
+  rack layout invariant under real data.
 - **No media, no corpus, no consent record.** Every ledger claim is `assumed`.
 - **No real-footage run.** The two exit gates that need it have never run.
-- **Four unpushed commits.** Everything up to and including WO-115a/b is
-  **already on the public `origin`** — the M1 backend, the tests, the archived
-  documents. Only the clean cut, WO-116, `DECISIONS.md` and `SPEC.md` are local.
-  (An earlier handoff claimed the branch was "well ahead of origin, unpushed";
-  that was wrong. Verified against the local tracking ref, which has not been
-  refreshed from the network.)
 
 ## In flight right now
 
-**The letterbox / exposure fix.** `backend/ingest/ffmpeg_ingest.py:152`
-letterboxes every proxy into 540×960, and `backend/analysis/opencv_analysis.py:47`
-analyses that padded proxy. Exposure is computed as the fraction of clipped
-pixels (`<= 8` or `>= 247`), and black bars are 0 — so a 16:9 clip is **0.683
-bars against an `exposure_ceiling` of 0.50**, and **every landscape clip fails on
-every second and is labelled `OVEREXPOSED` before any content is considered.**
+**WO-117, the contract kernel v2** — `SPEC.md` §3 frozen as Pydantic models and
+regenerated TS types. It **runs alone**; five backend lanes wait on it.
 
-No test caught it: the analysis unit tests never build a proxy, and the one
-exposure assertion uses a deliberately black *portrait* clip, which letterboxes
-to nothing. The integration test asserts only that a proposal carries *a*
-reason, never that the reason is right.
-
-This compromises evidence-ledger claim **C-03**.
+**WO-124, the playback-engine spike** — throwaway code that answers `SPEC.md` §6
+with measurements. It depends on nothing and is the highest risk in the plan:
+nothing yet proves a browser can sequence proxies through in/out points with
+variable speed and a synced music bed. **It is already late** — it was meant to
+run while the spec was being written.
 
 ## What happens next
 
-1. **The decision session** — the v3z departures, recorded once. See
-   [PLAN-v3z-rebuild.md §1](docs/implementation-plans/PLAN-v3z-rebuild.md).
-2. **`SPEC.md`**, written forward from v3z. The only document that gates code.
-3. **The contract kernel**, alone, then the backend and frontend lanes fan out.
-
-Two things run in parallel with all of that, because neither depends on any v3z
-decision: the **letterbox fix** (above) and the **playback-engine spike**, which
-is the highest-risk unknown in the plan — nothing yet proves a browser can
-sequence proxies through in/out points with variable speed and a synced music
-bed.
+1. **WO-117, alone.** Then WO-118 store · WO-119 media · WO-121 renderer ·
+   WO-122 QA · WO-123 API fan out in parallel.
+2. **WO-124's numbers** decide whether ADP-003 (the frontend) can be written
+   against v3z as drawn, or whether the design changes first.
+3. ADP-002 closes when those merge green. See its §9.
 
 ## Owner actions required
 
-1. **Hold the decision session.** Everything downstream is blocked on it.
-2. **Choose the letterbox remedy's blast radius** — the minimal fix is landing
-   now; whether proxies should stop letterboxing altogether is a separate call.
-3. **Record an ADR-002-style consent** before anything runs against real footage.
-4. **Authorize pushes individually.** Four commits are local; everything before
-   them is already public.
+1. **Close `SPEC.md` §14 SO-1 and SO-2** — the speed parameters and the Log's
+   retention. Neither blocks WO-117; SO-1 holds WO-120 and SO-2 holds the Log
+   unit. If SO-1 is still open when the rest is green, ADP-002 closes without the
+   speed proposer.
+2. **Record an ADR-002-style consent** before anything runs against real footage.
+   Nothing under ADP-002 may touch real media without it.
+3. **Authorize pushes individually.** As of 2026-07-28 `origin/main` is at `HEAD`
+   — verified with a live `git fetch`, superseding an earlier handoff that
+   claimed four commits were unpushed against a stale tracking ref. Everything
+   built under ADP-002 stays local until you say otherwise.
 
 ## Things that will bite you
 

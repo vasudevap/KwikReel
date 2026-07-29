@@ -1,6 +1,12 @@
 # Roadmap — KwikReel
 
-**Status:** **Accepted — owner-approved 2026-07-23; amended 2026-07-24 (pre-ADP course correction, ADR-009/012).** Re-sequenced per ADR-007.
+> **⛔ SUPERSEDED 2026-07-28 by [SPEC.md](SPEC.md) §1 and [DECISIONS.md](docs/DECISIONS.md) A-5.** **Not citable as authority.**
+>
+> **There is one product, not three milestones** (A-5c). The M1/M2/M3 table below is retired outright: speed moved into the single release (A-5a), the **selection and ordering assist is cancelled permanently** (A-5b, so M2 has no content), the five approval gates are removed (A-1), and the three audio modes collapse to two mix levels and one exported file (A-4). What ships is `SPEC.md` §1; what validates it is `SPEC.md` §12.
+>
+> Kept unarchived only because the *reasoning* below — why validation-first retired, why manual-first was wrong — is the history of how the product got here. Read it as history. Take no requirement from it.
+
+**Status:** ~~Accepted — owner-approved 2026-07-23; amended 2026-07-24.~~ **Retired.** Re-sequenced per ADR-007, itself now superseded.
 **Governing:** `_oversight/DELIVERY-PLAYBOOK.md` (normal Direction → Specification → build flow); build method **ADR-006**; sequencing **ADR-007** (amended by **ADR-009** — manual curation in M1); evidence checkpoints **ADR-012**; form factor **ADR-005**.
 
 ## What changed, and why

@@ -1,6 +1,10 @@
 # Project — KwikReel
 
-**Status:** **Accepted — owner-approved 2026-07-23; amended 2026-07-24 (pre-ADP course correction — ADR-009/010/011/012/013).** Supersedes the prior ranking-centric draft (pivot 2026-07-23).
+> **⚠️ Partly superseded 2026-07-28 by [SPEC.md](SPEC.md).** The **framing** below stands and is why the project exists: explainable, local-first, human-directed, private, with the human making every editorial decision. The **mechanism** described below does not. Five approval gates, the nine-stage pipeline, `stage_approvals`, staged de-scope, the AI selection/ordering assist and the three audio modes are **all retired** — see [DECISIONS.md](docs/DECISIONS.md) A-1, A-4, A-5b, A-5c. With the gates gone, *"the human decides"* now rests on the assists being reversible and hand-edits being sticky ([SPEC.md](SPEC.md) §3.1, §4.4), which is a tested requirement rather than a workflow step.
+>
+> **Where this file and `SPEC.md` disagree, `SPEC.md` wins.** A full rewrite of the mechanism sections is owed and is an owner artifact, not an agent's.
+
+**Status:** **Accepted — owner-approved 2026-07-23; amended 2026-07-24 (pre-ADP course correction — ADR-009/010/011/012/013); mechanism superseded 2026-07-28.**
 **Governing methodology:** `_oversight/DELIVERY-PLAYBOOK.md`, normal flow (Direction → Specification → incremental staged build). Validation-first sequencing and the PROP-01 pilot are **retired** for this project by ADR-006 (Accepted 2026-07-23); ADR-001's CLI-first prototype shape is superseded by ADR-005 (Accepted 2026-07-23). ADR-002 (privacy) and ADR-003 (music/licensing) stand. This project is at **Stage A — Direction (re-opened by the pivot)**. No implementation, media collection, or remote repository is authorized.
 
 ## Framing

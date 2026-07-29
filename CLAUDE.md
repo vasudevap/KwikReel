@@ -14,16 +14,25 @@ human reviews it and overrides anything.
    licensing, local delivery security. **Do not restate them elsewhere; cite
    this file.**
 2. **[handoff.md](handoff.md)** — what exists right now.
-3. **[SPEC.md](SPEC.md)** — the product and the frozen contract. **Draft, pending
-   owner acceptance.** Once accepted it is the single normative document and
-   outranks everything except `CONSTRAINTS.md`.
+3. **[SPEC.md](SPEC.md)** — the product and the frozen contract. **Accepted
+   2026-07-28.** The single normative document; it outranks everything except
+   `CONSTRAINTS.md`. Its §14 lists the four things it does not yet settle.
 4. **[docs/DECISIONS.md](docs/DECISIONS.md)** — the v3z departures, **decided
    2026-07-28.** The record `SPEC.md` was written against.
-5. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
-   — the plan for the work in front of us. Proposed, not authorized.
-6. **`docs/design-claude/README.md`** — the v3z design, which is the frozen
+5. **[docs/implementation-plans/ADP-002-contract-v2-and-backend.md](docs/implementation-plans/ADP-002-contract-v2-and-backend.md)**
+   — the live authorization, and the Work Order set with its gates. **Authorized
+   2026-07-28** for WO-117 – WO-119 and WO-121 – WO-124, **local build to green
+   on synthetic fixtures only.** Its §3 is the list of what is still withheld.
+6. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
+   — the plan that got us here. Largely discharged; kept for the parts ADP-002
+   does not carry. Where it disagrees with `SPEC.md`, `SPEC.md` wins.
+7. **`docs/design-claude/README.md`** — the v3z design, which is the frozen
    frontend baseline. **Local only — gitignored and not in the public repo**
    (see below).
+
+`ROADMAP.md` and `PROJECT.md` are **not** on this list. Both carry supersession
+banners: the roadmap's milestones are retired outright, and `PROJECT.md`'s
+framing stands while its mechanism does not.
 
 ## The design files are not in the repo
 
@@ -59,16 +68,20 @@ processed** — every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded `assume
 
 **The frontend is gone.** A 26-version design exploration ended at **v3z**, which
 is a different product: no approval gates, no staged pipeline, speed pulled into
-M1, audio as two mix levels, no proposal `disposition`, no clip rename, no
-displayed reasons. The old frontend was deleted in the 2026-07-28 clean cut.
+one release, audio as two mix levels, no clip rename, no reasons on the editing
+surface. The old frontend was deleted in the 2026-07-28 clean cut. (`disposition`
+is the one v3z removal the owner reversed — see DECISIONS A-3.)
 
-**The decision session is done** ([docs/DECISIONS.md](docs/DECISIONS.md)). The
-next artifact is **`SPEC.md`** — the single normative product and contract
-document, which does not exist yet. It is to be written **forward from v3z and
-DECISIONS.md**, never amended backward from the archived ES-001; amending
-inherits the ghosts the clean cut just removed.
+**The decision session is done** ([docs/DECISIONS.md](docs/DECISIONS.md)) **and
+`SPEC.md` is accepted** (2026-07-28). Together they are the whole normative
+record for the rebuild, under `CONSTRAINTS.md`. Neither is to be amended backward
+from the archived ES-001; amending inherits the ghosts the clean cut removed.
 
-**No implementation beyond WO-116 is authorized.**
+**Implementation is authorized, narrowly.** ADP-002 grants WO-117 – WO-119 and
+WO-121 – WO-124: **local build to green on synthetic fixtures.** Still withheld
+and still stop-and-ask — **every push to `origin`**, CI, **any run against real
+footage** (needs an ADR-002 consent record first), amending `SPEC.md`, and
+**WO-120, the speed proposer**, which waits on `SPEC.md` §14 SO-1.
 
 ## Working discipline
 

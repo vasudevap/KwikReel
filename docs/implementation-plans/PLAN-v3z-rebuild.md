@@ -1,16 +1,25 @@
 # Plan — building KwikReel on the v3z frontend
 
-**Status: PROPOSED. Not authorized. No code may be written against this.**
+**Status: LARGELY DISCHARGED. Still not an authorization.**
 Drafted 2026-07-28. It names the decisions, specs, ADPs and Work Orders required
 to take the product from what exists today to what
 `docs/design-claude/mockup-v3z.html` draws. (That folder is gitignored and local
 only — the mockups are not in the public repo.)
 
-**Progress.** The **clean cut is done** (2026-07-28): superseded documents are in
-[`docs/archive/`](../archive/) and non-citable, the surviving guardrails are in
-[`docs/CONSTRAINTS.md`](../CONSTRAINTS.md), the obsolete frontend is deleted, and
-`CLAUDE.md`/`handoff.md` are rewritten. **WO-116 (the letterbox fix) is in
-progress.** Everything else waits on the §1 decision session.
+**Progress, 2026-07-28.** Steps 0–2 of §5 are done. The **clean cut** landed;
+**WO-116** (the letterbox fix) landed with two regression tests; the **decision
+session** produced [`DECISIONS.md`](../DECISIONS.md); and **`SPEC.md` is
+accepted**, discharging S-1 and — within it — S-4, S-5, S-6, S-9 and S-10.
+
+**What this plan still holds that `SPEC.md` does not:** S-2 (answered by the
+WO-124 spike, tracked as `SPEC.md` §14 SO-3), S-3 (SO-1), S-7's open half (SO-2)
+and S-8 (SO-4). Where this plan and `SPEC.md` disagree, **`SPEC.md` wins** — it
+is normative and this is a plan. §1's ADR framing is superseded by
+`DECISIONS.md`, which recorded the same eight departures in one session and
+**reversed A-3**: `disposition` is kept, not retired.
+
+**The live authorization is [ADP-002](ADP-002-contract-v2-and-backend.md)**,
+drafted and unsigned.
 
 **One naming note that matters:** the new normative document is **`SPEC.md`**,
 written *forward from v3z*. It is not an amendment to the archived ES-001, and
@@ -234,11 +243,11 @@ orientation**, per the letterbox finding below.
 
 ## 3 · ADPs to create
 
-| ADP | Grants | Gated on |
-|---|---|---|
-| **ADP-002 · Contract v2 and backend realignment** | WO-116 – WO-123. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | All of §1 (ADRs) and S-1, S-3, S-4, S-5, S-6, S-9 |
-| **ADP-003 · The v3z rack frontend** | WO-125 – WO-132 | **WO-124's spike passing**, plus S-2, S-7, S-8 |
-| **ADP-004 · Verification and real-footage validation** | WO-133 – WO-135, and WO-115a/115b | ADP-002 + ADP-003 complete; **a recorded ADR-002 consent** for anything touching real footage |
+| ADP | Grants | Gated on | State |
+|---|---|---|---|
+| **[ADP-002](ADP-002-contract-v2-and-backend.md) · Contract v2 and backend realignment** | WO-117 – WO-124. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | `DECISIONS.md` and `SPEC.md`, both landed. **WO-120 held inside the ADP** on the one gap that did not close (S-3 / SO-1) | **Drafted, unsigned** |
+| **ADP-003 · The v3z rack frontend** | WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 | Not written — its content depends on WO-124's numbers |
+| **ADP-004 · Verification and real-footage validation** | WO-133 – WO-135, and WO-115a/115b | ADP-002 + ADP-003 complete; **a recorded ADR-002 consent** for anything touching real footage | Not written |
 
 WO-124 (the spike) sits between ADP-002 and ADP-003 and should be authorized
 **inside ADP-002** as its last item, so its result is in hand before the frontend
@@ -308,25 +317,25 @@ draws it" costs.
 
 Only four steps are serial before the work fans out.
 
-0. ~~**The clean cut.**~~ **Done 2026-07-28** — archive moved and made
-   non-citable, `docs/CONSTRAINTS.md` written, obsolete frontend deleted,
-   `CLAUDE.md`/`handoff.md` rewritten. Required no decisions.
-1. **One decision session.** Not eight separate ADRs — 26 mockup iterations
-   *were* the deliberation, so this is minute-taking against §1, plus the four
-   genuinely open questions (N-4, N-6, N-8, and the 409 policy). Recorded once,
-   signed once.
-2. **`SPEC.md`**, per S-1. The only document that gates code.
-3. **WO-117 contract kernel, alone.** Then everything fans out.
+0. ~~**The clean cut.**~~ **Done 2026-07-28.**
+1. ~~**One decision session.**~~ **Done 2026-07-28** —
+   [`DECISIONS.md`](../DECISIONS.md), signed once.
+2. ~~**`SPEC.md`**, per S-1.~~ **Accepted 2026-07-28**, with four items owed
+   (§14). The only document that gates code.
+3. **Sign [ADP-002](ADP-002-contract-v2-and-backend.md).** *(Added: the plan
+   originally ran straight from the spec to the contract kernel, which skipped
+   the authorization. Nothing may be built without it.)*
+4. **WO-117 contract kernel, alone.** Then everything fans out.
 
 **Two things run in parallel with all of the above**, because neither depends on
 any v3z decision:
 
-- **WO-116, the letterbox fix** — a correctness bug in existing code. *(In
-  progress.)*
+- ~~**WO-116, the letterbox fix.**~~ **Done** — `3d0d0d6`, two regression tests.
 - **WO-124, the playback-engine spike** — it needs only proxies, which already
-  exist. It is the long pole and the top risk, so running it during steps 1–2
-  means a failure lands while the spec is still being written, which is the
-  cheapest possible moment to learn it.
+  exist. It is the long pole and the top risk. **It is now the latest item in the
+  plan**: it was meant to run during steps 1–2 and did not, so the cheapest
+  moment to learn a failure has already partly passed. Start it the day ADP-002
+  is signed.
 
 Then: **ADP-002** (backend lanes, parallel) → read the spike's numbers →
 **ADP-003** (WO-125 alone, then seven frontend lanes in parallel) → **ADP-004**

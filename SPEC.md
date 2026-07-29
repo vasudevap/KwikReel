@@ -1,7 +1,9 @@
 # SPEC — KwikReel
 
-**Status: DRAFT for owner review. Normative once accepted. Nothing here is
-authorized to be built.**
+**Status: ACCEPTED — owner, 2026-07-28. Normative.** The single product and
+contract document, outranked only by [CONSTRAINTS.md](docs/CONSTRAINTS.md).
+**Acceptance is not authorization to build.** Implementation is gated on an ADP,
+and four things this spec does not yet settle are listed in [§14](#14--what-this-spec-still-owes).
 Written 2026-07-28, forward from `docs/design-claude/mockup-v3z.html` and
 [DECISIONS.md](docs/DECISIONS.md).
 
@@ -530,3 +532,21 @@ section detection · multi-folder projects · saliency reframing (centre-crop is
 the fallback and can decapitate people at frame edges) · per-clip audio retention
 beyond mute · filters · NLE export · phone access · packaging and distribution ·
 the selection assist, which is cancelled rather than deferred (A-5b).
+
+---
+
+## 14 · What this spec still owes
+
+Accepted with four things unsettled. They are recorded here rather than left in
+prose so that acceptance does not quietly swallow them. **Each blocks specific
+work and nothing else** — the rest of the build is unblocked by this document.
+
+| # | Owed | Stated in | Blocks |
+|---|---|---|---|
+| **SO-1** | The speed assist's parameters: dullness thresholds and how they are derived, minimum ramp length, how adjacent ranges merge, whether rate is continuous or stepped | §4.2 | The speed proposer. A-5a builds speed last, so this may be closed late |
+| **SO-2** | The Log's retention depth, whether it persists across reopening a project, how pinning composes with a newest-first list, and whether forty reason lines belong in the same window as a live fault | §7.2 | The Log unit. Load-bearing — it is the only warning surface (A-2 + A-6) |
+| **SO-3** | The playback engine: transition mechanism, seek accuracy, `playbackRate` versus rendered `setpts`, music-bed sync | §6 | The Monitor. **Answered by a spike, not by writing.** Highest risk in the build |
+| **SO-4** | The rack layout invariant under real data: minimum viewport, long clip and track names, the clip index at 200 clips, and whether the invariant is enforced by a test or is an aspiration | §2.1, §10 | The rack design system and the clip index |
+
+SO-1 and SO-2 are closed by amending this document. SO-3 is closed by the spike's
+measurements. SO-4 is closed by a decision on whether to test the invariant.
