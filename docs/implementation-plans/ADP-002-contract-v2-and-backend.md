@@ -1,9 +1,9 @@
 # ADP-002: Contract v2 and Backend Realignment
 
 **Status:** **AUTHORIZED — owner, 2026-07-28, as drafted; amended same day to add
-WO-118a.** Scope: WO-117 – WO-119, **WO-118a**, and WO-121 – WO-124, under the §2
-grant (local build to green on synthetic fixtures). WO-120 remains held per §3.
-Pushes, CI and real-media runs stay separately gated in §3.
+WO-118a and to unhold WO-120.** Scope: WO-117 – WO-124, **all unheld**, under the
+§2 grant (local build to green on synthetic fixtures). Pushes, CI and real-media
+runs stay separately gated in §3.
 
 > **Amendment 1, owner, 2026-07-28 — WO-118a added.** As drafted, this ADP gave
 > WO-120 `speed_proposer.py` and left **`trim_proposer.py` owned by nothing**,
@@ -12,6 +12,14 @@ Pushes, CI and real-media runs stay separately gated in §3.
 > `test_respects_the_one_second_floor` turned out to assert behaviour the spec
 > now forbids. Left unowned, A-6 would have been a decision that was made and
 > never implemented. **WO-118a is unheld** — it depends on nothing SO-1 blocks.
+
+> **Amendment 2, owner, 2026-07-28 — WO-120 unheld.** `SPEC.md` §14 SO-1 is
+> closed: the dullness thresholds (`motion_energy <= 0.25` and `audio_rms <=
+> 0.25`), the minimum ramp length (1.5 s), the merge rule (gap < 0.5 s), and the
+> rate mapping (continuous, `rate = 1.5 + 0.5 * d`) are now fixed in `SPEC.md`
+> §4.2. **WO-120 is unheld** and joins WO-118, WO-118a, WO-119, WO-121 – WO-123
+> as dependency-ready under the §2 grant. §6's reasoning for why it was held no
+> longer applies — the parameters are recorded, not guessed.
 **Program ID:** ADP-002
 **Type:** Autonomous Delivery Program
 **Owner:** Repository Owner
@@ -74,10 +82,6 @@ That is the whole grant: **local build to green, on synthetic fixtures.**
   and lifecycle record first. Code may be written and tested against synthetic
   fixtures before then; it may not be *run against real media* until that record
   exists. This is what holds WO-135 out of this ADP entirely.
-- **WO-120, the speed proposer**, until `SPEC.md` §14 **SO-1** is closed. Its
-  rules are not yet specified to the point of determinism, and guessing
-  thresholds in code is how an unspecified decision gets made by an agent. See
-  §6.
 - **Any frontend work.** ADP-003 is a separate authorization gated on WO-124's
   numbers.
 
@@ -100,7 +104,7 @@ That is the whole grant: **local build to green, on synthetic fixtures.**
 | **WO-118 · Store v2** | Drop `stage_approvals` and `included`; **retain `disposition`** (A-3) with its three writers; add `stashed_segment`, `AudioMix`, output resolution, the music in-point. The §3.1 derivation — `effective_trim` / `effective_speed` — lives here | `backend/store/` | An assist never changes a field whose `origin` is `"user"` (§4.4), **with its own tests** — this is a correctness requirement, not a behaviour; toggle off restores exactly, hand-edits untouched; bin→restore exact; `out_s <= in_s` reads as out-of-reel with no `included` field anywhere |
 | **WO-118a · Trim proposer v2** | `SPEC.md` §4.1 as code against the v2 shapes: one `Segment`, not a list. **Remove the 1.0 s floor** (DECISIONS A-6) and emit the sub-second and empty cases the Log has to warn about | `backend/propose/trim_proposer.py` | Proposals carry a single `Segment`; a clip whose best window is under a second **gets it**, and one where nothing clears the floors gets `NO_CLEAR_WINDOW` on the whole clip; an empty proposal is returned, not raised. The floor test is rewritten to assert A-6's behaviour rather than the rule it retired |
 | **WO-119 · Media services** | Thumbnails and peaks on demand + cached; music probe and peaks **keyed by content hash**, working with no project in existence (§8 `GET /api/music/peaks`); `pick-file` via `osascript … choose file`, serving both track selection and relink | `backend/media/` (new) | Peaks for a track chosen before any project exists; cache hit on second call; picker returns a path or a clean cancel |
-| **WO-120 · Speed proposer** | `SPEC.md` §4.2 as code: multiple `SpeedRange`s per clip in **source time**, retained proposals for reversibility | `backend/propose/speed_proposer.py` | **HELD — see §3 and §6.** Gate: deterministic on a fixture; ranges survive a trim-handle move (§3.2); the assist never proposes above 2.0× |
+| **WO-120 · Speed proposer** | `SPEC.md` §4.2 as code: multiple `SpeedRange`s per clip in **source time**, retained proposals for reversibility | `backend/propose/speed_proposer.py` | **Unheld — Amendment 2.** Gate: deterministic on a fixture; ranges survive a trim-handle move (§3.2); the assist never proposes above 2.0× |
 | **WO-121 · Renderer v2** | `amix` weighted by the two levels, replacing three non-composable mode branches. `setpts` + chained `atempo` per effective speed range. Skip out-of-reel clips. Resolution from the setting — `TARGET_W`/`TARGET_H` stop being constants | `backend/render/` | Duration ±0.5 s of computed reel length; **upscaling past the source refused or flagged, never silent**; every-clip-out fails with a stated reason, not an empty concat; GPS and identifying metadata stripped |
 | **WO-122 · QA v2** | `resolution_ok` against the *setting*, not a hardcoded 1080×1920. `audio_ok` re-derived from the levels | `backend/qa/` | `music_level > 0` ⇒ output not silent; both at zero ⇒ silent **and** still a valid AAC track; a bad render is blocked **with its reason stated** |
 | **WO-123 · API v2** | Delete `approve/{stage}` and every gate read. Add the §8 PATCH surface, relink, `download` with no `audio_mode`, thumb/peaks/pick-file. §8.2's optimistic-save failure path | `backend/api/` | Every §8 route present and no others; **each new mutating route has its own capability-token guard test that fails when the guard is removed**; 409 on `updated_at` mismatch; no path leaks |
@@ -120,30 +124,31 @@ WO-117 (alone, contract freeze) ── DONE, merged
    ├── WO-118  store
    ├── WO-118a trim proposer
    ├── WO-119  media
+   ├── WO-120  speed proposer (unheld — Amendment 2)
    ├── WO-121  renderer ─┐
    ├── WO-122  QA ───────┤
    └── WO-123  API       │
                          └─► [ADP-002 closes: all merged green on fixtures]
-
-WO-120 speed proposer ····· HELD on SPEC.md §14 SO-1
 ```
 
-**Two gates interrupt autonomy by design:**
+**One gate interrupts autonomy by design:**
 
 1. **WO-117 runs alone.** Nothing else starts until the contract is merged, for
    the same reason WO-101 did: six lanes editing a schema in parallel is how a
    contract stops being one.
-2. **WO-120 does not start** until SO-1 is closed by an owner-accepted `SPEC.md`
-   amendment. If SO-1 is still open when everything else is green, **this ADP
-   closes without WO-120** and the speed proposer moves to its own authorization.
-   DECISIONS A-5a — speed built last, de-scopable to manual — is what makes that
-   safe.
+
+WO-120 was held on `SPEC.md` §14 SO-1 until Amendment 2 closed it (2026-07-28,
+this session); it is now dependency-ready like the rest of §4's lanes.
 
 **WO-124 depends on nothing in this ADP** and should start on the day it is
 signed. It is the highest risk in the plan and the only item whose failure
 invalidates work that has not been done yet.
 
-## 6. Why WO-120 is held rather than dropped or guessed
+## 6. Why WO-120 was held rather than dropped or guessed
+
+**Historical — resolved by Amendment 2.** Kept for the reasoning; WO-120 is no
+longer held.
+
 
 `SPEC.md` §4.2 gives the rule — ramp dull stretches to 1.5×–2.0× — and then says
 in its own words that the thresholds, the minimum ramp length and the merge rule
@@ -175,10 +180,10 @@ Three options were available and the middle one is taken:
 
 ```
 Authorized:            2026-07-28   by  Repository Owner (via session chat)
-Scope granted:         WO-117 – WO-119, WO-118a, WO-121 – WO-124
-                       (WO-120 held per §3)
-Narrowing / notes:     None. Authorized as drafted; amended same day to add
-                       WO-118a — see Amendment 1 at the head of this file.
+Scope granted:         WO-117 – WO-124, all unheld
+Narrowing / notes:     None. Authorized as drafted; amended same day twice —
+                       Amendment 1 added WO-118a, Amendment 2 unheld WO-120.
+                       See the head of this file.
 ```
 
 The grant does **not** extend to pushes to the public `origin`, to CI, to
