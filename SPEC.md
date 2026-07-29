@@ -3,7 +3,8 @@
 **Status: ACCEPTED — owner, 2026-07-28. Normative.** The single product and
 contract document, outranked only by [CONSTRAINTS.md](docs/CONSTRAINTS.md).
 **Acceptance is not authorization to build.** Implementation is gated on an ADP,
-and four things this spec does not yet settle are listed in [§14](#14--what-this-spec-still-owes).
+and the things this spec does not yet settle are listed in [§14](#14--what-this-spec-still-owes)
+— two of the original four remain open.
 Written 2026-07-28, forward from `docs/design-claude/mockup-v3z.html` and
 [DECISIONS.md](docs/DECISIONS.md).
 
@@ -357,20 +358,73 @@ must still carry a valid AAC track, not an absent one.
 edits show instantly. **Save renders the real file** — the thing exported is not
 the thing previewed, and the Log says so.
 
-**This is the least-specified and highest-risk area of the build.** Before any
-Monitor code, a spike must answer, with measurements rather than opinion:
+This was the least-specified and highest-risk area of the build, and it is no
+longer either. **WO-124 measured it** (2026-07-28); what follows is a record of
+results, not a proposal. Numbers, method and limitations:
+[WO-124-playback-findings.md](docs/specs/WO-124-playback-findings.md).
 
-- clip-to-clip transition: one element reloaded and sought, or two cross-swapped?
-  What gap at a cut is acceptable, and what is achieved?
-- seek accuracy against the proxy's keyframe interval;
-- whether `playbackRate` preview matches the rendered `setpts` result, and how
-  pitch is handled in preview versus export;
-- how the music bed stays aligned across a transition and a seek.
+The design survived the measurement. **Nothing in v3z changes because of it.**
 
-If the spike cannot deliver a Monitor good enough to judge an edit on, **the
-design changes before the frontend is built**, not after.
+### 6.1 · The cut — two `<video>` elements, cross-swapped
 
-### 6.1 · Proxies must carry audio
+**The Monitor holds two video elements and swaps between them.** While clip N
+plays, clip N+1 is loaded and pre-sought on the idle element; at the cut, the
+Monitor swaps.
+
+| Strategy | Cost at the cut |
+|---|---|
+| **Two elements, cross-swapped** | **0.8 ms** (0.4–1.4) |
+| One element, reloaded and re-sought | 36.3 ms (35.0–50.6) |
+
+The difference is structural, not incidental. Starting playback costs 0.1 ms;
+the cost is a ~18 ms load and a ~18 ms seek, and the two-element strategy does
+not make them faster — **it moves them off the critical path**, paying ~14.7 ms
+of preparation while the previous clip is still on screen. At 60 Hz one frame is
+16.7 ms, so a 0.8 ms swap lands inside a single frame and a 36.3 ms swap spans
+three.
+
+§3.5's preview queue is what makes this possible: the lit set *in order* is
+known in advance, so there is always a defined next clip to prepare.
+
+### 6.2 · Seeking is frame-accurate
+
+Across eleven seek targets the displayed frame was the requested frame every
+time — **zero frame error**, including a target landing 8.3 s past a keyframe.
+
+**The proxy's keyframe interval is a latency consideration only.** Seek latency
+tracks how far past a keyframe the target lands: 9.1 ms just after one, 45.1 ms
+at the far end of an 8.3 s GOP, mean 24.6 ms. Clip-scoped scrub and trim-handle
+dragging are safe at that cost.
+
+Measured against the old 250-frame GOP; §6.5's recipe now places keyframes about
+a second apart, so the figures above are a worst case the product no longer has.
+
+### 6.3 · Speed in preview
+
+**`playbackRate` is exact** — 1.5×, 1.75×, 2.0× and 2.5× all applied with no
+clamping and no measurable rate error, including above the assist's 2.0× ceiling
+that N-6 permits by hand. `preservesPitch` is supported, so preview matches the
+renderer's pitch-preserved `atempo`.
+
+**The renderer is the side that must be made to agree.** `setpts` overshoots a
+ramped clip's arithmetic duration by a fixed 1–2 frames, so the renderer clamps
+each ramped clip to `kept_duration / rate`. Without that clamp §3.4's played-
+duration formula — which is also the reel length the Reel unit displays — is
+wrong by ~66 ms per ramped clip, and §9's QA tolerance is breached by a reel
+that is otherwise entirely correct.
+
+### 6.4 · The music bed
+
+**A plain `<audio>` element, not WebAudio.** The bed drifts 3.4 ms across a clip
+cut and 0.4 ms across a mid-reel seek — both video-side events that never touch
+it. WebAudio's complexity buys nothing measurable here.
+
+**Its start must be compensated.** `play()` does not take effect immediately:
+the bed lags by ~186 ms, constant and one-time. Set `music.currentTime` to the
+reel position *after* `playing` fires rather than assuming the call is
+instantaneous, or every reel begins with the music a fifth of a second out.
+
+### 6.5 · Proxies must carry audio
 
 **A proxy carries its source's audio**, encoded as AAC and downmixed to stereo.
 A source with no audio of its own gets a proxy with **no audio track** — never a
@@ -392,6 +446,38 @@ document already promises are unsatisfiable without it:
 > spec *assumed* proxy audio and nothing *required* it, so a future change back
 > to `-an` would have contradicted nothing written down. That is what this
 > section is for.
+
+Proxy keyframes are placed about a second apart, for the reason in §6.2.
+
+### 6.6 · The reel clock is never an animation frame
+
+**Playback scheduling is driven by media element time, or by `performance.now()`
+sampled on media events. Never by `requestAnimationFrame`, `requestVideoFrameCallback`,
+`setTimeout` or `setInterval`.**
+
+This is a platform constraint, not a style preference. In a page the browser
+considers hidden, animation and video-frame callbacks **do not fire at all**,
+and timers are throttled to roughly 1 Hz — while media playback and media events
+carry on normally. A Monitor scheduled on `rAF` therefore works perfectly on the
+desk and stalls the moment the window is hidden or the user switches tab: a
+failure that survives every test and appears only in real use.
+
+> Both traps were hit while measuring. A `setInterval` poll reported every cut
+> strategy at ~999 ms — the throttle floor, not a video cost — and a
+> `timeupdate` wait reported 297 ms against 266 ms, hiding §6.1's 45× difference
+> behind that event's ~250 ms cadence.
+
+### 6.7 · What is still unmeasured
+
+**The visible black-frame duration at a cut.** §6.1's figures are time-to-
+`playing`, which is what the two strategies differ by; they are not the length
+of any gap a viewer perceives. Presentation-accurate timing needs
+`requestVideoFrameCallback`, which §6.6 explains does not fire in a hidden page,
+and no available browser surface was foregrounded.
+
+This does not weaken §6.1 — both strategies were measured identically and the
+gap is far outside any plausible error — but the absolute number is missing.
+**Re-run the spike harness in a foregrounded window before the Monitor ships.**
 
 ---
 
@@ -573,13 +659,14 @@ Accepted with four things unsettled. They are recorded here rather than left in
 prose so that acceptance does not quietly swallow them. **Each blocks specific
 work and nothing else** — the rest of the build is unblocked by this document.
 
+**Two remain: SO-2 and SO-4.**
+
 | # | Owed | Stated in | Blocks |
 |---|---|---|---|
 | **SO-1** | ~~The speed assist's parameters~~ — **closed 2026-07-28**, see §4.2 | §4.2 | Closed. WO-120 is unheld as of ADP-002 Amendment 2 |
 | **SO-2** | The Log's retention depth, whether it persists across reopening a project, how pinning composes with a newest-first list, and whether forty reason lines belong in the same window as a live fault | §7.2 | The Log unit. Load-bearing — it is the only warning surface (A-2 + A-6) |
-| **SO-3** | The playback engine: transition mechanism, seek accuracy, `playbackRate` versus rendered `setpts`, music-bed sync | §6 | The Monitor. **Answered by a spike, not by writing.** Highest risk in the build |
+| **SO-3** | ~~The playback engine~~ — **closed 2026-07-29**, measured by WO-124 and written into §6.1 – §6.7 | §6 | Closed. The Monitor is unblocked, and the v3z design survived the measurement. One number is still missing — §6.7 |
 | **SO-4** | The rack layout invariant under real data: minimum viewport, long clip and track names, the clip index at 200 clips, and whether the invariant is enforced by a test or is an aspiration | §2.1, §10 | The rack design system and the clip index |
 
-SO-1 is closed. SO-2 is closed by amending this document. SO-3 is closed by the
-spike's measurements. SO-4 is closed by a decision on whether to test the
-invariant.
+SO-1 and SO-3 are closed. SO-2 is closed by amending this document. SO-4 is
+closed by a decision on whether to test the invariant.
