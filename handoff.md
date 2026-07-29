@@ -50,33 +50,33 @@ not resolve on GitHub.
 
 ## What does not exist
 
-- **No code against schema v2 yet.** `backend/contracts/` is still v1. WO-117 is
-  the first thing that changes it, and it runs alone.
+- **No backend code against schema v2 yet.** The contract is v2; store, media,
+  the proposers, render, QA and the API are all still v1. That is the whole of
+  the ADP-002 fan-out, and none of it has started.
 - **No frontend at all**, and no authorization for one. ADP-003 is not written —
   its content depends on what WO-124 measures.
-- **Four things `SPEC.md` does not settle** — its §14: the speed assist's
-  parameters, the Log's retention and persistence, the playback engine, and the
-  rack layout invariant under real data.
+- **Three things `SPEC.md` does not settle** — its §14 SO-2, SO-3, SO-4: the
+  Log's retention and persistence, the playback engine, and the rack layout
+  invariant under real data. (SO-1, the speed parameters, closed 2026-07-28.)
 - **No media, no corpus, no consent record.** Every ledger claim is `assumed`.
 - **No real-footage run.** The two exit gates that need it have never run.
 
 ## In flight right now
 
-**Nothing.** WO-117 merged and the fan-out is **blocked on a stop-and-ask** —
-see below.
+**WO-124, the playback-engine spike.** Throwaway code under
+`spike/wo-124-playback/`, answering `SPEC.md` §6 / §14 SO-3 with measurements.
+Findings land in `docs/specs/WO-124-playback-findings.md`; the code is deleted at
+ADP-002 closeout.
 
 ## What happens next
 
-1. **Resolve the trim-proposer gap** (stop-and-ask, below). It blocks nothing
-   else, but leaving it unowned means A-6 quietly never gets implemented.
-2. **WO-118 store · WO-119 media · WO-121 renderer · WO-122 QA · WO-123 API**,
-   in parallel. All are dependency-ready now that v2 is merged.
-3. **WO-124, the playback-engine spike** — throwaway code answering `SPEC.md` §6
-   with measurements. It depends on nothing, is the highest risk in the plan,
-   and **is already late**: it was meant to run while the spec was being
-   written. Its numbers decide whether ADP-003 can be written against v3z as
+1. **WO-118 store · WO-118a trim proposer · WO-119 media · WO-120 speed proposer ·
+   WO-121 renderer ·
+   WO-122 QA · WO-123 API**, in parallel. All are dependency-ready now that v2
+   is merged and (as of Amendment 2) SO-1 is closed.
+2. **WO-124's numbers** decide whether ADP-003 can be written against v3z as
    drawn, or whether the design changes first.
-4. ADP-002 closes when those merge green — **per-WO green, not whole-suite
+3. ADP-002 closes when those merge green — **per-WO green, not whole-suite
    green.** `tests/integration/` and parts of `tests/guards/` belong to WO-134
    and WO-133, which are ADP-004's and not authorized. The suite does not go
    fully green inside this ADP, by design.
@@ -91,10 +91,9 @@ behaviour A-6 forbids. **Closed by ADP-002 Amendment 1: WO-118a, unheld.**
 
 ## Owner actions required
 
-1. **Close `SPEC.md` §14 SO-1 and SO-2** — the speed parameters and the Log's
-   retention. Neither blocks WO-117; SO-1 holds WO-120 and SO-2 holds the Log
-   unit. If SO-1 is still open when the rest is green, ADP-002 closes without the
-   speed proposer.
+1. **Close `SPEC.md` §14 SO-2** — the Log's retention, persistence and pinning
+   behaviour. Blocks the Log unit only, not any WO in this ADP. (**SO-1 is
+   closed**, 2026-07-28, ADP-002 Amendment 2 — WO-120 is unheld.)
 2. **Record an ADR-002-style consent** before anything runs against real footage.
    Nothing under ADP-002 may touch real media without it.
 3. **Authorize pushes individually.** As of 2026-07-28 `origin/main` is at `HEAD`

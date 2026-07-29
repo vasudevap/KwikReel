@@ -14,6 +14,21 @@
       "runtimeArgs": ["-m", "backend.api.run", "--port", "8000"],
       "port": 8000,
       "url": "http://127.0.0.1:8000"
+    },
+    {
+      "name": "design-mockups",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8099"],
+      "cwd": "docs/design-claude",
+      "port": 8099
+    },
+    {
+      "name": "wo-124-spike",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8124"],
+      "cwd": "spike/wo-124-playback",
+      "port": 8124,
+      "url": "http://localhost:8124"
     }
   ]
 }
