@@ -8,6 +8,17 @@ Everything here needs the owner: a decision, real footage under a recorded conse
 
 ---
 
+> **✅ D-1 is fixed — 2026-07-28.** Owner authorized the fix; it landed as **WO-116**.
+> `_content_rect` in [`opencv_analysis.py`](../../backend/analysis/opencv_analysis.py)
+> crops the letterbox before measuring, derived from the source's rotation-corrected
+> aspect ratio rather than detected from pixels — bar detection cannot distinguish a
+> black bar from a genuinely dark frame, which is the case the signal exists to catch.
+> Two regression tests guard it: measured **0.756 → 0.240** exposure on the landscape
+> fixture, against a 0.50 ceiling, and proxy and original now agree within 0.10.
+> **D-2 is therefore unblocked** — its equivalence baseline may now be captured.
+> **Still open for the owner:** whether the proxy should stop letterboxing altogether
+> (see below).
+
 ## Finding first: the proxy's letterbox is corrupting the exposure signal
 
 Found while planning the analysis rework. **This is a correctness bug, not a performance item, and it is more important than anything else in either Work Order.**

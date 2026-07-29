@@ -52,6 +52,44 @@ def test_black_clip_reads_as_dark_and_unsharp(tmp_path) -> None:
     assert sum(sig.blur) / len(sig.blur) < 0.35          # below the sharpness floor
 
 
+def test_landscape_through_a_real_proxy_is_not_reported_overexposed(corpus, tmp_path) -> None:
+    """WO-116 regression.
+
+    `make_proxy` letterboxes every orientation into 540×960, so a 16:9 clip is
+    ~0.68 black bar by area. Exposure is the fraction of clipped pixels and bars
+    are 0, so measured naively the clip clears the 0.50 ceiling on *every*
+    second and comes back OVEREXPOSED before any content is considered.
+
+    No other test in the suite builds a proxy — they all call `probe_clip`,
+    which leaves `proxy_path` None, so analysis reads the original and the
+    padded path is never exercised. The one exposure assertion that exists uses
+    a black *portrait* clip, which letterboxes to nothing.
+    """
+    ing = FFmpegIngest(proxy_root=tmp_path / "proxies")
+    src = ing.probe_clip(str(corpus["landscape_silent"]))
+    src.proxy_path = ing.make_proxy(src)
+
+    analysis = OpenCVAnalysis().analyze(src)
+    assert max(analysis.signals.exposure) < 0.5, "letterbox bars counted as clipped content"
+
+    proposal = TrimRuleProposer().propose_trim(src, analysis)
+    assert not any(r.code == "OVEREXPOSED" for r in proposal.reasons)
+
+
+def test_proxy_and_original_agree_on_exposure(corpus, tmp_path) -> None:
+    """The proxy is a speed optimisation, not a different measurement — the same
+    landscape clip must read the same either way."""
+    ing = FFmpegIngest(proxy_root=tmp_path / "proxies")
+    src = ing.probe_clip(str(corpus["landscape_silent"]))
+    from_original = OpenCVAnalysis().analyze(src).signals.exposure
+
+    src.proxy_path = ing.make_proxy(src)
+    from_proxy = OpenCVAnalysis().analyze(src).signals.exposure
+
+    for a, b in zip(from_original, from_proxy):
+        assert abs(a - b) < 0.10, f"proxy {b:.3f} vs original {a:.3f}"
+
+
 def test_analysis_store_round_trip(corpus, tmp_path) -> None:
     src = _ING.probe_clip(str(corpus["portrait_audio"]))
     analysis = OpenCVAnalysis().analyze(src)
