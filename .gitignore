@@ -112,3 +112,11 @@ dist/
 
 # Claude Code — per-user local settings stay local; launch.json is shared
 .claude/settings.local.json
+
+# Design mockups — local only, deliberately never committed (2026-07-28).
+# v3z and its 25 predecessors are the product's look and feel; they live on
+# disk and are referenced by SPEC.md, but they are not in the public repo.
+docs/design-claude/
+docs/archive/design-claude/
+mockups-antigravity/
+mockups-codex/

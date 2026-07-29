@@ -21,8 +21,20 @@ human reviews it and overrides anything.
    2026-07-28.** The record `SPEC.md` was written against.
 5. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
    — the plan for the work in front of us. Proposed, not authorized.
-6. **[docs/design-claude/README.md](docs/design-claude/README.md)** — the v3z
-   design, which is the frozen frontend baseline.
+6. **`docs/design-claude/README.md`** — the v3z design, which is the frozen
+   frontend baseline. **Local only — gitignored and not in the public repo**
+   (see below).
+
+## The design files are not in the repo
+
+`docs/design-claude/` and `docs/archive/design-claude/` hold v3z and its 25
+predecessors. They are **gitignored by decision** — the mockups are the
+product's look and feel, and the repository is public. They exist on the
+owner's disk and nowhere else.
+
+Documents here cite them by path because that is where they are. Those links
+resolve locally and not on GitHub, which is intended, not an oversight. **Do
+not "fix" it by committing them.**
 
 ## The archive rule
 

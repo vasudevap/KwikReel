@@ -3,7 +3,8 @@
 **Status: PROPOSED. Not authorized. No code may be written against this.**
 Drafted 2026-07-28. It names the decisions, specs, ADPs and Work Orders required
 to take the product from what exists today to what
-[mockup-v3z.html](../design-claude/mockup-v3z.html) draws.
+`docs/design-claude/mockup-v3z.html` draws. (That folder is gitignored and local
+only — the mockups are not in the public repo.)
 
 **Progress.** The **clean cut is done** (2026-07-28): superseded documents are in
 [`docs/archive/`](../archive/) and non-citable, the surviving guardrails are in

@@ -29,4 +29,4 @@ Archived 2026-07-28, in the clean cut that preceded the v3z rebuild.
 | `implementation-plans/ADP-001-*.md` | Complete. Its grant is spent |
 | `reviews/` | Point-in-time review of a plan that has since changed |
 | `vision/`, `NOTION-PROJECTION.md` | Pre-pivot (2026-07-23) |
-| `design-claude/` — v1, v2, v3a–v3y, the 218-line version README, `v3t-brief.md` | **v3z is the design.** The rest is the record of how it got there. `v3t-brief.md` in particular carries O- and N-numbers that supersede each other (O-8 by O-20, O-9 by O-18) and must not be read as a decision list |
+| `design-claude/` — v1, v2, v3a–v3y, the 218-line version README, `v3t-brief.md`. **Gitignored: on disk, not in the repo** | **v3z is the design.** The rest is the record of how it got there. `v3t-brief.md` in particular carries O- and N-numbers that supersede each other (O-8 by O-20, O-9 by O-18) and must not be read as a decision list |

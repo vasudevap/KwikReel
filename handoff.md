@@ -32,9 +32,12 @@ Run it: `python -m backend.api.run`. Tests: `pytest` — 67 pass, 1 owner-gated 
 keeps the build green) and `types/contracts.ts` (generated). The WO-107–110 app
 was deleted in the clean cut.
 
-**Design — v3z is frozen.** `docs/design-claude/mockup-v3z.html`, plus its
-generator, whose state model is a partial specification of trim stickiness,
-speed duration math and the audio mix.
+**Design — v3z is frozen, and lives outside the repo.**
+`docs/design-claude/mockup-v3z.html`, plus its generator, whose state model is a
+partial specification of trim stickiness, speed duration math and the audio mix.
+**Gitignored by decision** — the repo is public and the mockups are the
+product's look and feel. They exist on the owner's disk only, so this path does
+not resolve on GitHub.
 
 ## What does not exist
 

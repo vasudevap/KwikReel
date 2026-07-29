@@ -2,8 +2,13 @@
 
 **Status: DRAFT for owner review. Normative once accepted. Nothing here is
 authorized to be built.**
-Written 2026-07-28, forward from [mockup-v3z](docs/design-claude/mockup-v3z.html)
-and [DECISIONS.md](docs/DECISIONS.md).
+Written 2026-07-28, forward from `docs/design-claude/mockup-v3z.html` and
+[DECISIONS.md](docs/DECISIONS.md).
+
+> **The mockup is not in this repository.** `docs/design-claude/` is gitignored
+> by decision — the repo is public and the mockups are the product's look and
+> feel. Paths to it resolve on the owner's machine only. This spec is written to
+> stand on its own without it.
 
 This is the single product and contract document. Where it disagrees with
 anything in `docs/archive/`, this wins and the archived document is not to be
@@ -39,7 +44,7 @@ One screen. A Monitor down the left running the full height, and a stack of
 units on the right: **Reel · HUD · Transport · Sound · Editor · Clip index ·
 Log**. Nothing spans both columns and **no element changes size between states**.
 
-The design is [v3z](docs/design-claude/README.md), which is locked (A-8). Its
+The design is v3z (`docs/design-claude/`, local only), which is locked (A-8). Its
 rules — one key size, nothing greys out, state is a lamp and never a repainted
 control, every counter the same yellow — are design law, not suggestions, and
 `SPEC.md` does not restate them.
