@@ -22,7 +22,8 @@ locally, on synthetic fixtures, WO-117 – WO-124.
 | `backend/contracts/` | **Schema v2 — WO-117, done.** `SPEC.md` §3 as Pydantic models + generated TS types + service Protocols. Contract gate 10/10 |
 | `backend/ingest/` | **Proxy recipe v2 — WO-116a, done.** ffprobe → `SourceIndex`, rotation-corrected, 540×960 proxies **carrying stereo AAC**, keyframes ~1 s apart. Still **slow on real footage** — no `-preset`, no hardware encoder, serial scan, and audio encoding adds to that (WO-135's problem, not WO-116a's) |
 | `backend/analysis/` | OpenCV per-second signals. The letterbox/exposure fault is **fixed** (WO-116, `3d0d0d6`), with two regression tests |
-| `backend/propose/` | Deterministic trim proposer with reason records |
+| `backend/propose/` (trim) | **v2 — WO-118a, done.** `SegmentsProposal.value` is one `Segment`, not a list; the 1.0 s floor is retired (A-6) — a proposal may be sub-second or empty, neither padded nor raised |
+| `backend/propose/` (speed) | Still v1/nonexistent. WO-120, unheld since Amendment 2, hasn't started |
 | `backend/store/` | Save/load byte-equivalent, optimistic concurrency, origin protection |
 | `backend/render/`, `backend/qa/` | FFmpeg render + output QA |
 | `backend/api/` | FastAPI, job runner, and the local-delivery security guards, each proven to fail when removed |
@@ -31,10 +32,12 @@ Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
 `python3` has no pytest.)
 
 > **⚠️ The suite is RED, deliberately, and this is not a regression.** WO-117
-> froze schema v2 and merged, so store, render, QA, API and the trim proposer
-> are all still speaking v1. **29 pass · 21 fail · 5 modules cannot import.**
-> That is the cost of a contract kernel that runs alone, and the lanes below
-> are what clear it. Run `pytest tests/contracts` for the part that is green.
+> froze schema v2 and merged; store, render, QA and API are still speaking v1.
+> **45 pass · 10 fail (all in `tests/store/test_store.py`) · 5 modules cannot
+> import** (`tests/api`, `tests/guards`, `tests/integration` ×2, `tests/render`
+> — all v1-shape import errors, WO-121/122/123/133/134's to clear). Trim
+> (WO-118a) and ingest (WO-116a) are clear; run `pytest tests/propose
+> tests/analysis tests/contracts` for the green part.
 > **If you are reading this and the numbers are worse, that IS a regression.**
 
 **Frontend — a placeholder.** `frontend/src/` holds only `main.tsx` (a stub that
@@ -50,9 +53,9 @@ not resolve on GitHub.
 
 ## What does not exist
 
-- **No backend code against schema v2 yet.** The contract is v2; store, media,
-  the proposers, render, QA and the API are all still v1. That is the whole of
-  the ADP-002 fan-out, and none of it has started.
+- **Store, media, speed proposer, render, QA and the API are still v1.**
+  Contracts (WO-117), ingest (WO-116a) and the trim proposer (WO-118a) are v2;
+  the rest of the ADP-002 fan-out hasn't started.
 - **No frontend at all**, and no authorization for one. ADP-003 is not written —
   its content depends on what WO-124 measures.
 - **Three things `SPEC.md` does not settle** — its §14 SO-2, SO-3, SO-4: the
@@ -63,7 +66,7 @@ not resolve on GitHub.
 
 ## In flight right now
 
-**WO-118a, the trim proposer**, in the working tree.
+**Nothing.** WO-118a merged (below).
 
 **WO-124 is done.** [`docs/specs/WO-124-playback-findings.md`](docs/specs/WO-124-playback-findings.md)
 — **SO-3 is answered and the v3z design survives.** The Monitor uses **two
@@ -75,10 +78,9 @@ ADP-002 closeout; the findings document is what survives.
 
 ## What happens next
 
-1. **WO-118 store · WO-118a trim proposer · WO-119 media · WO-120 speed proposer ·
-   WO-121 renderer ·
-   WO-122 QA · WO-123 API**, in parallel. All are dependency-ready now that v2
-   is merged and (as of Amendment 2) SO-1 is closed.
+1. **WO-118 store · WO-119 media · WO-120 speed proposer · WO-121 renderer ·
+   WO-122 QA · WO-123 API**, in parallel. All are dependency-ready — WO-118a is
+   done, and (as of Amendment 2) SO-1 is closed for WO-120.
 2. ADP-002 closes when those merge green — **per-WO green, not whole-suite
    green.** `tests/integration/` and parts of `tests/guards/` belong to WO-134
    and WO-133, which are ADP-004's and not authorized. The suite does not go
@@ -107,9 +109,9 @@ apart, and the proxy path has three tests where it had one vacuous one.
 2. **Close `SPEC.md` §14 SO-2** — the Log's retention, persistence and pinning
    behaviour. Blocks the Log unit only, not any WO in this ADP. (**SO-1 is
    closed**, 2026-07-28, ADP-002 Amendment 2 — WO-120 is unheld.)
-2. **Record an ADR-002-style consent** before anything runs against real footage.
+3. **Record an ADR-002-style consent** before anything runs against real footage.
    Nothing under ADP-002 may touch real media without it.
-3. **Authorize pushes individually.** As of 2026-07-28 `origin/main` is at `HEAD`
+4. **Authorize pushes individually.** As of 2026-07-28 `origin/main` is at `HEAD`
    — verified with a live `git fetch`, superseding an earlier handoff that
    claimed four commits were unpushed against a stale tracking ref. Everything
    built under ADP-002 stays local until you say otherwise.
