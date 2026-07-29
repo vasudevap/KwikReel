@@ -19,7 +19,7 @@ locally, on synthetic fixtures, WO-117 – WO-124.
 
 | Module | State |
 |---|---|
-| `backend/contracts/` | Pydantic models + generated TS types + service Protocols. Schema v1, which v3z changes substantially |
+| `backend/contracts/` | **Schema v2 — WO-117, done.** `SPEC.md` §3 as Pydantic models + generated TS types + service Protocols. Contract gate 10/10 |
 | `backend/ingest/` | ffprobe → `SourceIndex`, rotation-corrected, 540×960 proxies. **Slow on real footage** — no `-preset`, no hardware encoder, serial scan |
 | `backend/analysis/` | OpenCV per-second signals. The letterbox/exposure fault is **fixed** (WO-116, `3d0d0d6`), with two regression tests |
 | `backend/propose/` | Deterministic trim proposer with reason records |
@@ -27,8 +27,15 @@ locally, on synthetic fixtures, WO-117 – WO-124.
 | `backend/render/`, `backend/qa/` | FFmpeg render + output QA |
 | `backend/api/` | FastAPI, job runner, and the local-delivery security guards, each proven to fail when removed |
 
-Run it: `python -m backend.api.run`. Tests: `pytest` — 73 collected, 72 pass, 1
-owner-gated skip. (Use the repo's `.venv`; the system `python3` has no pytest.)
+Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
+`python3` has no pytest.)
+
+> **⚠️ The suite is RED, deliberately, and this is not a regression.** WO-117
+> froze schema v2 and merged, so store, render, QA, API and the trim proposer
+> are all still speaking v1. **29 pass · 21 fail · 5 modules cannot import.**
+> That is the cost of a contract kernel that runs alone, and the lanes below
+> are what clear it. Run `pytest tests/contracts` for the part that is green.
+> **If you are reading this and the numbers are worse, that IS a regression.**
 
 **Frontend — a placeholder.** `frontend/src/` holds only `main.tsx` (a stub that
 keeps the build green) and `types/contracts.ts` (generated). The WO-107–110 app
@@ -55,22 +62,36 @@ not resolve on GitHub.
 
 ## In flight right now
 
-**WO-117, the contract kernel v2** — `SPEC.md` §3 frozen as Pydantic models and
-regenerated TS types. It **runs alone**; five backend lanes wait on it.
-
-**WO-124, the playback-engine spike** — throwaway code that answers `SPEC.md` §6
-with measurements. It depends on nothing and is the highest risk in the plan:
-nothing yet proves a browser can sequence proxies through in/out points with
-variable speed and a synced music bed. **It is already late** — it was meant to
-run while the spec was being written.
+**Nothing.** WO-117 merged and the fan-out is **blocked on a stop-and-ask** —
+see below.
 
 ## What happens next
 
-1. **WO-117, alone.** Then WO-118 store · WO-119 media · WO-121 renderer ·
-   WO-122 QA · WO-123 API fan out in parallel.
-2. **WO-124's numbers** decide whether ADP-003 (the frontend) can be written
-   against v3z as drawn, or whether the design changes first.
-3. ADP-002 closes when those merge green. See its §9.
+1. **Resolve the trim-proposer gap** (stop-and-ask, below). It blocks nothing
+   else, but leaving it unowned means A-6 quietly never gets implemented.
+2. **WO-118 store · WO-119 media · WO-121 renderer · WO-122 QA · WO-123 API**,
+   in parallel. All are dependency-ready now that v2 is merged.
+3. **WO-124, the playback-engine spike** — throwaway code answering `SPEC.md` §6
+   with measurements. It depends on nothing, is the highest risk in the plan,
+   and **is already late**: it was meant to run while the spec was being
+   written. Its numbers decide whether ADP-003 can be written against v3z as
+   drawn, or whether the design changes first.
+4. ADP-002 closes when those merge green — **per-WO green, not whole-suite
+   green.** `tests/integration/` and parts of `tests/guards/` belong to WO-134
+   and WO-133, which are ADP-004's and not authorized. The suite does not go
+   fully green inside this ADP, by design.
+
+## ⚠️ Stop-and-ask, open
+
+**No Work Order owns `backend/propose/trim_proposer.py`.** ADP-002 §4 gives
+WO-120 `speed_proposer.py` and nothing else in `backend/propose/`. But the trim
+proposer needs real work under v2: it returns the v1 `list[Segment]` shape, and
+it still enforces the 1.0 s floor that **DECISIONS A-6 retired** —
+`tests/propose/test_proposer.py::test_respects_the_one_second_floor` currently
+asserts behaviour `SPEC.md` §4.1 rule 4 explicitly forbids.
+
+Left alone, A-6 is a decision that was made and never implemented. Adding a WO
+to a signed ADP is a §3 governance stop-and-ask, so it waits for the owner.
 
 ## Owner actions required
 
