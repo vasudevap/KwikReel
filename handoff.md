@@ -44,7 +44,12 @@ speed duration math and the audio mix.
   reasons, speed-in-M1, the audio model, the retired trim floor — all open.
 - **No media, no corpus, no consent record.** Every ledger claim is `assumed`.
 - **No real-footage run.** The two exit gates that need it have never run.
-- **Nothing pushed.** The branch is well ahead of the public `origin`.
+- **Four unpushed commits.** Everything up to and including WO-115a/b is
+  **already on the public `origin`** — the M1 backend, the tests, the archived
+  documents. Only the clean cut, WO-116, `DECISIONS.md` and `SPEC.md` are local.
+  (An earlier handoff claimed the branch was "well ahead of origin, unpushed";
+  that was wrong. Verified against the local tracking ref, which has not been
+  refreshed from the network.)
 
 ## In flight right now
 
@@ -81,8 +86,8 @@ bed.
 2. **Choose the letterbox remedy's blast radius** — the minimal fix is landing
    now; whether proxies should stop letterboxing altogether is a separate call.
 3. **Record an ADR-002-style consent** before anything runs against real footage.
-4. **Authorize pushes individually.** The branch is unpushed and the repo is
-   public.
+4. **Authorize pushes individually.** Four commits are local; everything before
+   them is already public.
 
 ## Things that will bite you
 
