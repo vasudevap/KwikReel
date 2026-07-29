@@ -120,3 +120,6 @@ docs/design-claude/
 docs/archive/design-claude/
 mockups-antigravity/
 mockups-codex/
+
+# WO-124 spike media — generated fixtures, never committed (see CONSTRAINTS.md)
+spike/wo-124-playback/media/
