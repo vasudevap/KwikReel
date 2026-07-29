@@ -4,12 +4,17 @@
 >
 > **Where this file and `SPEC.md` disagree, `SPEC.md` wins.** A full rewrite of the mechanism sections is owed and is an owner artifact, not an agent's.
 
-**Status:** **Accepted — owner-approved 2026-07-23; amended 2026-07-24 (pre-ADP course correction — ADR-009/010/011/012/013); mechanism superseded 2026-07-28.**
-**Governing methodology:** `_oversight/DELIVERY-PLAYBOOK.md`, normal flow (Direction → Specification → incremental staged build). Validation-first sequencing and the PROP-01 pilot are **retired** for this project by ADR-006 (Accepted 2026-07-23); ADR-001's CLI-first prototype shape is superseded by ADR-005 (Accepted 2026-07-23). ADR-002 (privacy) and ADR-003 (music/licensing) stand. This project is at **Stage A — Direction (re-opened by the pivot)**. No implementation, media collection, or remote repository is authorized.
+**Status:** **Framing accepted 2026-07-23. Mechanism superseded 2026-07-28** — see the banner above.
+**Governing methodology:** `_oversight/DELIVERY-PLAYBOOK.md`, normal flow (Direction → Specification → incremental staged build).
+**Guardrails:** [docs/CONSTRAINTS.md](docs/CONSTRAINTS.md). **No ADR is live** — all thirteen are archived, and the ADR numbers appearing later in this file refer to history, not to authority.
+
+> **Three claims in the previous version of this block were false and are removed rather than amended:** that the project is at "Stage A — Direction", that "no implementation is authorized" (ADP-002 authorizes a scoped local build), and that no "remote repository is authorized" (a public remote exists and is pushed to). They were true in July and were never updated.
 
 ## Framing
 
-Build an **explainable, local-first, human-directed first-draft reel editor for private family footage.** The system proposes a transparent first pass at the whole edit — **which clips, in what order, where to trim, where to change speed** — and the human reviews every proposal, overrides anything, and **approves each machine-proposing stage before the next runs — five approval gates (ingest, selection, trim, speed, finalize) across the nine-stage pipeline.** The AI proposes; the human decides.
+Build an **explainable, local-first, human-directed first-draft reel editor for private family footage.** The system proposes a transparent first pass at the edit — **where to trim, where to change speed** — and the human reviews every proposal and overrides anything. The AI proposes; the human decides.
+
+> **Edited 2026-07-28.** This paragraph used to end *"approves each machine-proposing stage before the next runs — five approval gates across the nine-stage pipeline"*, and to include *which clips, in what order*. The banner above retires both — the gates (A-1) and the selection assist (A-5b) — but they were written into the **framing**, which the banner says *stands*, so the retirement did not visibly reach them. The clauses are removed rather than annotated: the framing is meant to be the part you can still trust. *"The human decides"* now rests on [SPEC.md](SPEC.md) §3.1 and §4.4 — reversible assists that never touch a hand-edited clip.
 
 Three words are load-bearing. *Human-directed* — the user makes every editorial decision, by approving or overriding. *Assisted* — the heavy first pass is done for them, as a starting point. *Transparent* — every pick, rejection, trim, and speed change carries a plain-language reason and is auditable. The **staged, confirmation-gated pipeline and the timeline where the user finishes the edit are the product;** the automated assists are what make that finishing fast.
 

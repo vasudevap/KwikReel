@@ -6,8 +6,10 @@
 >
 > Kept unarchived only because the *reasoning* below — why validation-first retired, why manual-first was wrong — is the history of how the product got here. Read it as history. Take no requirement from it.
 
-**Status:** ~~Accepted — owner-approved 2026-07-23; amended 2026-07-24.~~ **Retired.** Re-sequenced per ADR-007, itself now superseded.
-**Governing:** `_oversight/DELIVERY-PLAYBOOK.md` (normal Direction → Specification → build flow); build method **ADR-006**; sequencing **ADR-007** (amended by **ADR-009** — manual curation in M1); evidence checkpoints **ADR-012**; form factor **ADR-005**.
+**Status:** ~~Accepted — owner-approved 2026-07-23; amended 2026-07-24.~~ **Retired 2026-07-28.**
+**Governing:** nothing. This file governs no work. What ships is [SPEC.md](SPEC.md) §1; what validates it is `SPEC.md` §12; what binds it is [docs/CONSTRAINTS.md](docs/CONSTRAINTS.md).
+
+> The ADR numbers below refer to **history, not authority** — all thirteen are archived. The previous version of this line named ADR-005/006/007/009/012 as "governing", which contradicted the retirement banner directly above it.
 
 ## What changed, and why
 

@@ -1,41 +1,82 @@
 # KwikReel
 
-An **explainable, local-first, human-directed first-draft reel editor** for private family footage. It proposes a transparent first pass at the edit — which clips, in what order, where to trim, where to change speed — each with a plain-language reason. The user reviews everything, overrides anything, and **approves each machine-proposing stage before the next runs.** The AI proposes; the human decides.
+An **explainable, local-first, human-directed first-draft reel editor** for
+private family footage. It reads a folder of clips, proposes where to trim and
+where to speed up, and the person editing accepts, adjusts or ignores any of it.
 
-Not an autonomous editor, and not a claim of editorial intelligence. Renamed to KwikReel 2026-07-24; the repository directory is `kwikreel`.
+Not an autonomous editor, and not a claim of editorial intelligence. It runs as
+a local web app on a Mac; original footage is opened read-only and never leaves
+the device.
 
-## Status
+## Status — honest version
 
-**Stage A (Direction) closed; Stage B (Specification) done for M1; pre-ADP course correction applied 2026-07-24** (independent review: [docs/reviews/PRE-ADP-REVIEW-2026-07-24.md](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)).
+**A working backend exists. The frontend is being rebuilt. Nothing has ever run
+against real footage.**
 
-**Documents only — no product code, no media, no experiments.** The next gate is the owner approving the M1 Work Order backlog and authorizing an ADP. Nothing may be built before that. See [handoff.md](handoff.md) for the exact state and the owner actions required.
+- The pipe runs end to end **on synthetic fixtures**: ingest → analysis → trim
+  proposal → render → QA → export, behind a local HTTP API with its security
+  guards. Tests are green.
+- The frontend was deleted on 2026-07-28 when a 26-version design exploration
+  landed on a materially different product. It is being rebuilt against that
+  design.
+- **No experiment has ever run and no real footage has ever been processed.**
+  Every claim in [EVIDENCE-LEDGER.md](docs/specs/EVIDENCE-LEDGER.md) is graded
+  `assumed`. That the code passes its tests establishes that it works, not that
+  any belief about the product is true.
 
-**Accepted decisions:** ADR-002 (privacy), ADR-003 (music/licensing), ADR-005 (local web app; `project.json` canonical), ADR-006 (incremental staged build; per-stage approval; transparency), ADR-007 (AI trim in M1; assists ordered by tractability), ADR-008 (prototype before contract freeze), and the **2026-07-24 course-correction set** — ADR-009 (manual curation in M1), ADR-010 (proposal `disposition`), ADR-011 (local delivery security), ADR-012 (evidence checkpoints), ADR-013 (prototype thumbnails under ADR-002).
-**Superseded:** ADR-001 (by ADR-005), ADR-004 (by ADR-006). **Retired:** `docs/specs/VALIDATION-PLAN.md` — no experiment ever ran, no corpus was collected.
+[handoff.md](handoff.md) is the current state in detail.
+
+## How control works
+
+There are four controls — **Sources · Trim · Speed · Save** — and no approval
+gates. Trim and Speed are reversible assists that apply to every clip at once
+and **never touch a clip edited by hand**. That property, not a checkpoint, is
+what keeps the person editing in charge, so it is a tested requirement rather
+than a described behaviour.
+
+Every proposal records a plain-language reason, and those reasons are written to
+the rig's Log — the audit trail for what the machine proposed and what was done
+about it.
 
 ## Thesis
 
-Strong AI products are **governed systems**: deterministic where possible, probabilistic where useful, measurable throughout, privacy-aware by default, reversible in their actions, and human-approved at consequential points. Here the human is present at every proposing stage, and every machine proposal is explained and recorded. The differentiator **under test** is transparent, approvable, auditable, local-first assistance — not autonomous judgment, and not a black box.
+Strong AI products are **governed systems**: deterministic where possible,
+probabilistic where useful, measurable throughout, privacy-aware by default, and
+reversible in their actions. The differentiator **under test** is transparent,
+reversible, auditable, local-first assistance — not autonomous judgment, and not
+a black box.
 
-That incumbents (Apple Photos, Google Photos, CapCut, Quik) already ship free one-tap montage-to-music is treated as **fact**, not a gap to claim. Whether users value explanation and control enough to review a first draft is an **open belief**, tested cheaply and early (ADR-012) rather than assumed.
+That incumbents (Apple Photos, Google Photos, CapCut, Quik) already ship free
+one-tap montage-to-music is treated as **fact**, not a gap to claim. Whether
+anyone values explanation and control enough to review a first draft rather than
+take the one-tap version is an **open belief**, and it is graded `assumed`.
 
-## Method
+## The normative documents
 
-Follows the [AI-Parallel Delivery Playbook](../_oversight/DELIVERY-PLAYBOOK.md): Direction → Specification → incremental staged build, with per-stage human approval. Validation-first sequencing and pre-registered kill criteria were retired by ADR-006; per-stage acceptance on real footage plus the lightweight evidence checkpoints in ADR-012 replace them.
+| Document | What it is |
+|---|---|
+| [docs/CONSTRAINTS.md](docs/CONSTRAINTS.md) | The guardrails — privacy, what may never be committed, licensing, local delivery security. Binding. Changeable only through the path its own *How a constraint changes* clause defines |
+| [SPEC.md](SPEC.md) | The product and the frozen contract. Outranks everything except the constraints |
+| [docs/DECISIONS.md](docs/DECISIONS.md) | The dated, append-only decision log |
+| [handoff.md](handoff.md) | What exists right now |
 
-## Scope in one line
+**[docs/archive/](docs/archive/) is history and may not be cited as authority** —
+that is where all thirteen ADRs, the previous specification, and the superseded
+backlogs live. Several contradict each other, which is why they were archived. A
+citation of the form "(ADR-006)" anywhere in this repository refers to history,
+never to a live rule.
 
-A **nine-stage pipeline** (ingest · assisted selection/order · trim · speed · timeline · manual edit · finalize · export · save) with **five approval gates** — ingest, selection, trim, speed, finalize. M1 delivers the working pipe **+ manual curation + AI trim**; M2 the selection/order assist; M3 speed ramping. Manual include/exclude/delete/restore is available from M1; the selection/order *assist* is M2.
+## The design files are not in this repository
 
-## Documents
-
-**Direction** — [PROJECT.md](PROJECT.md), [ROADMAP.md](ROADMAP.md), decision records in [docs/decisions/](docs/decisions/)
-**Specification (M1)** — [ES-001](docs/specs/ES-001-manual-editor-core.md), [COMPONENT-DECOMPOSITION.md](docs/specs/COMPONENT-DECOMPOSITION.md), [m1-backlog.md](docs/work-orders/m1-backlog.md)
-**Evidence & risk** — [EVIDENCE-LEDGER.md](docs/specs/EVIDENCE-LEDGER.md), [risk-register.md](docs/research/risk-register.md), [competitive-landscape.md](docs/research/competitive-landscape.md)
-**Review** — [PRE-ADP-REVIEW-2026-07-24.md](docs/reviews/PRE-ADP-REVIEW-2026-07-24.md)
-
-**Pre-pivot, retained for history — do not treat as current** (each carries a banner; `PROJECT.md` governs): `docs/vision/*` (SYSTEM-VISION, INTEGRATION-PLAN, and the two `.html` overviews), `docs/specs/prototype-definition.md`, `docs/specs/sample-media-test-strategy.md`, `docs/NOTION-PROJECTION.md`, and the retired `docs/specs/VALIDATION-PLAN.md` / `docs/work-orders/phase-1-backlog*.md`.
+The mockups that define the product's look and feel are **deliberately
+gitignored**. They exist on the owner's machine and nowhere else. Documents here
+cite them by path, so those particular links resolve locally and not on GitHub —
+that is intended, not an oversight.
 
 ## Commercial posture
 
-Conditional and deferred — a validation and portfolio project first. Auto-assembly and beat sync are commodity; the most-wanted feature (Instagram songs) is legally unavailable to any third party; usage is 2–6 occasions/year. Known headwinds are recorded in the [risk register](docs/research/risk-register.md), not planned against.
+Conditional and deferred — a validation and portfolio project first.
+Auto-assembly and beat sync are commodity; the most-wanted feature (Instagram
+songs) is legally unavailable to any third party; usage is 2–6 occasions a year.
+Known headwinds are recorded in the
+[risk register](docs/research/risk-register.md), not planned against.
