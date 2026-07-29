@@ -370,6 +370,29 @@ Monitor code, a spike must answer, with measurements rather than opinion:
 If the spike cannot deliver a Monitor good enough to judge an edit on, **the
 design changes before the frontend is built**, not after.
 
+### 6.1 · Proxies must carry audio
+
+**A proxy carries its source's audio**, encoded as AAC and downmixed to stereo.
+A source with no audio of its own gets a proxy with **no audio track** — never a
+fabricated silent one, which would be indistinguishable from a clip the user
+muted.
+
+This is a requirement, not an implementation note, because three things this
+document already promises are unsatisfiable without it:
+
+- **§5's `clip_level` has nothing to act on.** A silent proxy means the mix
+  cannot be heard until export, so the user sets a level blind.
+- **§5's "the Sound unit's timeline *is* the mix" is false.** The unit draws a
+  trace per reel clip at its slider's brightness — describing audio the Monitor
+  cannot play.
+- **Preview loudness cannot match export loudness** when one of them is silent.
+
+> **Recorded because it was once untrue.** `make_proxy` passed `-an` and every
+> proxy shipped silent; WO-124 found it and WO-116a fixed it (2026-07-28). The
+> spec *assumed* proxy audio and nothing *required* it, so a future change back
+> to `-an` would have contradicted nothing written down. That is what this
+> section is for.
+
 ---
 
 ## 7 · The Log
