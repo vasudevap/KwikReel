@@ -10,10 +10,10 @@ history; this file is the authority.** They are transcribed rather than
 reinterpreted — the v3z redesign changes the product's shape, not its posture,
 so none of these were up for revision in that redesign.
 
-Constraints that v3z *does* put in play — approval gates, staged progression,
+Constraints that v3z *did* put in play — approval gates, staged progression,
 proposal `disposition`, whether reasons are displayed — are deliberately **not**
-here. They are open, and belong to the decision session recorded in
-[PLAN-v3z-rebuild.md §1](implementation-plans/PLAN-v3z-rebuild.md).
+here. They were product questions, not guardrails, and the 2026-07-28 decision
+session settled them in [DECISIONS.md](DECISIONS.md).
 
 ## How a constraint changes
 

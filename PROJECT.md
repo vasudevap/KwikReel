@@ -1,6 +1,6 @@
 # Project — KwikReel
 
-**Status: current as of 2026-07-28.** Direction, not mechanism.
+**Status: current as of 2026-07-29.** Direction, not mechanism.
 **Guardrails:** [docs/CONSTRAINTS.md](docs/CONSTRAINTS.md).
 **Governing methodology:** `_oversight/DELIVERY-PLAYBOOK.md`.
 

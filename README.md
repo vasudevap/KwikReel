@@ -10,15 +10,18 @@ the device.
 
 ## Status — honest version
 
-**A working backend exists. The frontend is being rebuilt. Nothing has ever run
+**A working backend exists and is being realigned to the accepted spec. The
+frontend rebuild is specified but not yet authorized. Nothing has ever run
 against real footage.**
 
 - The pipe runs end to end **on synthetic fixtures**: ingest → analysis → trim
   proposal → render → QA → export, behind a local HTTP API with its security
-  guards. Tests are green.
+  guards. Mid-realignment, parts of the suite are **deliberately red** while the
+  two halves speak different schema versions — [handoff.md](handoff.md) has the
+  exact state.
 - The frontend was deleted on 2026-07-28 when a 26-version design exploration
-  landed on a materially different product. It is being rebuilt against that
-  design.
+  landed on a materially different product. Rebuilding it against that design is
+  specified, and is a separate authorization that has not been given.
 - **No experiment has ever run and no real footage has ever been processed.**
   Every claim in [EVIDENCE-LEDGER.md](docs/specs/EVIDENCE-LEDGER.md) is graded
   `assumed`. That the code passes its tests establishes that it works, not that

@@ -1,9 +1,10 @@
 # ADP-002: Contract v2 and Backend Realignment
 
-**Status:** **AUTHORIZED — owner, 2026-07-28, as drafted; amended same day to add
-WO-118a, to unhold WO-120, and to add WO-116a.** Scope: **WO-116a**, WO-117 –
-WO-124, **all unheld**, under the §2 grant (local build to green on synthetic
-fixtures). Pushes, CI and real-media runs stay separately gated in §3.
+**Status:** **AUTHORIZED — owner, 2026-07-28, as drafted; amended 2026-07-28 to
+add WO-118a, to unhold WO-120, and to add WO-116a; amended 2026-07-29 to make
+WO-120 a closeout gate.** Scope: **WO-116a**, WO-117 – WO-124, **all unheld**,
+under the §2 grant (local build to green on synthetic fixtures). Pushes, CI and
+real-media runs stay separately gated in §3.
 
 > **Amendment 1, owner, 2026-07-28 — WO-118a added.** As drafted, this ADP gave
 > WO-120 `speed_proposer.py` and left **`trim_proposer.py` owned by nothing**,
@@ -31,12 +32,24 @@ fixtures). Pushes, CI and real-media runs stay separately gated in §3.
 > unsatisfiable. **WO-116a is unheld**, owns `backend/ingest/`, and also carries
 > the proxy GOP change WO-124 recommended.
 
+> **Amendment 4, owner, 2026-07-29 — WO-120 gates closeout, and the record is
+> squared.** §9's closeout condition predated Amendment 2: it still read
+> "WO-117 – WO-119 and WO-121 – WO-123", written when WO-120 was held, so the
+> ADP could have closed without the speed proposer it had since unheld. **The
+> owner's call: it cannot.** §9 now requires every §4 Work Order merged green.
+> Squared at the same time: §8's summary block said "amended twice" and omitted
+> WO-116a from its scope line; and two 2026-07-29 §4 edits that landed without
+> an amendment note are recorded here — WO-118's scope gained the `log.json`
+> sidecar when `SPEC.md` §7.3 closed SO-2, and the ramp-overshoot lane
+> instruction was added for WO-121/WO-122 after the 2026-07-29 re-measurement.
+
 **Program ID:** ADP-002
 **Type:** Autonomous Delivery Program
 **Owner:** Repository Owner
 **Created:** 2026-07-28
-**Execution Window:** From authorization until WO-123 merges green and WO-124
-reports its measurements, or until a stop-and-ask in §3 applies.
+**Execution Window:** From authorization until §9's closeout condition is met —
+every §4 Work Order merged green, WO-124's measurements reported — or until a
+stop-and-ask in §3 applies.
 **Governing docs:** [CONSTRAINTS.md](../CONSTRAINTS.md) · [SPEC.md](../../SPEC.md)
 (accepted 2026-07-28) · [DECISIONS.md](../DECISIONS.md) (decided 2026-07-28)
 **Plan of record:** [PLAN-v3z-rebuild.md](PLAN-v3z-rebuild.md) §4
@@ -119,6 +132,8 @@ That is the whole grant: **local build to green, on synthetic fixtures.**
 | **WO-120 · Speed proposer** | `SPEC.md` §4.2 as code: multiple `SpeedRange`s per clip in **source time**, retained proposals for reversibility | `backend/propose/speed_proposer.py` | **Unheld — Amendment 2.** Gate: deterministic on a fixture; ranges survive a trim-handle move (§3.2); the assist never proposes above 2.0× |
 | **WO-121 · Renderer v2** | `amix` weighted by the two levels, replacing three non-composable mode branches. `setpts` + chained `atempo` per effective speed range. Skip out-of-reel clips. Resolution from the setting — `TARGET_W`/`TARGET_H` stop being constants. **Clamp every ramped clip to `-t (kept_duration / rate)`** — see below | `backend/render/` | Duration ±0.5 s of computed reel length; **a ramped clip's rendered duration matches `SPEC.md` §3.4's arithmetic exactly**, not 1–2 frames over; **upscaling past the source refused or flagged, never silent**; every-clip-out fails with a stated reason, not an empty concat; GPS and identifying metadata stripped |
 | **WO-122 · QA v2** | `resolution_ok` against the *setting*, not a hardcoded 1080×1920. `audio_ok` re-derived from the levels. **`duration_ok` keeps §9's ±0.5 s unchanged** — the fix for the ramp overshoot is WO-121's clamp, not a wider tolerance | `backend/qa/` | `music_level > 0` ⇒ output not silent; both at zero ⇒ silent **and** still a valid AAC track; a bad render is blocked **with its reason stated**; **a multi-clip ramped reel lands inside ±0.5 s** — the regression test whose absence let the overshoot through |
+| **WO-123 · API v2** | Delete `approve/{stage}` and every gate read. Add the §8 PATCH surface, relink, `download` with no `audio_mode`, thumb/peaks/pick-file. §8.2's optimistic-save failure path | `backend/api/` | Every §8 route present and no others; **each new mutating route has its own capability-token guard test that fails when the guard is removed**; 409 on `updated_at` mismatch; no path leaks |
+| **WO-124 · Playback engine spike** | **Throwaway code, deleted afterwards.** Answers `SPEC.md` §6 / §14 SO-3 with measurements, not opinion | a scratch directory, deleted at closeout | A written record of: transition gap at a cut, seek error against the proxy's keyframe interval, whether `playbackRate` preview matches rendered `setpts`, how pitch is handled preview-vs-export, and how the music bed holds sync across a transition and a seek. **A number for each, or a stated reason it could not be measured** |
 
 > **The ramp duration overshoot — binding on WO-121 and WO-122.** WO-124
 > measured `setpts` + `atempo` overshooting by a **fixed 1–2 frames per ramped
@@ -136,8 +151,6 @@ That is the whole grant: **local build to green, on synthetic fixtures.**
 > which is why this is a lane instruction and not the §9 stop-and-ask it was
 > first raised as. Full measurements and the rejected alternatives:
 > [WO-124-playback-findings.md §3](../specs/WO-124-playback-findings.md).
-| **WO-123 · API v2** | Delete `approve/{stage}` and every gate read. Add the §8 PATCH surface, relink, `download` with no `audio_mode`, thumb/peaks/pick-file. §8.2's optimistic-save failure path | `backend/api/` | Every §8 route present and no others; **each new mutating route has its own capability-token guard test that fails when the guard is removed**; 409 on `updated_at` mismatch; no path leaks |
-| **WO-124 · Playback engine spike** | **Throwaway code, deleted afterwards.** Answers `SPEC.md` §6 / §14 SO-3 with measurements, not opinion | a scratch directory, deleted at closeout | A written record of: transition gap at a cut, seek error against the proxy's keyframe interval, whether `playbackRate` preview matches rendered `setpts`, how pitch is handled preview-vs-export, and how the music bed holds sync across a transition and a seek. **A number for each, or a stated reason it could not be measured** |
 
 **Not in this ADP:** WO-125 – WO-132 (frontend, ADP-003) · WO-133 – WO-135
 (verification and real footage, ADP-004) · WO-115a/115b (absorbed into WO-135).
@@ -209,9 +222,12 @@ Three options were available and the middle one is taken:
 
 ```
 Authorized:            2026-07-28   by  Repository Owner (via session chat)
-Scope granted:         WO-117 – WO-124, all unheld
-Narrowing / notes:     None. Authorized as drafted; amended same day twice —
-                       Amendment 1 added WO-118a, Amendment 2 unheld WO-120.
+Scope granted:         WO-116a and WO-117 – WO-124, all unheld
+Narrowing / notes:     Authorized as drafted; amended four times —
+                       Amendment 1 (2026-07-28) added WO-118a,
+                       Amendment 2 (2026-07-28) unheld WO-120,
+                       Amendment 3 (2026-07-28) added WO-116a,
+                       Amendment 4 (2026-07-29) made WO-120 a closeout gate.
                        See the head of this file.
 ```
 
@@ -221,8 +237,10 @@ stop-and-asks in §3.
 
 ## 9. Closeout
 
-ADP-002 closes when WO-117 – WO-119 and WO-121 – WO-123 are merged green on
-synthetic fixtures and **WO-124 has reported its numbers**. Closeout deletes the
+ADP-002 closes when **every §4 Work Order — WO-116a, WO-117, WO-118, WO-118a,
+WO-119, WO-120 and WO-121 – WO-123 — is merged green** on synthetic fixtures and
+**WO-124 has reported its numbers** (done, 2026-07-28). WO-120 gates closeout —
+Amendment 4; it was left out of this sentence only while it was held. Closeout deletes the
 spike's code, updates `handoff.md`, and writes ADP-003 — whose content depends on
 what WO-124 found. If WO-124 shows the Monitor cannot be made good enough to
 judge an edit on, **`SPEC.md` §6 and the v3z design change before ADP-003 is

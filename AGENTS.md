@@ -30,17 +30,21 @@ human reviews it and overrides anything.
 2. **[handoff.md](handoff.md)** — what exists right now.
 3. **[SPEC.md](SPEC.md)** — the product and the frozen contract. **Accepted
    2026-07-28.** The single normative document; it outranks everything except
-   `CONSTRAINTS.md`. Its §14 lists the four things it does not yet settle.
+   `CONSTRAINTS.md`. Its §14 records the four things it did not settle at
+   acceptance — **all four now closed** (SO-1 2026-07-28; SO-2 – SO-4
+   2026-07-29).
 4. **[docs/DECISIONS.md](docs/DECISIONS.md)** — the v3z departures, **decided
    2026-07-28.** The record `SPEC.md` was written against, and the append-only
    log where any future decision goes.
 5. **[docs/implementation-plans/ADP-002-contract-v2-and-backend.md](docs/implementation-plans/ADP-002-contract-v2-and-backend.md)**
    — the live authorization, and the Work Order set with its gates. **Authorized
-   2026-07-28** for WO-117 – WO-119 and WO-121 – WO-124, **local build to green
-   on synthetic fixtures only.** Its §3 is the list of what is still withheld.
+   2026-07-28, amended through 2026-07-29,** for **WO-116a and WO-117 – WO-124,
+   all unheld** — **local build to green on synthetic fixtures only.** Its §3 is
+   the list of what is still withheld.
 6. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
-   — the plan that got us here. Largely discharged; kept for the parts ADP-002
-   does not carry. Where it disagrees with `SPEC.md`, `SPEC.md` wins.
+   — the plan that got us here. Largely discharged; kept for the ADP-003 and
+   ADP-004 sequencing ADP-002 does not carry. Where it disagrees with `SPEC.md`,
+   `SPEC.md` wins.
 7. **`docs/design-claude/README.md`** — the v3z design, which is the frozen
    frontend baseline. **Local only — gitignored and not in the public repo**
    (see below).
@@ -78,25 +82,39 @@ behaviour — and cite that.
 in any document is a reference to history, never to authority — and if you find
 one being used as a rule, that document is stale.
 
-## Where the project is (2026-07-28)
+## Where the project is (2026-07-29)
 
-**A working M1 exists, built against a design that has been replaced.** The
-backend pipe runs end to end on synthetic fixtures: ingest → analysis → trim
-proposal → render → QA → export, behind an HTTP API with its security guards.
-**No experiment has ever run and no real footage has ever been processed** —
-every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded `assumed`.
+**The backend rebuild is mid-flight under ADP-002.** Contracts (WO-117), ingest
+(WO-116a) and the trim proposer (WO-118a) are v2 and merged; the WO-124 playback
+spike has reported its numbers and the v3z design survived them. Store, media,
+speed proposer, renderer, QA and the API are still v1 — WO-118, WO-119, WO-120
+and WO-121 – WO-123 are dependency-ready and unstarted.
 
-**The frontend is gone.** A 26-version design exploration ended at **v3z**, which
-is a different product: no approval gates, no staged pipeline, speed pulled into
-one release, audio as two mix levels, no clip rename, no reasons on the editing
-surface. The old frontend was deleted in the 2026-07-28 clean cut. (`disposition`
-is the one v3z removal the owner reversed — see DECISIONS A-3.)
+**The test suite is deliberately partly red** while the two halves speak
+different schema versions. Read the warning box in `handoff.md` before treating
+red as a regression, and run `pytest --continue-on-collection-errors` for the
+whole-suite count — a bare `pytest` halts at the five expected import errors.
 
-**Implementation is authorized, narrowly.** ADP-002 grants WO-117 – WO-119 and
-WO-121 – WO-124: **local build to green on synthetic fixtures.** Still withheld
-and still stop-and-ask — **every push to `origin`**, CI, **any run against real
-footage** (needs a recorded consent first), amending `SPEC.md`, and **WO-120, the
-speed proposer**, which waits on `SPEC.md` §14 SO-1.
+**`SPEC.md` §14 is fully closed** — SO-1 and SO-2 by owner decision, SO-3 and
+SO-4 by measurement. **No experiment has ever run and no real footage has ever
+been processed** — every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded
+`assumed`, and only ADP-004's real-footage run can move one.
+
+**The frontend is a stub** — `main.tsx` and the generated types, nothing more.
+Its rebuild is ADP-003: unblocked on the spec side, **not yet written or
+authorized**. The 26-version design exploration ended at **v3z**, locked (A-8);
+`disposition` is the one v3z removal the owner reversed (DECISIONS A-3).
+
+**The decision session is done** ([docs/DECISIONS.md](docs/DECISIONS.md)) **and
+`SPEC.md` is accepted** (2026-07-28). Together they are the whole normative
+record for the rebuild, under `CONSTRAINTS.md`. Neither is to be amended backward
+from the archived ES-001; amending inherits the ghosts the clean cut removed.
+
+**Implementation is authorized, narrowly.** ADP-002 grants WO-116a and
+WO-117 – WO-124, all unheld: **local build to green on synthetic fixtures.**
+Still withheld and still stop-and-ask — **every push to `origin`**, CI, **any
+run against real footage** (needs an ADR-002-style consent record first),
+amending `SPEC.md`, and **any frontend work** beyond WO-117's generated types.
 
 ## Working discipline
 

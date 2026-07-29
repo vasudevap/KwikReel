@@ -1,5 +1,13 @@
 # WO-115a · Ingest performance — autonomously completable
 
+> **⚠️ STALE — drafted against the pre-v3z product (2026-07-25), kept as raw
+> material.** Its governing documents (ES-001, the ADRs) were archived in the
+> 2026-07-28 clean cut and are no longer citable; several links below point at
+> their pre-archive locations and no longer resolve; some cited code paths were
+> deleted with the old frontend. **Absorbed into WO-135** — ADP-004's
+> real-footage lane, not yet drafted or authorized (ADP-002 §4, *Not in this
+> ADP*). Read it as input to WO-135; take no requirement from it.
+
 **Status:** 📝 **Drafted — 2026-07-25. Not authorized.** Outside the approved M1 backlog (WO-100–114) and not covered by [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md). Needs owner authorization before any code.
 **Governing:** [ES-001](../specs/ES-001-manual-editor-core.md) §4 (SourceIndex), §9 (non-functional requirements), [ADR-005](../decisions/ADR-005-editor-form-factor.md), [ADR-006](../decisions/ADR-006-incremental-staged-build.md), [ADR-011](../decisions/ADR-011-local-delivery-security.md), [ADR-012](../decisions/ADR-012-evidence-checkpoints.md)
 **Pairs with:** [WO-115b](WO-115b-performance-validation-and-decisions.md) — everything in this area that needs the owner.

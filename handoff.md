@@ -1,17 +1,17 @@
 # Handoff
 
-**Updated 2026-07-28**, after the clean cut that preceded the v3z rebuild.
+**Updated 2026-07-29**, mid-rebuild under ADP-002.
 
 ## The one-paragraph version
 
-A complete M1 backend exists and passes 72 tests on synthetic fixtures. The
-frontend it was built for has been deleted, because a 26-version design
-exploration ended at **v3z** — a materially different product. The documentation
-was consolidated: everything superseded moved to `docs/archive/`, the surviving
-guardrails were transcribed into `docs/CONSTRAINTS.md`, and the record was
-rebuilt forward from v3z as `docs/DECISIONS.md` and then **`SPEC.md`, accepted
-2026-07-28**. **ADP-002 is authorized** — the backend rebuild may proceed
-locally, on synthetic fixtures, WO-117 – WO-124.
+The M1 backend is being realigned to **`SPEC.md`, accepted 2026-07-28** — the
+spec written forward from **v3z**, the design a 26-version exploration ended at,
+and a materially different product from the one M1 was built for. That old
+frontend is deleted; the superseded record lives in `docs/archive/`; the
+surviving guardrails are `docs/CONSTRAINTS.md`; the departures are decided in
+`docs/DECISIONS.md`. **ADP-002 is authorized** — WO-116a and WO-117 – WO-124,
+local, on synthetic fixtures — and its first four Work Orders have merged. The
+suite is deliberately partly red across the schema seam (the box below).
 
 ## What exists
 
@@ -37,7 +37,9 @@ Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
 > import** (`tests/api`, `tests/guards`, `tests/integration` ×2, `tests/render`
 > — all v1-shape import errors, WO-121/122/123/133/134's to clear). Trim
 > (WO-118a) and ingest (WO-116a) are clear; run `pytest tests/propose
-> tests/analysis tests/contracts` for the green part.
+> tests/analysis tests/contracts` for the green part. A bare `pytest` halts at
+> the five import errors — add `--continue-on-collection-errors` for the
+> whole-suite count.
 > **If you are reading this and the numbers are worse, that IS a regression.**
 
 **Frontend — a placeholder.** `frontend/src/` holds only `main.tsx` (a stub that
@@ -87,8 +89,8 @@ ADP-002 closeout; the findings document is what survives.
 1. **WO-118 store · WO-119 media · WO-120 speed proposer · WO-121 renderer ·
    WO-122 QA · WO-123 API**, in parallel. All are dependency-ready — WO-118a is
    done, and (as of Amendment 2) SO-1 is closed for WO-120.
-2. ADP-002 closes when those merge green — **per-WO green, not whole-suite
-   green.** `tests/integration/` and parts of `tests/guards/` belong to WO-134
+2. ADP-002 closes when **all of those** merge green — WO-120 included, by
+   Amendment 4 — **per-WO green, not whole-suite green.** `tests/integration/` and parts of `tests/guards/` belong to WO-134
    and WO-133, which are ADP-004's and not authorized. The suite does not go
    fully green inside this ADP, by design.
 
@@ -116,10 +118,10 @@ amendments, SO-1, SO-2, SO-3, SO-4 — is closed. Two remain:
    end of the whole programme**: ADP-004's real-footage validation is the only
    thing that can move a ledger claim off `assumed`, and every claim is still
    `assumed`.
-2. **Authorize pushes individually.** As of 2026-07-28 `origin/main` is at `HEAD`
-   — verified with a live `git fetch`, superseding an earlier handoff that
-   claimed four commits were unpushed against a stale tracking ref. Everything
-   built under ADP-002 stays local until you say otherwise.
+2. **Authorize pushes individually.** As of 2026-07-29 `origin/main` sits at
+   `d64b256` — the last pre-acceptance commit — and everything since (the
+   accepted spec, ADP-002, every Work Order merge) is local only. Nothing built
+   under ADP-002 is pushed until you say otherwise, one push at a time.
 
 > **Withdrawn, and recorded so it does not come back.** A §9 QA-tolerance
 > stop-and-ask stood here, raised on a percentage measured at one clip length.

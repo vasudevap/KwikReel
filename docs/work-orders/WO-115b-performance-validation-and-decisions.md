@@ -1,5 +1,13 @@
 # WO-115b · Performance validation and the decisions it depends on
 
+> **⚠️ STALE — drafted against the pre-v3z product (2026-07-25), kept as raw
+> material.** Its governing documents (ES-001, the ADRs) were archived in the
+> 2026-07-28 clean cut and are no longer citable, and several links below point
+> at their pre-archive locations and no longer resolve. Its D-1 landed as
+> **WO-116** (2026-07-28); the rest is **absorbed into WO-135** — ADP-004's
+> real-footage lane, not yet drafted or authorized (ADP-002 §4, *Not in this
+> ADP*). Read it as input to WO-135; take no requirement from it.
+
 **Status:** 📝 **Drafted — 2026-07-25. Not authorized.** Outside the approved M1 backlog and not covered by [ADP-001](../implementation-plans/ADP-001-m1-working-pipe-and-trim.md).
 **Governing:** [ES-001](../specs/ES-001-manual-editor-core.md) §4, §9, §10, [ADR-002](../decisions/ADR-002-privacy-and-data-posture.md), [ADR-005](../decisions/ADR-005-editor-form-factor.md), [ADR-006](../decisions/ADR-006-incremental-staged-build.md), [ADR-010](../decisions/ADR-010-proposal-provenance-disposition.md), [ADR-012](../decisions/ADR-012-evidence-checkpoints.md)
 **Pairs with:** [WO-115a](WO-115a-ingest-performance.md) — the autonomously completable ingest work.
