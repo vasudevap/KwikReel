@@ -127,6 +127,41 @@ Two points bear repeating here because they shape how sessions run:
 - **Stop / de-scope triggers are real.** Firing one is a successful outcome, not
   a problem to argue around.
 
+## How work is recorded
+
+The record rotted once — 24 commits of build while the briefing docs still
+described the pre-build world (found and fixed 2026-07-29). These obligations
+exist so that cannot happen quietly again. This list is single-sourced in
+`CLAUDE.md`; this file mirrors it.
+
+**When state changes, the record changes in the same commit:**
+
+- **A Work Order merges** → `handoff.md`: the module table, the suite box,
+  "In flight", and the stop-and-ask ledger.
+- **An ADP is amended** → a dated owner note at the ADP's head **and** its §8
+  authorization block **and** `handoff.md`. An amendment recorded in one place
+  and not the others is exactly how ADP-002's §8 drifted to "amended twice"
+  while its head recorded three.
+- **A decision lands** → a dated, append-only entry in `docs/DECISIONS.md`.
+  `docs/CONSTRAINTS.md` is edited to match only when a guardrail changed,
+  citing the entry.
+- **A claim's instrument or implementation reality changes** →
+  `docs/specs/EVIDENCE-LEDGER.md`: the affected rows plus a dated log line.
+  Grades move only as the ledger's own rules allow.
+- **An ADP closes** → `handoff.md`, the ledger log, `README.md`'s status
+  section, and the *Where the project is* sections here and in `CLAUDE.md`.
+  Closeout writes the next ADP, which **inherits ADP-002 §7's execution rules
+  and this recording discipline** unless it explicitly says otherwise.
+
+**Session entry:** before building, check *Where the project is* against
+`git log`; if they disagree, fix the record first. **Session exit:** if you
+changed project state, leave every section above true.
+
+The drift check that verifies all of this is
+[`.claude/skills/align-check/SKILL.md`](.claude/skills/align-check/SKILL.md) —
+Claude sessions invoke it as `/align-check`; other agents follow it as a
+checklist. Run it at session start and whenever the record smells stale.
+
 ## More than one agent works in this directory
 
 Codex, Antigravity and Claude Code sessions share this working tree, and they
