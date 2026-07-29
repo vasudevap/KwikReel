@@ -72,15 +72,20 @@ one being used as a rule, that document is stale.
 ## Where the project is (2026-07-29)
 
 **The backend rebuild is mid-flight under ADP-002.** Contracts (WO-117), ingest
-(WO-116a) and the trim proposer (WO-118a) are v2 and merged; the WO-124 playback
-spike has reported its numbers and the v3z design survived them. Store, media,
-speed proposer, renderer, QA and the API are still v1 — WO-118, WO-119, WO-120
-and WO-121 – WO-123 are dependency-ready and unstarted.
+(WO-116a), the trim proposer (WO-118a) and the store (WO-118) are v2 and merged;
+the WO-124 playback spike has reported its numbers and the v3z design survived
+them. Media, the speed proposer, the renderer, QA and the API are still v1 —
+WO-119, WO-120 and WO-121 – WO-123 are dependency-ready and unstarted.
+
+**In v2 what renders is derived, never stored.** `backend/store/derive.py` is
+`SPEC.md` §3.1 and §3.4 as code; `clip.segment` holds *the user's* trim and is
+not what plays. Anything reading it as "the trim" has carried a v1 habit into v2.
 
 **The test suite is deliberately partly red** while the two halves speak
 different schema versions. Read the warning box in `handoff.md` before treating
 red as a regression, and run `pytest --continue-on-collection-errors` for the
 whole-suite count — a bare `pytest` halts at the five expected import errors.
+**Nothing fails; five modules cannot import.**
 
 **`SPEC.md` §14 is fully closed** — SO-1 and SO-2 by owner decision, SO-3 and
 SO-4 by measurement. **No experiment has ever run and no real footage has ever

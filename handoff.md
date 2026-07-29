@@ -10,7 +10,7 @@ and a materially different product from the one M1 was built for. That old
 frontend is deleted; the superseded record lives in `docs/archive/`; the
 surviving guardrails are `docs/CONSTRAINTS.md`; the departures are decided in
 `docs/DECISIONS.md`. **ADP-002 is authorized** — WO-116a and WO-117 – WO-124,
-local, on synthetic fixtures — and its first four Work Orders have merged. The
+local, on synthetic fixtures — and its first five Work Orders have merged. The
 suite is deliberately partly red across the schema seam (the box below).
 
 ## What exists
@@ -24,22 +24,21 @@ suite is deliberately partly red across the schema seam (the box below).
 | `backend/analysis/` | OpenCV per-second signals. The letterbox/exposure fault is **fixed** (WO-116, `3d0d0d6`), with two regression tests |
 | `backend/propose/` (trim) | **v2 — WO-118a, done.** `SegmentsProposal.value` is one `Segment`, not a list; the 1.0 s floor is retired (A-6) — a proposal may be sub-second or empty, neither padded nor raised |
 | `backend/propose/` (speed) | Still v1/nonexistent. WO-120, unheld since Amendment 2, hasn't started |
-| `backend/store/` | Save/load byte-equivalent, optimistic concurrency, origin protection |
+| `backend/store/` | **Schema v2 — WO-118, done.** Four modules: `project_store` (lossless save/load, optimistic concurrency, the §3 invariants), **`derive`** (§3.1's `effective_trim`/`effective_speed` and §3.4's membership, precedence, played duration and reel length — **what renders is derived here, never read off `clip.segment`**), `edits` (§4.3's bin/restore and hand edits, §4.5's disposition writers) and `log_store` (§7.3's `log.json`) |
 | `backend/render/`, `backend/qa/` | FFmpeg render + output QA |
 | `backend/api/` | FastAPI, job runner, and the local-delivery security guards, each proven to fail when removed |
 
 Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
 `python3` has no pytest.)
 
-> **⚠️ The suite is RED, deliberately, and this is not a regression.** WO-117
-> froze schema v2 and merged; store, render, QA and API are still speaking v1.
-> **45 pass · 10 fail (all in `tests/store/test_store.py`) · 5 modules cannot
-> import** (`tests/api`, `tests/guards`, `tests/integration` ×2, `tests/render`
-> — all v1-shape import errors, WO-121/122/123/133/134's to clear). Trim
-> (WO-118a) and ingest (WO-116a) are clear; run `pytest tests/propose
-> tests/analysis tests/contracts` for the green part. A bare `pytest` halts at
-> the five import errors — add `--continue-on-collection-errors` for the
-> whole-suite count.
+> **⚠️ The suite is partly red, deliberately, and this is not a regression.**
+> WO-117 froze schema v2 and merged; render, QA and API are still speaking v1.
+> **113 pass · 0 fail · 5 modules cannot import** (`tests/api`, `tests/guards`,
+> `tests/integration` ×2, `tests/render` — all v1-shape import errors,
+> WO-121/122/123/133/134's to clear). **Nothing fails any more**: WO-118 cleared
+> the ten `tests/store/test_store.py` failures that stood here and added 58
+> tests. A bare `pytest` halts at the five import errors — add
+> `--continue-on-collection-errors` for the whole-suite count.
 > **If you are reading this and the numbers are worse, that IS a regression.**
 
 **Frontend — a placeholder.** `frontend/src/` holds only `main.tsx` (a stub that
@@ -55,9 +54,9 @@ not resolve on GitHub.
 
 ## What does not exist
 
-- **Store, media, speed proposer, render, QA and the API are still v1.**
-  Contracts (WO-117), ingest (WO-116a) and the trim proposer (WO-118a) are v2;
-  the rest of the ADP-002 fan-out hasn't started.
+- **Media, the speed proposer, render, QA and the API are still v1.**
+  Contracts (WO-117), ingest (WO-116a), the trim proposer (WO-118a) and the
+  store (WO-118) are v2; the rest of the ADP-002 fan-out hasn't started.
 - **No frontend at all**, and no authorization for one. **ADP-003 is now
   unblocked on the spec side** — it was gated on WO-124's numbers plus SO-2 and
   SO-4, and all three have landed. It still has to be written.
@@ -66,15 +65,17 @@ not resolve on GitHub.
   correction-pass risks rather than spec gaps — the unmeasured black-frame
   duration (§6.7) and whether one three-line strip can carry the Log's eight
   jobs (§7.2).
-- **No `log.json` yet.** `SPEC.md` §7.3 now specifies it and WO-118 owns it, but
-  nothing writes it, so the Log has no persistence and A-3b's export summary —
-  the only named measure for evidence claim C-03 — has nowhere to land.
+- **`log.json` exists but nothing writes to it yet.** WO-118 built the sidecar
+  — append, 500-entry eviction, standing lines exempt — and `mark_proposals_accepted`
+  produces A-3b's export summary line, so **C-03's instrument is now built**.
+  What is missing is the callers: §7.1's eight duties belong to the lanes that
+  do the work, and ingest, the proposers and the API do not log yet.
 - **No media, no corpus, no consent record.** Every ledger claim is `assumed`.
 - **No real-footage run.** The two exit gates that need it have never run.
 
 ## In flight right now
 
-**Nothing.** WO-118a merged (below).
+**Nothing.** WO-118 merged (`9f55cb0`).
 
 **WO-124 is done.** [`docs/specs/WO-124-playback-findings.md`](docs/specs/WO-124-playback-findings.md)
 — **SO-3 is answered and the v3z design survives.** The Monitor uses **two
@@ -86,13 +87,47 @@ ADP-002 closeout; the findings document is what survives.
 
 ## What happens next
 
-1. **WO-118 store · WO-119 media · WO-120 speed proposer · WO-121 renderer ·
-   WO-122 QA · WO-123 API**, in parallel. All are dependency-ready — WO-118a is
-   done, and (as of Amendment 2) SO-1 is closed for WO-120.
+1. **WO-119 media · WO-120 speed proposer · WO-121 renderer · WO-122 QA ·
+   WO-123 API**, in parallel. All are dependency-ready — WO-118 and WO-118a are
+   done, and (as of Amendment 2) SO-1 is closed for WO-120. WO-121 and WO-122
+   should read `backend/store/derive.py` before starting: `effective_trim`,
+   `effective_speed` and `played_duration_s` are the arithmetic they render and
+   check against, and `reel_length_s` is the number §9's ±0.5 s is measured from.
 2. ADP-002 closes when **all of those** merge green — WO-120 included, by
    Amendment 4 — **per-WO green, not whole-suite green.** `tests/integration/` and parts of `tests/guards/` belong to WO-134
    and WO-133, which are ADP-004's and not authorized. The suite does not go
    fully green inside this ADP, by design.
+
+## The stop-and-asks that are open
+
+**§4.5's `dismissed` writer is not implemented, because §4.3 and §3.1 disagree.**
+Raised by WO-118, 2026-07-29. `SPEC.md` §4.3 says reject (✕) *"discards this
+clip's proposal — `disposition: "dismissed"`. The clip reverts to whole (or to
+the user's own trim, if there is one)."* But §3.1's derivation reads any
+retained proposal while the toggle is on, whatever its disposition — so a
+rejected proposal still renders and the clip does **not** revert. At least three
+readings close the gap and they are not equivalent:
+
+1. **Reject nulls the proposal.** Matches §4.3's word *discards* and needs no
+   amendment — but it deletes the very count A-3 kept `disposition` to produce,
+   so a dismissal becomes unmeasurable and C-03 loses the denominator.
+2. **The derivation skips dismissed proposals.** Keeps the count, and is an
+   amendment to a frozen §3.1 — an owner decision by construction.
+3. **Reject writes the whole clip as a user segment.** Satisfies both sections
+   as written, and locks the trim assist out of that clip permanently, which
+   may be intended ("I rejected this, stop proposing") or may not.
+
+`adjusted` and `accepted` are implemented; only this one waits. Nothing else in
+ADP-002 is blocked by it — the derivation, bin/restore, the invariants and the
+Log all landed. **A written `docs/DECISIONS.md` entry is how this closes**, and
+if the answer is (2), an accepted `SPEC.md` amendment with it.
+
+> **A smaller thing to know when reading the C-03 number, not a blocker.**
+> §4.5 read literally makes a **binned** clip's untouched proposal `accepted` at
+> export, because binning is §4.3's own control and not the handle move §4.5
+> names. So *"Kept 14 of 19 AI trims"* counts proposals the user did not
+> overrule, not proposals that reached the export. Implemented as written and
+> recorded in the ledger's C-03 note rather than quietly corrected.
 
 ## The stop-and-asks that were raised, and closed
 
@@ -110,15 +145,19 @@ apart, and the proxy path has three tests where it had one vacuous one.
 
 ## Owner actions required
 
-**The `SPEC.md` list is empty.** Every item that stood here — the four §6
-amendments, SO-1, SO-2, SO-3, SO-4 — is closed. Two remain:
+**`SPEC.md` §14 is empty.** Every item that stood here — the four §6 amendments,
+SO-1, SO-2, SO-3, SO-4 — is closed. Three remain, one of them new:
 
-1. **Record an ADR-002-style consent** before anything runs against real footage.
+1. **Decide how reject (✕) works**, so §4.5's `dismissed` writer can be built.
+   The three readings and what each costs are above; the decision lands as a
+   dated `docs/DECISIONS.md` entry, and as a `SPEC.md` amendment too if it is
+   reading (2). Nothing else is waiting on it.
+2. **Record an ADR-002-style consent** before anything runs against real footage.
    Nothing under ADP-002 may touch real media without it. **This now gates the
    end of the whole programme**: ADP-004's real-footage validation is the only
    thing that can move a ledger claim off `assumed`, and every claim is still
    `assumed`.
-2. **Authorize pushes individually.** As of 2026-07-29 `origin/main` sits at
+3. **Authorize pushes individually.** As of 2026-07-29 `origin/main` sits at
    `d64b256` — the last pre-acceptance commit — and everything since (the
    accepted spec, ADP-002, every Work Order merge) is local only. Nothing built
    under ADP-002 is pushed until you say otherwise, one push at a time.
