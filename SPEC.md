@@ -269,16 +269,25 @@ so on. Thresholds are configuration, not constants.
 
 ### 4.2 · Speed
 
-**Rule: ramp the dull stretches.** A second is **dull** when `motion_energy` and
-`audio_rms` are both low. Contiguous dull stretches become `SpeedRange`s at
-**1.5×–2.0×**, scaled within that band by how dull they are. Everything else
-stays 1.0×.
+**Rule: ramp the dull stretches.** A second is **dull** when `motion_energy <=
+0.25` **and** `audio_rms <= 0.25` — both already 0..1 normalized, per §4.1's
+static-second convention, with dull set above the static band so it doesn't
+just re-flag content §4.1 already trims. Dullness score
+`d = 1 - max(motion_energy, audio_rms) / 0.25`, clamped to `[0, 1]`.
 
-The spec must fix, before implementation: the dullness thresholds, the minimum
-ramp length (a half-second ramp is a glitch, not an effect), and how adjacent
-ranges merge. **One clip may carry several ranges.**
+Contiguous dull seconds form a candidate range. Two candidate ranges separated
+by a gap **< 0.5 s** of non-dull seconds merge into one. A merged or single
+range becomes a `SpeedRange` only if its duration is **>= 1.5 s** — a shorter
+candidate is dropped (no ramp, stays 1.0×). **One clip may carry several
+ranges.**
+
+Rate is continuous, not stepped: `rate = 1.5 + 0.5 * d`, using the range's mean
+dullness score, giving **1.5×–2.0×**. Everything not in a range stays 1.0×.
 
 The assist never proposes above 2.0×. **Hand-set rates are uncapped** (N-6).
+
+> **SO-1 closed** — owner, 2026-07-28, via ADP-002 Amendment 2. This paragraph
+> is the resolution; see [§14](#14--what-this-spec-still-owes).
 
 > **Accepted cost, recorded.** Clip audio is time-stretched with pitch preserved.
 > The filter is clean to roughly 2×; beyond that it must be chained and degrades
@@ -543,10 +552,11 @@ work and nothing else** — the rest of the build is unblocked by this document.
 
 | # | Owed | Stated in | Blocks |
 |---|---|---|---|
-| **SO-1** | The speed assist's parameters: dullness thresholds and how they are derived, minimum ramp length, how adjacent ranges merge, whether rate is continuous or stepped | §4.2 | The speed proposer. A-5a builds speed last, so this may be closed late |
+| **SO-1** | ~~The speed assist's parameters~~ — **closed 2026-07-28**, see §4.2 | §4.2 | Closed. WO-120 is unheld as of ADP-002 Amendment 2 |
 | **SO-2** | The Log's retention depth, whether it persists across reopening a project, how pinning composes with a newest-first list, and whether forty reason lines belong in the same window as a live fault | §7.2 | The Log unit. Load-bearing — it is the only warning surface (A-2 + A-6) |
 | **SO-3** | The playback engine: transition mechanism, seek accuracy, `playbackRate` versus rendered `setpts`, music-bed sync | §6 | The Monitor. **Answered by a spike, not by writing.** Highest risk in the build |
 | **SO-4** | The rack layout invariant under real data: minimum viewport, long clip and track names, the clip index at 200 clips, and whether the invariant is enforced by a test or is an aspiration | §2.1, §10 | The rack design system and the clip index |
 
-SO-1 and SO-2 are closed by amending this document. SO-3 is closed by the spike's
-measurements. SO-4 is closed by a decision on whether to test the invariant.
+SO-1 is closed. SO-2 is closed by amending this document. SO-3 is closed by the
+spike's measurements. SO-4 is closed by a decision on whether to test the
+invariant.

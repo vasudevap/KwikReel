@@ -106,7 +106,7 @@ def test_analyze_then_propose_black_clip_keeps_whole_and_says_why(tmp_path) -> N
     proposal = TrimRuleProposer().propose_trim(src, analysis)
     assert proposal.disposition == "pending"
     assert proposal.reasons[0].code == "NO_CLEAR_WINDOW"  # nothing cleared the floors
-    assert proposal.value[0].in_s == 0.0  # whole clip kept
+    assert proposal.value.in_s == 0.0  # whole clip kept
 
 
 def test_analyze_then_propose_good_clip_is_explained(corpus) -> None:
@@ -114,5 +114,5 @@ def test_analyze_then_propose_good_clip_is_explained(corpus) -> None:
     analysis = OpenCVAnalysis().analyze(src)
     proposal = TrimRuleProposer().propose_trim(src, analysis)
     assert proposal.disposition == "pending"
-    assert proposal.value[0].out_s > proposal.value[0].in_s
+    assert proposal.value.out_s > proposal.value.in_s
     assert proposal.reasons and all(r.human_text and r.evidence_refs for r in proposal.reasons)
