@@ -20,7 +20,7 @@ locally, on synthetic fixtures, WO-117 – WO-124.
 | Module | State |
 |---|---|
 | `backend/contracts/` | **Schema v2 — WO-117, done.** `SPEC.md` §3 as Pydantic models + generated TS types + service Protocols. Contract gate 10/10 |
-| `backend/ingest/` | ffprobe → `SourceIndex`, rotation-corrected, 540×960 proxies. **Slow on real footage** — no `-preset`, no hardware encoder, serial scan |
+| `backend/ingest/` | **Proxy recipe v2 — WO-116a, done.** ffprobe → `SourceIndex`, rotation-corrected, 540×960 proxies **carrying stereo AAC**, keyframes ~1 s apart. Still **slow on real footage** — no `-preset`, no hardware encoder, serial scan, and audio encoding adds to that (WO-135's problem, not WO-116a's) |
 | `backend/analysis/` | OpenCV per-second signals. The letterbox/exposure fault is **fixed** (WO-116, `3d0d0d6`), with two regression tests |
 | `backend/propose/` | Deterministic trim proposer with reason records |
 | `backend/store/` | Save/load byte-equivalent, optimistic concurrency, origin protection |
@@ -84,23 +84,7 @@ ADP-002 closeout; the findings document is what survives.
    and WO-133, which are ADP-004's and not authorized. The suite does not go
    fully green inside this ADP, by design.
 
-## ⚠️ Stop-and-ask, open — WO-124 found two things nobody owns
-
-Both are in **`backend/ingest/`**, which ADP-002 §4 assigns to no Work Order.
-The plan called ingest "survives", and against `SPEC.md` §3 the *contract* does.
-Its **proxy recipe** does not. Full detail in the findings §4 and §6.
-
-1. **Every proxy is silent — `make_proxy` passes `-an`.** This is the serious
-   one. The Monitor cannot preview clip audio at all, so `clip_level` has
-   nothing to act on, the Sound unit's "the display *is* the mix" describes
-   audio that cannot play, and §6's "preview loudness must match export
-   loudness" is unsatisfiable when one of them is silent. **Blocks §5 and §6 as
-   written.** No test caught it for the same reason the letterbox fault survived
-   to WO-116 — analysis tests call `probe_clip`, which never builds a proxy.
-2. **The proxy GOP is 8.333 s** (no `-g`). Only an optimisation — seeking is
-   already frame-accurate — but `-g 30` would quarter a 45 ms worst case.
-
-## The stop-and-ask that was raised, and closed
+## The stop-and-asks that were raised, and closed
 
 **No Work Order owned `backend/propose/trim_proposer.py`** — ADP-002 as drafted
 gave WO-120 `speed_proposer.py` and nothing else in `backend/propose/`, while
@@ -108,14 +92,19 @@ gave WO-120 `speed_proposer.py` and nothing else in `backend/propose/`, while
 when the v1 test `test_respects_the_one_second_floor` turned out to assert
 behaviour A-6 forbids. **Closed by ADP-002 Amendment 1: WO-118a, unheld.**
 
+**No Work Order owned `backend/ingest/`**, and WO-124 found `make_proxy` passing
+`-an` — every proxy silent, which left `SPEC.md` §5's `clip_level` acting on
+nothing and §6's preview-matches-export unsatisfiable. **Closed by ADP-002
+Amendment 3: WO-116a**, merged. Proxies carry stereo AAC, keyframes are ~1 s
+apart, and the proxy path has three tests where it had one vacuous one.
+
 ## Owner actions required
 
-1. **Decide the ingest stop-and-ask above.** The silent proxy blocks the Sound
-   unit; it needs a Work Order that owns `backend/ingest/`.
-2. **Consider four `SPEC.md` §6/§9 amendments** the spike warrants — findings
+1. **Consider four `SPEC.md` §6/§9 amendments** the spike warrants — findings
    §9. The substantive one: `setpts` overshoots duration by up to 1.39 %, so a
    speed-heavy reel can breach §9's ±0.5 s QA tolerance while being correct.
-3. **Close `SPEC.md` §14 SO-2** — the Log's retention, persistence and pinning
+   **This is the last WO-124 item still open.**
+2. **Close `SPEC.md` §14 SO-2** — the Log's retention, persistence and pinning
    behaviour. Blocks the Log unit only, not any WO in this ADP. (**SO-1 is
    closed**, 2026-07-28, ADP-002 Amendment 2 — WO-120 is unheld.)
 2. **Record an ADR-002-style consent** before anything runs against real footage.
