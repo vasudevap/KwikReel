@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated 2026-07-29**, mid-rebuild under ADP-002.
+**Updated 2026-07-30**, mid-rebuild under ADP-002.
 
 ## The one-paragraph version
 
@@ -10,8 +10,11 @@ and a materially different product from the one M1 was built for. That old
 frontend is deleted; the superseded record lives in `docs/archive/`; the
 surviving guardrails are `docs/CONSTRAINTS.md`; the departures are decided in
 `docs/DECISIONS.md`. **ADP-002 is authorized** — WO-116a and WO-117 – WO-124,
-local, on synthetic fixtures — and its first five Work Orders have merged. The
-suite is deliberately partly red across the schema seam (the box below).
+all unheld, plus held WO-118b, local on synthetic fixtures — and its first five
+Work Orders have merged. Amendment 5 makes every lane's test ownership explicit
+and sequences renderer → QA rather than pretending their mixed legacy test file
+is disjoint. The suite is deliberately partly red across the schema seam (the
+box below).
 
 ## What exists
 
@@ -75,7 +78,9 @@ not resolve on GitHub.
 
 ## In flight right now
 
-**Nothing.** WO-118 merged (`9f55cb0`).
+**Nothing.** Amendment 5 changed authorization and lane structure only; no
+implementation started. WO-118 remains the latest merged Work Order
+(`9f55cb0`).
 
 **WO-124 is done.** [`docs/specs/WO-124-playback-findings.md`](docs/specs/WO-124-playback-findings.md)
 — **SO-3 is answered and the v3z design survives.** The Monitor uses **two
@@ -87,16 +92,21 @@ ADP-002 closeout; the findings document is what survives.
 
 ## What happens next
 
-1. **WO-119 media · WO-120 speed proposer · WO-121 renderer · WO-122 QA ·
-   WO-123 API**, in parallel. All are dependency-ready — WO-118 and WO-118a are
-   done, and (as of Amendment 2) SO-1 is closed for WO-120. WO-121 and WO-122
-   should read `backend/store/derive.py` before starting: `effective_trim`,
+1. **WO-119 media · WO-120 speed proposer · WO-123 API** may run as independent
+   lanes. **WO-121 renderer → WO-122 QA** is one serial lane under Amendment 5:
+   the production directories are disjoint, but the legacy renderer/QA test
+   surface is not. All five are dependency-ready. WO-121 and WO-122 read
+   `backend/store/derive.py` before starting: `effective_trim`,
    `effective_speed` and `played_duration_s` are the arithmetic they render and
    check against, and `reel_length_s` is the number §9's ±0.5 s is measured from.
-2. ADP-002 closes when **all of those** merge green — WO-120 included, by
-   Amendment 4 — **per-WO green, not whole-suite green.** `tests/integration/` and parts of `tests/guards/` belong to WO-134
-   and WO-133, which are ADP-004's and not authorized. The suite does not go
-   fully green inside this ADP, by design.
+2. **WO-118b reject semantics is held.** The owner chooses one of the three
+   readings below, records it in `docs/DECISIONS.md`, amends `SPEC.md` if needed,
+   and explicitly unholds WO-118b in a later ADP amendment. No other WO waits on
+   that decision, but ADP-002 closeout does.
+3. ADP-002 closes when **all §4 Work Orders, including WO-118b**, merge green —
+   **per-WO green, not whole-suite green.** `tests/integration/` and parts of
+   `tests/guards/` belong to WO-134 and WO-133, which are ADP-004's and not
+   authorized. The suite does not go fully green inside this ADP, by design.
 
 ## The stop-and-asks that are open
 
@@ -117,10 +127,12 @@ readings close the gap and they are not equivalent:
    as written, and locks the trim assist out of that clip permanently, which
    may be intended ("I rejected this, stop proposing") or may not.
 
-`adjusted` and `accepted` are implemented; only this one waits. Nothing else in
-ADP-002 is blocked by it — the derivation, bin/restore, the invariants and the
-Log all landed. **A written `docs/DECISIONS.md` entry is how this closes**, and
-if the answer is (2), an accepted `SPEC.md` amendment with it.
+`adjusted` and `accepted` are implemented; only this one waits. Amendment 5
+records it as **WO-118b, held, and an ADP-002 closeout gate**. No other Work
+Order is blocked by it — the derivation, bin/restore, the invariants and the Log
+all landed. **A written `docs/DECISIONS.md` entry is how this closes**, and if
+the answer is (2), an accepted `SPEC.md` amendment with it; a later ADP
+amendment explicitly unholds WO-118b.
 
 > **A smaller thing to know when reading the C-03 number, not a blocker.**
 > §4.5 read literally makes a **binned** clip's untouched proposal `accepted` at
@@ -151,7 +163,8 @@ SO-1, SO-2, SO-3, SO-4 — is closed. Three remain, one of them new:
 1. **Decide how reject (✕) works**, so §4.5's `dismissed` writer can be built.
    The three readings and what each costs are above; the decision lands as a
    dated `docs/DECISIONS.md` entry, and as a `SPEC.md` amendment too if it is
-   reading (2). Nothing else is waiting on it.
+   reading (2), then a later ADP amendment unholds WO-118b. Nothing else is
+   waiting on it, but ADP-002 cannot close while WO-118b is held.
 2. **Record an ADR-002-style consent** before anything runs against real footage.
    Nothing under ADP-002 may touch real media without it. **This now gates the
    end of the whole programme**: ADP-004's real-footage validation is the only

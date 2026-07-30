@@ -25,9 +25,10 @@ human reviews it and overrides anything.
    log where any future decision goes.
 5. **[docs/implementation-plans/ADP-002-contract-v2-and-backend.md](docs/implementation-plans/ADP-002-contract-v2-and-backend.md)**
    — the live authorization, and the Work Order set with its gates. **Authorized
-   2026-07-28, amended through 2026-07-29,** for **WO-116a and WO-117 – WO-124,
-   all unheld** — **local build to green on synthetic fixtures only.** Its §3 is
-   the list of what is still withheld.
+   2026-07-28, amended through 2026-07-30,** for **WO-116a and WO-117 – WO-124,
+   all unheld, plus WO-118b, held pending the reject-semantics decision** —
+   **local build to green on synthetic fixtures only.** Its §3 is the list of
+   what is still withheld.
 6. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
    — the plan that got us here. Largely discharged; kept for the ADP-003 and
    ADP-004 sequencing ADP-002 does not carry. Where it disagrees with `SPEC.md`,
@@ -103,10 +104,12 @@ record for the rebuild, under `CONSTRAINTS.md`. Neither is to be amended backwar
 from the archived ES-001; amending inherits the ghosts the clean cut removed.
 
 **Implementation is authorized, narrowly.** ADP-002 grants WO-116a and
-WO-117 – WO-124, all unheld: **local build to green on synthetic fixtures.**
-Still withheld and still stop-and-ask — **every push to `origin`**, CI, **any
-run against real footage** (needs an ADR-002-style consent record first),
-amending `SPEC.md`, and **any frontend work** beyond WO-117's generated types.
+WO-117 – WO-124, all unheld, plus **WO-118b held pending the reject-semantics
+decision**: **local build to green on synthetic fixtures.** Amendment 5 makes
+test ownership explicit and runs renderer → QA as one serial lane. Still
+withheld and still stop-and-ask — **every push to `origin`**, CI, **any run
+against real footage** (needs an ADR-002-style consent record first), amending
+`SPEC.md`, and **any frontend work** beyond WO-117's generated types.
 
 ## Working discipline
 

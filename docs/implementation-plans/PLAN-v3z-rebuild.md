@@ -21,7 +21,9 @@ same eight departures in one session and **reversed A-3**: `disposition` is
 kept, not retired.
 
 **The live authorization is [ADP-002](ADP-002-contract-v2-and-backend.md)** —
-authorized 2026-07-28, amended through 2026-07-29.
+authorized 2026-07-28, amended through 2026-07-30. Amendment 5 makes test
+ownership explicit, serializes renderer → QA, and adds held WO-118b for the
+unresolved reject semantics.
 
 **One naming note that matters:** the new normative document is **`SPEC.md`**,
 written *forward from v3z*. It is not an amendment to the archived ES-001, and
@@ -247,7 +249,7 @@ orientation**, per the letterbox finding below.
 
 | ADP | Grants | Gated on | State |
 |---|---|---|---|
-| **[ADP-002](ADP-002-contract-v2-and-backend.md) · Contract v2 and backend realignment** | WO-116a, WO-117 – WO-124. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | `DECISIONS.md` and `SPEC.md`, both landed. WO-120 was held on the one gap that did not close (S-3 / SO-1) until ADP-002 Amendment 2 closed it | **Authorized 2026-07-28, amended ×4** |
+| **[ADP-002](ADP-002-contract-v2-and-backend.md) · Contract v2 and backend realignment** | WO-116a, WO-117 – WO-124, all unheld; WO-118b held. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | `DECISIONS.md` and `SPEC.md`, both landed. WO-118b remains held on the reject-semantics decision; no other WO waits on it | **Authorized 2026-07-28, amended ×5** |
 | **ADP-003 · The v3z rack frontend** | WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 | Not written — its content depends on WO-124's numbers |
 | **ADP-004 · Verification and real-footage validation** | WO-133 – WO-135, and WO-115a/115b | ADP-002 + ADP-003 complete; **a recorded ADR-002 consent** for anything touching real footage | Not written |
 
@@ -260,9 +262,10 @@ ADP is written.
 ## 4 · Work Orders to create
 
 Numbering continues from the drafted WO-115a/115b. The directory-ownership
-discipline from `m1-backlog.md` is what makes the lanes safe and is preserved:
-**one Work Order owns one directory**, and **dependency manifests are owned by
-the contract WO alone**.
+discipline from `m1-backlog.md` is what makes the lanes safe. Amendment 5 makes
+that discipline executable: each Work Order owns named production **and test**
+paths, and any shared resource makes the WOs one serial lane. Dependency
+manifests remain owned by the contract WO alone.
 
 ### Runs first, alone — and jumps the queue
 
@@ -276,11 +279,12 @@ the contract WO alone**.
 | WO | Scope | Owns |
 |---|---|---|
 | **WO-118 · Store v2** | Remove `stage_approvals`, `disposition`, `included`. Add the segment stash, the audio mix, the resolution setting, the music in-point. Origin-based "user edited this" derivation (S-6). Invariants retested | `backend/store/` |
-| **WO-119 · Media services** | Thumbnails and peaks on demand + cached (D-06); music probe and peaks keyed by **content hash** so they work with no project in existence (D-05); `POST /api/pick-file` via `osascript … choose file`, serving both track selection and relink | `backend/media/` (new) |
-| **WO-120 · Speed proposer** | S-3's rules as code. Multiple `SpeedRange`s per clip, the N-6 clamp, retained proposals for reversibility (N-10) | `backend/propose/speed_proposer.py` |
-| **WO-121 · Renderer v2** | `amix` weighted by the two levels, replacing the three non-composable mode branches. `setpts` + chained `atempo` per speed range. Skip `out_s <= in_s` (D-12). Configurable resolution — `TARGET_W`/`TARGET_H` stop being constants. **Upscaling past the source is refused or flagged, never silent.** Fail with a stated reason when every clip is zero-length rather than handing ffmpeg an empty concat | `backend/render/` |
-| **WO-122 · QA v2** | `resolution_ok` checks against the *setting*, not a hardcoded 1080×1920. `audio_ok` re-derived from the levels: `music_level > 0` means not silent; both at 0 means silent **and** still a valid AAC track | `backend/qa/` |
-| **WO-123 · API v2** | Delete `approve/{stage}` and every gate read. Add the narrow PATCH routes (D-08), relink, download without `audio_mode`, thumb/peaks/pick-file. **Each new mutating route needs its own ADR-011 capability-token guard test — that is the real cost of D-08 over a client write queue** | `backend/api/` |
+| **WO-118b · Reject semantics correction — held** | Implement the owner-selected resolution of the §3.1/§4.3 contradiction and the missing `dismissed` writer. Gates ADP-002 closeout; no other WO waits on it | Named store implementation and test files in ADP-002 §4 |
+| **WO-119 · Media services** | Thumbnails and peaks on demand + cached (D-06); music probe and peaks keyed by **content hash** so they work with no project in existence (D-05); `POST /api/pick-file` via `osascript … choose file`, serving both track selection and relink | `backend/media/`; `tests/media/` |
+| **WO-120 · Speed proposer** | S-3's rules as code. Multiple `SpeedRange`s per clip, the N-6 clamp, retained proposals for reversibility (N-10) | Named proposer implementation/export files; `tests/propose/test_speed_proposer.py` |
+| **WO-121 · Renderer v2** | `amix` weighted by the two levels, replacing the three non-composable mode branches. `setpts` + chained `atempo` per speed range. Skip `out_s <= in_s` (D-12). Configurable resolution — `TARGET_W`/`TARGET_H` stop being constants. **Upscaling past the source is refused or flagged, never silent.** Fail with a stated reason when every clip is zero-length rather than handing ffmpeg an empty concat | `backend/render/`; `tests/render/` |
+| **WO-122 · QA v2** | `resolution_ok` checks against the *setting*, not a hardcoded 1080×1920. `audio_ok` re-derived from the levels: `music_level > 0` means not silent; both at 0 means silent **and** still a valid AAC track. **Runs after WO-121 in the same lane** | `backend/qa/`; `tests/qa/`; retirement/split of the mixed legacy renderer/QA test file |
+| **WO-123 · API v2** | Delete `approve/{stage}` and every gate read. Add the narrow PATCH routes (D-08), relink, download without `audio_mode`, thumb/peaks/pick-file. **Each new mutating route needs its own ADR-011 capability-token guard test — that is the real cost of D-08 over a client write queue** | `backend/api/`; named API/security tests and `tests/support.py` |
 
 ### The spike — gates ADP-003
 
@@ -309,7 +313,7 @@ the contract WO alone**.
 | **WO-134 · Integration verification v2** | S-10's rewritten exit gates, end to end through the API on synthetic fixtures |
 | **WO-135 · Real-footage validation** | **Owner-gated on a recorded ADR-002 consent.** The real ~50-clip-day run, the Apple Photos Memory comparison, and WO-115b's **CP-3** perf spike — the only work that can move ledger claim **C-05** off `assumed`. Absorbs **WO-115a** (ingest performance) and the rest of **WO-115b** |
 
-**Total: 20 Work Orders**, of which 8 are frontend. That is roughly the size of
+**Total: 21 Work Orders**, of which 8 are frontend. That is roughly the size of
 the original M1 backlog, which is the honest reading of what "build it as v3z
 draws it" costs.
 
@@ -340,9 +344,10 @@ any v3z decision:
   closed, the v3z design survived its own measurement, and the one defect it
   surfaced (silent proxies) was fixed the same day as WO-116a.
 
-Then: **ADP-002** (backend lanes, parallel) → read the spike's numbers →
-**ADP-003** (WO-125 alone, then seven frontend lanes in parallel) → **ADP-004**
-(guards, integration, and — behind a consent record — real footage).
+Then: **ADP-002** (independent media, speed and API lanes; serial renderer → QA
+lane; held WO-118b before closeout) → read the spike's numbers → **ADP-003**
+(WO-125 alone, then seven frontend lanes in parallel) → **ADP-004** (guards,
+integration, and — behind a consent record — real footage).
 
 ---
 
