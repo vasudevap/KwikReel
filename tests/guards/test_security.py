@@ -7,6 +7,8 @@ no wildcard CORS · absolute paths scrubbed from surfaced errors. No ffmpeg need
 
 from __future__ import annotations
 
+import pytest
+
 from backend.api.errors import scrub
 from tests.support import AUTH, build_app, wait_job
 
@@ -37,9 +39,37 @@ def test_local_cross_port_origin_is_allowed(tmp_path) -> None:
     assert r.status_code == 200
 
 
+def test_cross_site_referer_is_rejected_even_without_origin(tmp_path) -> None:
+    _, client, _ = build_app(tmp_path)
+    r = client.post(
+        "/api/project",
+        json=_BODY,
+        headers={**AUTH, "Referer": "https://evil.example/attack"},
+    )
+    assert r.status_code == 403
+    assert r.json()["error_code"] == "forbidden_referer"
+
+
+def test_local_cross_port_referer_is_allowed(tmp_path) -> None:
+    _, client, _ = build_app(tmp_path)
+    r = client.post(
+        "/api/project",
+        json=_BODY,
+        headers={**AUTH, "Referer": "http://localhost:5173/editor"},
+    )
+    assert r.status_code == 200
+
+
 def test_foreign_host_is_rejected(tmp_path) -> None:
     _, client, _ = build_app(tmp_path)
     r = client.get("/api/project/whatever", headers={"Host": "evil.example"})
+    assert r.status_code == 403
+    assert r.json()["error_code"] == "forbidden_host"
+
+
+def test_missing_host_is_rejected(tmp_path) -> None:
+    _, client, _ = build_app(tmp_path)
+    r = client.get("/api/project/whatever", headers={"Host": ""})
     assert r.status_code == 403
     assert r.json()["error_code"] == "forbidden_host"
 
@@ -55,6 +85,23 @@ def test_mutation_with_wrong_token_is_rejected(tmp_path) -> None:
     _, client, _ = build_app(tmp_path)
     r = client.post("/api/project", json=_BODY, headers={"X-Capability-Token": "wrong"})
     assert r.status_code == 401
+
+
+@pytest.mark.parametrize(
+    ("path", "body"),
+    [
+        ("/api/music/probe", {"track_ref": "/tmp/track.m4a"}),
+        ("/api/project/project/clip/source/bin", {"updated_at": "stale"}),
+        ("/api/project/project/clip/source/reject-trim", {"updated_at": "stale"}),
+        ("/api/project/project/repair-links", {"updated_at": "stale"}),
+        ("/api/project/project/log", {"kind": "warn", "text": "save failed"}),
+    ],
+)
+def test_each_wo_123a_mutation_requires_capability_token(tmp_path, path, body) -> None:
+    _, client, _ = build_app(tmp_path)
+    response = client.post(path, json=body)
+    assert response.status_code == 401
+    assert response.json()["error_code"] == "missing_capability"
 
 
 def test_reads_need_no_token(tmp_path) -> None:

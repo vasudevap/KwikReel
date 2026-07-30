@@ -19,6 +19,12 @@ design changes remain withheld.
 > fixtures; it does not authorize any other backend, dependency, design, push,
 > CI or real-media change.
 
+> **Execution, 2026-07-30 — WO-123a merged locally.** Its focused API and
+> security gates pass; the full synthetic frontend-operability flow reaches the
+> persistent Log after export and reopen; music probe→peaks and root-confined
+> link repair pass; the known WO-134 legacy failures did not worsen. WO-125 is
+> now the next serial barrier.
+
 **Program ID:** ADP-003
 
 **Owner:** Repository Owner

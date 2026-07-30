@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import Callable, Optional
 
 ProgressFn = Callable[[float], None]
+ErrorFn = Callable[[str], None]
 
 
 @dataclass
@@ -29,20 +30,33 @@ class JobRunner:
         self._pool = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="reel-job")
         self._scrub = scrub
 
-    def submit(self, work: Callable[[ProgressFn], None]) -> str:
+    def submit(self, work: Callable[[ProgressFn], None], on_error: Optional[ErrorFn] = None) -> str:
         job_id = secrets.token_urlsafe(8)
         with self._lock:
             self._jobs[job_id] = Job()
-        self._pool.submit(self._run, job_id, work)
+        self._pool.submit(self._run, job_id, work, on_error)
         return job_id
 
-    def _run(self, job_id: str, work: Callable[[ProgressFn], None]) -> None:
+    def _run(
+        self,
+        job_id: str,
+        work: Callable[[ProgressFn], None],
+        on_error: Optional[ErrorFn],
+    ) -> None:
         self._update(job_id, state="running")
         try:
             work(lambda p: self._update(job_id, progress=max(0.0, min(1.0, p))))
             self._update(job_id, state="done", progress=1.0)
         except Exception as exc:  # noqa: BLE001 - surfaced to the client, scrubbed
-            self._update(job_id, state="error", error=self._scrub(str(exc)))
+            message = self._scrub(str(exc))
+            if on_error is not None:
+                try:
+                    on_error(message)
+                except Exception:
+                    # A failed audit write must not hide the operation's own
+                    # terminal state from the client.
+                    pass
+            self._update(job_id, state="error", error=message)
 
     def _update(self, job_id: str, **fields) -> None:
         with self._lock:

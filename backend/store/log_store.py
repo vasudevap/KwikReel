@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 from pathlib import Path
 from typing import Iterable, Literal, Optional
 
@@ -108,6 +109,7 @@ class FileLogStore:
 
     def __init__(self, root: str | os.PathLike) -> None:
         self.root = Path(root)
+        self._lock = threading.RLock()
 
     def _path(self, project_id: str) -> Path:
         return self.root / project_id / "log.json"
@@ -125,9 +127,15 @@ class FileLogStore:
 
     def append(self, project_id: str, entries: Iterable[LogEntry]) -> list[LogEntry]:
         """Append, evict per §7.2, and return the retained log."""
-        retained = evict(self.load(project_id) + list(entries))
-        self._write(project_id, retained)
-        return retained
+        with self._lock:
+            retained = evict(self.load(project_id) + list(entries))
+            self._write(project_id, retained)
+            return retained
+
+    def append_one(self, project_id: str, entry: LogEntry) -> LogEntry:
+        """Append one entry and return the accepted value."""
+        self.append(project_id, [entry])
+        return entry
 
     def ensure_standing(self, project_id: str) -> list[LogEntry]:
         """Write §7.1's standing lines if this project has none yet.

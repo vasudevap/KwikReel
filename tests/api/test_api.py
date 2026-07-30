@@ -35,6 +35,48 @@ def test_failing_scan_job_scrubs_private_path(tmp_path) -> None:
     status = wait_job(client, job)
     assert status["state"] == "error"
     assert "/no/such/secret_dir" not in (status["error"] or "")
+    log = client.get(f"/api/project/{project['project_id']}/log").json()
+    assert log[-1]["kind"] == "fault"
+    assert log[-1]["code"] == "IMPORT_FAILED"
+    assert "/no/such/secret_dir" not in log[-1]["text"]
+
+
+def test_log_standing_lines_client_failure_and_reopen(tmp_path) -> None:
+    _, client, _ = build_app(tmp_path)
+    project = _create(client)
+    pid = project["project_id"]
+
+    opening = client.get(f"/api/project/{pid}/log")
+    assert opening.status_code == 200
+    assert [item["code"] for item in opening.json()[:2]] == [
+        "ORIGINALS_READ_ONLY",
+        "LOCAL_ONLY",
+    ]
+
+    accepted = client.post(
+        f"/api/project/{pid}/log",
+        json={
+            "kind": "fault",
+            "text": "Save failed at /Users/example/private/movie.mov",
+            "code": "CLIENT_SAVE_FAILED",
+        },
+        headers=AUTH,
+    )
+    assert accepted.status_code == 200
+    assert accepted.json()["standing"] is False
+    assert "/Users/example" not in accepted.json()["text"]
+
+    unchanged = client.get(f"/api/project/{pid}").json()
+    assert unchanged["updated_at"] == project["updated_at"]
+    assert client.post(
+        f"/api/project/{pid}/log",
+        json={"kind": "info", "text": "not client-owned"},
+        headers=AUTH,
+    ).status_code == 422
+
+    _, reopened, _ = build_app(tmp_path)
+    retained = reopened.get(f"/api/project/{pid}/log").json()
+    assert retained[-1]["code"] == "CLIENT_SAVE_FAILED"
 
 
 @pytest.mark.skipif(not ffmpeg_available(), reason="ffmpeg/ffprobe not installed")

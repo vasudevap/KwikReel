@@ -26,6 +26,7 @@ from typing import Optional, Protocol, runtime_checkable
 
 from backend.contracts.models import (
     Analysis,
+    Music,
     Project,
     QAReport,
     RenderRecord,
@@ -133,6 +134,10 @@ class MediaService(Protocol):
     def music_peaks(self, track_ref: str, content_hash: str) -> list[float]:
         """**Keyed by content hash**, because a track may be chosen before a
         project exists (SPEC.md §8)."""
+        ...
+
+    def probe_music(self, track_ref: str, content_hash: str) -> Music:
+        """Return server-computed track metadata before a project exists."""
         ...
 
     def pick_folder(self) -> Optional[str]:

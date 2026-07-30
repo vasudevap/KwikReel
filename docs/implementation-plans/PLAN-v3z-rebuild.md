@@ -14,7 +14,8 @@ accepted** (discharging S-1 and — within it — S-4, S-5, S-6, S-9 and S-10),
 WO-118b, WO-119, WO-120, WO-121, WO-122, WO-123 and WO-124 have landed;
 **ADP-002 closed 2026-07-30** and
 [`ADP-003`](ADP-003-v3z-rack-frontend.md) is authorized and amended once;
-WO-123a, the added §5 step and new first barrier, has not begun.
+WO-123a, the added §5 step and new first barrier, is merged locally; WO-125 is
+next.
 
 **What this plan still holds that `SPEC.md` does not:** the ADP-003/ADP-004
 sequencing in §3 – §5. The four spec gaps it once held open — S-2 (SO-3), S-3
@@ -257,7 +258,7 @@ orientation**, per the letterbox finding below.
 | ADP | Grants | Gated on | State |
 |---|---|---|---|
 | **[ADP-002](ADP-002-contract-v2-and-backend.md) · Contract v2 and backend realignment** | WO-116a, WO-117 – WO-124, plus WO-118b, all unheld. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | `DECISIONS.md` and `SPEC.md`, both landed; WO-118b's reject semantics are decided and implemented | **Closed 2026-07-30, amended ×7** |
-| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-123a and WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met; Amendment 1 inserts the corrected live API seam before frontend work | **Authorized 2026-07-30, amended ×1; WO-123a not begun** |
+| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-123a and WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met; Amendment 1 inserts the corrected live API seam before frontend work | **Authorized 2026-07-30, amended ×1; WO-123a merged locally, WO-125 next** |
 | **ADP-004 · Verification and real-footage validation** | WO-133 – WO-135, and WO-115a/115b | ADP-002 + ADP-003 complete; **a recorded ADR-002 consent** for anything touching real footage | Not written |
 
 WO-124 (the spike) sits between ADP-002 and ADP-003 and should be authorized
@@ -354,8 +355,9 @@ Only four steps are serial before the work fans out.
 4. ~~**WO-117 contract kernel, alone.**~~ **Done 2026-07-28.**
 5. ~~**Close ADP-002 and draft ADP-003.**~~ **Done 2026-07-30.**
 6. ~~**Authorize ADP-003.**~~ **Done 2026-07-30.**
-7. **ADP-003 Amendment 1 / WO-123a.** The amendment is authorized; WO-123a is
-   next and runs alone before WO-125.
+7. ~~**ADP-003 Amendment 1 / WO-123a.**~~ **Done 2026-07-30.** The corrected
+   frontend-operability seam passed its focused and synthetic flow gates; WO-125
+   is next.
 
 **Two things run in parallel with all of the above**, because neither depends on
 any v3z decision:

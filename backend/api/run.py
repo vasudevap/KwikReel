@@ -19,15 +19,16 @@ from backend.media import FFmpegMediaService
 from backend.propose import SpeedRuleProposer, TrimRuleProposer
 from backend.qa import FFmpegOutputQA
 from backend.render import FFmpegRenderer
-from backend.store import FileProjectStore
+from backend.store import FileLogStore, FileProjectStore
 
 
 def build_app(data_root: Path):
     proxy_root = data_root / "proxies"
     output_root = data_root / "renders"
     analysis_root = data_root / "analysis"
+    project_root = data_root / "projects"
     services = Services(
-        store=FileProjectStore(data_root / "projects"),
+        store=FileProjectStore(project_root),
         ingest=FFmpegIngest(proxy_root=proxy_root),
         renderer=FFmpegRenderer(output_root=output_root),
         qa=FFmpegOutputQA(),
@@ -35,6 +36,7 @@ def build_app(data_root: Path):
         analysis=OpenCVAnalysis(),
         proposer=TrimRuleProposer(),
         speed_proposer=SpeedRuleProposer(),
+        log=FileLogStore(project_root),
     )
     dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
     config = ApiConfig(

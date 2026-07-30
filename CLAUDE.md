@@ -83,13 +83,11 @@ Every ADP-002 implementation Work Order is complete on its own synthetic gate.
 Amendment 7 retains the spike harness only through WO-127 for `SPEC.md` §6.7's
 required foreground rerun and deletion.
 
-**A post-authorization contract audit found one unimplemented seam between that
-backend and the frozen frontend.** Reject, reversible binning, the persistent
-Log, music probing and automatic content-hash repair had server primitives or
-requirements but no complete HTTP path; the binding `Referer` guard was also
-missing. `DECISIONS.md` §5 and amended `SPEC.md` §8 settle the server-owned
-actions. ADP-003 Amendment 1 adds **WO-123a as the first serial barrier**. It is
-authorized locally on synthetic fixtures and has not begun.
+**WO-123a has closed the post-authorization frontend-operability seam.** Reject,
+reversible binning, the persistent Log, music probing and root-confined
+content-hash repair now have guarded server actions; the binding `Referer`
+check is implemented. The focused security/API gates and the synthetic
+create→scan→analyze→propose→control→export→Log flow pass.
 
 **In v2 what renders is derived, never stored.** `backend/store/derive.py` is
 `SPEC.md` §3.1 and §3.4 as code; `clip.segment` holds *the user's* trim and is
@@ -98,9 +96,10 @@ not what plays. Anything reading it as "the trim" has carried a v1 habit into v2
 **The test suite is deliberately partly red** while the two halves speak
 different schema versions. Read the warning box in `handoff.md` before treating
 red as a regression, and run `pytest --continue-on-collection-errors` for the
-whole-suite count. **156 tests pass; three legacy integration tests fail and one
+whole-suite count. **168 tests pass; three legacy integration tests fail and one
 legacy integration module cannot import.** They are owned by withheld WO-134,
-not an ADP-002 lane.
+not an authorized ADP-003 lane. One real-footage integration gate remains
+owner-gated and skipped.
 
 **`SPEC.md` §14 is fully closed** — SO-1 and SO-2 by owner decision, SO-3 and
 SO-4 by measurement. **No experiment has ever run and no real footage has ever
@@ -109,9 +108,9 @@ been processed** — every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded
 
 **The frontend is a stub** — `main.tsx` and the generated types, nothing more.
 Its rebuild is ADP-003: entry gates met, **authorized 2026-07-30, amended once,
-but not yet begun**. WO-123a precedes WO-125. The 26-version design exploration
-ended at **v3z**, locked (A-8); `disposition` is the one v3z removal the owner
-reversed (DECISIONS A-3).
+with WO-123a merged locally and frontend work not yet begun**. WO-125 is next.
+The 26-version design exploration ended at **v3z**, locked (A-8);
+`disposition` is the one v3z removal the owner reversed (DECISIONS A-3).
 
 **The decision session is done** ([docs/DECISIONS.md](docs/DECISIONS.md)) **and
 `SPEC.md` is accepted** (2026-07-28). Together they are the whole normative
@@ -120,8 +119,8 @@ from the archived ES-001; amending inherits the ghosts the clean cut removed.
 
 **Implementation is authorized narrowly under ADP-003.** WO-123a and
 WO-125 – WO-132 may build locally on mock/synthetic state in the §5 dependency
-order; WO-123a runs first. The foreground harness rerun and deletion are
-authorized only inside WO-127.
+order; WO-123a is complete and WO-125 is next. The foreground harness rerun and
+deletion are authorized only inside WO-127.
 Still stop-and-ask: **every push to `origin`**, CI, **any run against real
 footage** (needs an ADR-002-style consent record first), new dependencies,
 amending `SPEC.md`, changing the frozen contract/design, or leaving §4's scopes.
