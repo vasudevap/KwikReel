@@ -7,5 +7,6 @@ black box. No media or ffmpeg here — pure logic over `Analysis`.
 """
 
 from backend.propose.trim_proposer import TrimConfig, TrimRuleProposer
+from backend.propose.speed_proposer import SpeedRuleProposer
 
-__all__ = ["TrimRuleProposer", "TrimConfig"]
+__all__ = ["TrimRuleProposer", "TrimConfig", "SpeedRuleProposer"]
