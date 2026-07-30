@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated 2026-07-30**, ADP-002 closed; ADP-003 authorized, WO-125 not begun.
+**Updated 2026-07-30**, ADP-003 Amendment 1 authorized; WO-123a not begun.
 
 ## The one-paragraph version
 
@@ -12,14 +12,19 @@ surviving guardrails are `docs/CONSTRAINTS.md`; the departures are decided in
 `docs/DECISIONS.md`. **ADP-002 closed 2026-07-30** after all eleven Work Orders
 met their synthetic gates. Amendment 7 narrowly retains the WO-124 harness
 through WO-127 because accepted `SPEC.md` §6.7 requires one foreground rerun
-before the Monitor ships. **ADP-003 was authorized 2026-07-30 as drafted** for
-WO-125 – WO-132, local mock/synthetic implementation only; no frontend
-implementation has begun. The suite is deliberately partly red across the
-schema seam (the box below).
+before the Monitor ships. **ADP-003 was authorized 2026-07-30 and amended the
+same day** after a contract audit found that reject, reversible binning, the
+persistent Log, music probing and automatic link repair had no complete
+frontend-to-server path. `DECISIONS.md` §5 and amended `SPEC.md` §8 make those
+server-owned actions; ADP-003 Amendment 1 adds **WO-123a as the first serial
+barrier**, before WO-125. The correction is authorized locally on synthetic
+fixtures but not implemented; no frontend implementation has begun. The suite
+is deliberately partly red across the schema seam (the box below).
 
 ## What exists
 
-**Backend — works, on synthetic fixtures only.**
+**Backend — its ADP-002 module gates pass on synthetic fixtures; the
+frontend-operability seam still needs WO-123a.**
 
 | Module | State |
 |---|---|
@@ -32,7 +37,7 @@ schema seam (the box below).
 | `backend/media/` | **v2 — WO-119, done.** Cached JPEG thumbnails and waveform peaks in a separate local cache; music peaks are content-hash keyed before a project exists; native folder/file pickers return a path or clean cancellation |
 | `backend/render/` | **v2 — WO-121, done.** One H.264/AAC export from originals and the derived timeline: effective trims and speed ranges, chained `atempo`, arithmetic duration clamps, project-selected resolution, weighted clip/music mix, out-of-reel skips, explicit upscale refusal, and source metadata stripping |
 | `backend/qa/` | **v2 — WO-122, done.** Checks the derived reel against the project's own resolution and audio levels; blocks bad exports with stated reasons, including a valid silent AAC requirement at a 0/0 mix |
-| `backend/api/` | **v2 — WO-123, done.** Frozen PATCH, relink, picker, proposal, media and single-export routes; no approval, finalize or `audio_mode` routes; every mutating route remains capability-token protected |
+| `backend/api/` | **v2 core — WO-123, done; operability correction — WO-123a, authorized and not begun.** The implemented PATCH, relink, picker, proposal, media and single-export routes have no approval, finalize or `audio_mode` surface and remain capability-token protected. WO-123a adds the missing server actions and persistent Log seam plus the already-binding `Referer` guard |
 
 Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
 `python3` has no pytest.)
@@ -47,7 +52,7 @@ Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
 > scope finding, not a WO-123 regression. **Nothing in an authorized lane fails**:
 > WO-118 cleared
 > the ten `tests/store/test_store.py` failures that stood here and added 58
-> tests. A bare `pytest` halts at the four import errors — add
+> tests. A bare `pytest` halts at the one collection error — add
 > `--continue-on-collection-errors` for the whole-suite count.
 > **If you are reading this and the numbers are worse, that IS a regression.**
 
@@ -69,8 +74,8 @@ not resolve on GitHub.
   (WO-118), reject semantics (WO-118b), media services (WO-119), and the speed
   proposer (WO-120), renderer (WO-121), output QA (WO-122), and API (WO-123)
   are v2.
-- **No frontend app yet. ADP-003 is authorized** — its entry gates (WO-124's
-  numbers plus SO-2 and SO-4) are met, but WO-125 has not begun.
+- **No frontend app yet. ADP-003 is authorized and amended once.** WO-123a is
+  now the first serial barrier; WO-125 has not begun.
 - **`SPEC.md` owes nothing.** All four §14 items are closed: SO-1 2026-07-28,
   SO-2/SO-3/SO-4 2026-07-29. Two things the closures leave open are tracked as
   correction-pass risks rather than spec gaps — the unmeasured black-frame
@@ -79,15 +84,20 @@ not resolve on GitHub.
 - **`log.json` exists but nothing writes to it yet.** WO-118 built the sidecar
   — append, 500-entry eviction, standing lines exempt — and `mark_proposals_accepted`
   produces A-3b's export summary line, so **C-03's instrument is now built**.
-  What is missing is the callers: §7.1's eight duties belong to the lanes that
-  do the work, and ingest, the proposers and the API do not log yet.
+  What is missing is the callers and a read path: ingest, the proposers and the
+  API do not log yet, and the frontend cannot reopen the sidecar. The gap is no
+  longer unowned — amended `SPEC.md` §7/§8 and WO-123a now specify it — but the
+  code does not exist until that Work Order lands.
+- **The required reject, reversible-bin, music-probe and automatic-repair API
+  paths do not exist yet.** Their store/media primitives exist, but WO-123a must
+  expose and guard them before the frontend client freezes.
 - **No media, no corpus, no consent record.** Every ledger claim is `assumed`.
 - **No real-footage run.** The two exit gates that need it have never run.
 
 ## In flight right now
 
-**Nothing.** ADP-002 is closed. ADP-003 is authorized, but WO-125 has not begun.
-The harness rerun and deletion belong later to WO-127.
+**Nothing.** ADP-002 is closed. ADP-003 Amendment 1 is authorized, but WO-123a
+has not begun. The harness rerun and deletion still belong later to WO-127.
 
 **WO-124 is done.** [`docs/specs/WO-124-playback-findings.md`](docs/specs/WO-124-playback-findings.md)
 — **SO-3 is answered and the v3z design survives.** The Monitor uses **two
@@ -100,17 +110,32 @@ WO-127 closeout. Amendment 7 retains it only long enough to satisfy `SPEC.md`
 
 ## What happens next
 
-1. **Begin WO-125 alone** under
-   [ADP-003](docs/implementation-plans/ADP-003-v3z-rack-frontend.md) to establish
-   the rack design system.
-2. **WO-126 runs as the second serial barrier** to establish the app kernel.
-   WO-127 – WO-132 fan out only after both barriers merge.
-3. The legacy integration suite remains withheld to WO-134. Its visible v1
+1. **Implement WO-123a alone** under
+   [ADP-003](docs/implementation-plans/ADP-003-v3z-rack-frontend.md): complete
+   the server-owned operability routes, Log wiring, link repair and `Referer`
+   guard against synthetic fixtures.
+2. **WO-125 then establishes the rack design system.**
+3. **WO-126 is the third serial barrier** and freezes the app kernel/client
+   against the corrected live API. WO-127 – WO-132 fan out only after all three
+   barriers merge.
+4. The legacy integration suite remains withheld to WO-134. Its visible v1
    failures are recorded in the suite box above and are not frontend work.
 
 ## The stop-and-asks that are open
 
-**None.** The most recent one was closed as follows.
+**None.** The newest one was closed as follows.
+
+**Closed 2026-07-30 — the frozen HTTP seam could not operate the frozen
+frontend.** Raised by the post-authorization project review. The store already
+had correct reject and bin primitives and the Log sidecar, and the media service
+already had a music probe, but `SPEC.md` §8 and WO-123 exposed no route that let
+the frontend use them. The Log also had no readers or production writers,
+automatic content-hash repair had no action, and the binding cross-site
+`Referer` guard had no implementation or test. The owner directed the
+recommended correction to proceed. `DECISIONS.md` §5 makes these explicit
+server-owned actions; `SPEC.md` §4.3, §7 and §8 are amended; ADP-003 Amendment 1
+adds unheld WO-123a as the first serial barrier. The gap is **decided and
+authorized, not implemented**.
 
 **Closed 2026-07-30 — §4.5's `dismissed` writer now has an owner decision.**
 Raised by WO-118, 2026-07-29. `SPEC.md` §4.3 says reject (✕) *"discards this

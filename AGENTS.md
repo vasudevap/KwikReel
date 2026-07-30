@@ -41,8 +41,9 @@ human reviews it and overrides anything.
    2026-07-28, amended seven times, closed 2026-07-30.** Amendment 7 retains the
    WO-124 harness through WO-127 for the foreground rerun `SPEC.md` requires.
 6. **[docs/implementation-plans/ADP-003-v3z-rack-frontend.md](docs/implementation-plans/ADP-003-v3z-rack-frontend.md)**
-   — the live frontend authorization. **Authorized 2026-07-30 as drafted** for
-   WO-125 – WO-132, local mock/synthetic implementation only.
+   — the live frontend authorization. **Authorized 2026-07-30 and amended once**
+   to add WO-123a before WO-125; scope is WO-123a and WO-125 – WO-132, local
+   mock/synthetic implementation only.
 7. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
    — the plan that got us here. Largely discharged; kept for the ADP-003 and
    ADP-004 sequencing ADP-002 does not carry. Where it disagrees with `SPEC.md`,
@@ -86,7 +87,7 @@ one being used as a rule, that document is stale.
 
 ## Where the project is (2026-07-30)
 
-**The backend rebuild is complete and ADP-002 closed 2026-07-30.** Contracts
+**The ADP-002 backend rebuild is complete and ADP-002 closed 2026-07-30.** Contracts
 (WO-117), ingest (WO-116a), the trim proposer (WO-118a), the store (WO-118), reject semantics
 (WO-118b), the media services (WO-119), speed proposer (WO-120), renderer
 (WO-121), output QA (WO-122), and API (WO-123) are v2 and merged; the WO-124
@@ -94,6 +95,14 @@ playback spike has reported its numbers and the v3z design survived them.
 Every ADP-002 implementation Work Order is complete on its own synthetic gate.
 Amendment 7 retains the spike harness only through WO-127 for `SPEC.md` §6.7's
 required foreground rerun and deletion.
+
+**A post-authorization contract audit found one unimplemented seam between that
+backend and the frozen frontend.** Reject, reversible binning, the persistent
+Log, music probing and automatic content-hash repair had server primitives or
+requirements but no complete HTTP path; the binding `Referer` guard was also
+missing. `DECISIONS.md` §5 and amended `SPEC.md` §8 settle the server-owned
+actions. ADP-003 Amendment 1 adds **WO-123a as the first serial barrier**. It is
+authorized locally on synthetic fixtures and has not begun.
 
 **In v2 what renders is derived, never stored.** `backend/store/derive.py` is
 `SPEC.md` §3.1 and §3.4 as code; `clip.segment` holds *the user's* trim and is
@@ -112,18 +121,20 @@ been processed** — every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded
 `assumed`, and only ADP-004's real-footage run can move one.
 
 **The frontend is a stub** — `main.tsx` and the generated types, nothing more.
-Its rebuild is ADP-003: entry gates met, **authorized 2026-07-30 but not yet
-begun**. The 26-version design exploration ended at **v3z**, locked (A-8);
-`disposition` is the one v3z removal the owner reversed (DECISIONS A-3).
+Its rebuild is ADP-003: entry gates met, **authorized 2026-07-30, amended once,
+but not yet begun**. WO-123a precedes WO-125. The 26-version design exploration
+ended at **v3z**, locked (A-8); `disposition` is the one v3z removal the owner
+reversed (DECISIONS A-3).
 
 **The decision session is done** ([docs/DECISIONS.md](docs/DECISIONS.md)) **and
 `SPEC.md` is accepted** (2026-07-28). Together they are the whole normative
 record for the rebuild, under `CONSTRAINTS.md`. Neither is to be amended backward
 from the archived ES-001; amending inherits the ghosts the clean cut removed.
 
-**Implementation is authorized narrowly under ADP-003.** WO-125 – WO-132 may
-build locally on mock/synthetic state in the §5 dependency order. The
-foreground harness rerun and deletion are authorized only inside WO-127.
+**Implementation is authorized narrowly under ADP-003.** WO-123a and
+WO-125 – WO-132 may build locally on mock/synthetic state in the §5 dependency
+order; WO-123a runs first. The foreground harness rerun and deletion are
+authorized only inside WO-127.
 Still stop-and-ask: **every push to `origin`**, CI, **any run against real
 footage** (needs an ADR-002-style consent record first), new dependencies,
 amending `SPEC.md`, changing the frozen contract/design, or leaving §4's scopes.

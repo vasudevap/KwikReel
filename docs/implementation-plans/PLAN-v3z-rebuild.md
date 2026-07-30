@@ -6,13 +6,15 @@ to take the product from what exists today to what
 `docs/design-claude/mockup-v3z.html` draws. (That folder is gitignored and local
 only — the mockups are not in the public repo.)
 
-**Progress, 2026-07-30.** All of §5's serial steps are done — the **clean cut**,
-the **decision session** ([`DECISIONS.md`](../DECISIONS.md)), **`SPEC.md`
+**Progress, 2026-07-30.** The original §5 serial steps through ADP-003
+authorization are done — the **clean cut**, the **decision session**
+([`DECISIONS.md`](../DECISIONS.md)), **`SPEC.md`
 accepted** (discharging S-1 and — within it — S-4, S-5, S-6, S-9 and S-10),
 **ADP-002 signed**, and **WO-117 merged**. WO-116/116a, WO-118, WO-118a,
 WO-118b, WO-119, WO-120, WO-121, WO-122, WO-123 and WO-124 have landed;
 **ADP-002 closed 2026-07-30** and
-[`ADP-003`](ADP-003-v3z-rack-frontend.md) is authorized; WO-125 has not begun.
+[`ADP-003`](ADP-003-v3z-rack-frontend.md) is authorized and amended once;
+WO-123a, the added §5 step and new first barrier, has not begun.
 
 **What this plan still holds that `SPEC.md` does not:** the ADP-003/ADP-004
 sequencing in §3 – §5. The four spec gaps it once held open — S-2 (SO-3), S-3
@@ -23,8 +25,9 @@ same eight departures in one session and **reversed A-3**: `disposition` is
 kept, not retired.
 
 **The live authorization is
-[ADP-003](ADP-003-v3z-rack-frontend.md)** — authorized 2026-07-30 as drafted
-for WO-125 – WO-132, local mock/synthetic implementation only.
+[ADP-003](ADP-003-v3z-rack-frontend.md)** — authorized 2026-07-30 and amended
+the same day to add WO-123a before WO-125. Scope is WO-123a and WO-125 – WO-132,
+local mock/synthetic implementation only.
 [ADP-002](ADP-002-contract-v2-and-backend.md) closed 2026-07-30 after seven
 amendments; Amendment 7 retains the WO-124 harness through WO-127 for the
 foreground rerun `SPEC.md` requires.
@@ -254,7 +257,7 @@ orientation**, per the letterbox finding below.
 | ADP | Grants | Gated on | State |
 |---|---|---|---|
 | **[ADP-002](ADP-002-contract-v2-and-backend.md) · Contract v2 and backend realignment** | WO-116a, WO-117 – WO-124, plus WO-118b, all unheld. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | `DECISIONS.md` and `SPEC.md`, both landed; WO-118b's reject semantics are decided and implemented | **Closed 2026-07-30, amended ×7** |
-| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met | **Authorized 2026-07-30 as drafted; WO-125 not begun** |
+| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-123a and WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met; Amendment 1 inserts the corrected live API seam before frontend work | **Authorized 2026-07-30, amended ×1; WO-123a not begun** |
 | **ADP-004 · Verification and real-footage validation** | WO-133 – WO-135, and WO-115a/115b | ADP-002 + ADP-003 complete; **a recorded ADR-002 consent** for anything touching real footage | Not written |
 
 WO-124 (the spike) sits between ADP-002 and ADP-003 and should be authorized
@@ -296,6 +299,18 @@ manifests remain owned by the contract WO alone.
 |---|---|
 | **WO-124 · Playback engine spike** | **Throwaway code; Amendment 7 retains it through WO-127 only.** Answers S-2 with a measurement, not an opinion: can a browser sequence proxies through in/out points, apply variable rate, and hold a music bed in sync, smoothly enough that the Monitor is the thing the user judges the edit on? Records the transition gap, the seek error, and whether preview loudness matches export. WO-127 reruns it foregrounded, records the result, then deletes it. **If that rerun materially contradicts the finding, stop and ask before building on it** |
 
+### Correct the live seam before frontend work
+
+| WO | Scope | Owns |
+|---|---|---|
+| **WO-123a · Frontend-operability API completion** | `DECISIONS.md` §5 and amended `SPEC.md` §8 as code: server actions for reject and reversible binning; persistent Log read/writers; server-side music probe; protected automatic content-hash repair; the missing `Referer` guard; one v2 synthetic flow through those operations. **Runs alone before WO-125** | Exact production and test paths in ADP-003 §4 |
+
+This correction was not in the original plan. It was found after ADP-003
+authorization by tracing each frozen frontend control to the frozen HTTP
+surface. The store/media primitives existed, but the route table did not make
+them operable. `DECISIONS.md` §5 closes the product reading; ADP-003 Amendment 1
+owns the implementation rather than leaving six frontend lanes to rediscover it.
+
 ### Frontend barriers and lanes — WO-125, then WO-126, then six parallel lanes
 
 | WO | Scope | Owns |
@@ -317,7 +332,7 @@ manifests remain owned by the contract WO alone.
 | **WO-134 · Integration verification v2** | S-10's rewritten exit gates, end to end through the API on synthetic fixtures |
 | **WO-135 · Real-footage validation** | **Owner-gated on a recorded ADR-002 consent.** The real ~50-clip-day run, the Apple Photos Memory comparison, and WO-115b's **CP-3** perf spike — the only work that can move ledger claim **C-05** off `assumed`. Absorbs **WO-115a** (ingest performance) and the rest of **WO-115b** |
 
-**Total: 21 Work Orders**, of which 8 are frontend. That is roughly the size of
+**Total: 22 Work Orders**, of which 8 are frontend. That is roughly the size of
 the original M1 backlog, which is the honest reading of what "build it as v3z
 draws it" costs.
 
@@ -338,7 +353,9 @@ Only four steps are serial before the work fans out.
    without it.)*
 4. ~~**WO-117 contract kernel, alone.**~~ **Done 2026-07-28.**
 5. ~~**Close ADP-002 and draft ADP-003.**~~ **Done 2026-07-30.**
-6. ~~**Authorize ADP-003.**~~ **Done 2026-07-30.** WO-125 is next.
+6. ~~**Authorize ADP-003.**~~ **Done 2026-07-30.**
+7. **ADP-003 Amendment 1 / WO-123a.** The amendment is authorized; WO-123a is
+   next and runs alone before WO-125.
 
 **Two things run in parallel with all of the above**, because neither depends on
 any v3z decision:
@@ -351,8 +368,8 @@ any v3z decision:
 
 Then: ~~**ADP-002** (independent media and API lanes; serial renderer → QA
 lane; WO-118b and WO-120 done before closeout)~~ **closed** → read the spike's
-numbers → **ADP-003** (authorized; WO-125 then WO-126 as serial barriers,
-followed by six frontend lanes in parallel) → **ADP-004** (guards,
+numbers → **ADP-003** (authorized and amended; WO-123a, WO-125 and WO-126 as
+serial barriers, followed by six frontend lanes in parallel) → **ADP-004** (guards,
 integration, and — behind a consent record — real footage).
 
 ---

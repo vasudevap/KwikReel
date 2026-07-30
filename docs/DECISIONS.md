@@ -118,3 +118,44 @@ is accepted here rather than hidden in a store implementation.
 
 **Decided:** owner, 2026-07-30. `SPEC.md` and ADP-002 may be amended to match;
 WO-118b may be unheld under that amendment.
+
+---
+
+## 5 · 2026-07-30 — the frontend-operability seam is server-owned
+
+**Decision:** the controls whose correctness depends on derived or sidecar state
+are explicit server actions; the frontend does not patch their internal fields.
+The frozen HTTP contract grows narrowly as follows:
+
+- **Bin / restore** is one server action that calls the existing toggle
+  semantics, so the effective trim is stashed and restored atomically.
+- **Reject trim** is one server action that retains the proposal, writes
+  `dismissed`, and lets the derivation remove its effect. Re-run continues to
+  use the existing per-source trim-proposal route.
+- **The Log is read and written through the API.** Known product events are
+  written by the server. A constrained client-event append exists only for
+  failures first observed by the optimistic UI; it is path-scrubbed,
+  capability-protected, displayed immediately, and retried for persistence when
+  the server is reachable.
+- **Music is probed by the server before a project is required.** The server
+  computes the content hash and duration and returns the complete `Music`
+  value; the client never has to hash a local path.
+- **Dead links are repaired by an explicit protected server action** that the
+  app invokes automatically on project open. It searches only beneath
+  `media_root`, matches by content hash, preserves the clip's edit state, and
+  leaves misses unlinked.
+
+This closes a contract omission found after ADP-003 was authorized: v3z already
+required reject, reversible binning, a persistent Log, music selection before a
+project, and silent hash repair, but `SPEC.md` §8 exposed no complete path for
+the frontend to perform them. The cost is a narrow amendment to the frozen HTTP
+surface and one corrective backend/API Work Order before frontend construction.
+It does **not** change `project.json`, the product design, or any guardrail.
+
+The existing security constraint already requires cross-site `Referer`
+rejection. Implementing and testing that missing half of the guard is part of
+the corrective Work Order; this decision does not amend the constraint.
+
+**Decided:** owner, 2026-07-30, by directing the recommended contract correction
+to proceed. `SPEC.md` and ADP-003 may be amended to match; the corrective Work
+Order may be authorized for local synthetic implementation.

@@ -5,6 +5,9 @@ contract document, outranked only by [CONSTRAINTS.md](docs/CONSTRAINTS.md).
 **Acceptance is not authorization to build.** Implementation is gated on an ADP,
 and the four things it did not settle at acceptance are listed — **all now
 closed** — in [§14](#14--what-this-spec-still-owes).
+**Amended 2026-07-30:** DECISIONS §5 adds the narrow server-owned HTTP actions
+the frozen frontend needs to operate §4.3, §7 and §8.3; `project.json`, the
+design and the guardrails are unchanged.
 Written 2026-07-28, forward from `docs/design-claude/mockup-v3z.html` and
 [DECISIONS.md](docs/DECISIONS.md).
 
@@ -308,6 +311,12 @@ The assist never proposes above 2.0×. **Hand-set rates are uncapped** (N-6).
   reason `stashed_segment` exists, and it is what makes removal genuinely
   non-destructive.
 
+**Reject and Bin are server-owned actions.** The client does not patch
+`disposition`, `stashed_segment`, or a fabricated zero-length user segment
+directly. The server applies the transitions above atomically and returns the
+saved project. Re-run remains the existing trim-proposal request narrowed to one
+`source_id`.
+
 > Both AI keys act on the **trim** proposal only, and nothing on the panel says
 > so. A clip carrying an AI trim *and* a hand-set speed reports only the trim in
 > its status word. Both are known limits of the locked design, accepted after
@@ -604,6 +613,15 @@ LogEntry
 Entries logged before a project exists — a track chosen first (§8) — are held
 for the session and written on the project's first save.
 
+**Write ownership.** The server writes every event it can observe: project
+creation and standing lines, ingest results, proposal detail and summaries,
+assist transitions, disposition changes, export summaries and job failures.
+The optimistic UI writes a failure to its visible strip immediately. If the
+failure was first observed by the client, a constrained client-event append
+persists that already-visible entry when the server is reachable; absolute paths
+are scrubbed before it is accepted. The Log is read independently of
+`project.json` through §8's Log route.
+
 ---
 
 ## 8 · The HTTP contract
@@ -614,16 +632,29 @@ a per-launch capability token on every state-changing route, path scrubbing.
 **Every new mutating route needs its own guard test that fails when the guard is
 removed.**
 
+> **Amended 2026-07-30 — frontend-operability seam.** A post-authorization
+> review found that the original route table could not express §4.3's reject or
+> reversible bin transitions, could neither read nor populate §7's persistent
+> Log, gave the browser no way to obtain a server-computed music hash and
+> duration, and did not expose §8.3's silent link repair. DECISIONS §5 makes
+> those server-owned actions and adds only the routes below. `project.json` and
+> the design are unchanged.
+
 | Route | Purpose |
 |---|---|
 | `POST /api/pick-folder` · `POST /api/pick-file` | Native pickers. `pick-file` serves both track selection and relink |
+| `POST /api/music/probe` | Probe a selected local track before a project exists; return the server-computed `Music` value (`track_ref`, content hash, duration, default in-point) |
 | `POST /api/project` · `GET /api/project/{id}` | Create, read |
 | `PATCH /api/project/{id}` | name, target, output resolution, audio mix, assist toggles |
 | `PATCH /api/project/{id}/clip/{source_id}` | order, segment, speed ranges, audio, mute |
+| `POST /api/project/{id}/clip/{source_id}/bin` | Toggle bin / restore atomically, stashing or restoring the effective trim |
+| `POST /api/project/{id}/clip/{source_id}/reject-trim` | Retain and dismiss the trim proposal so its effect is removed |
 | `POST /api/project/{id}/relink/{source_id}` | Repoint a clip at a different file |
+| `POST /api/project/{id}/repair-links` | Automatically repair dead source paths by content hash beneath `media_root`; preserve edit state and return misses as unlinked |
 | `POST /api/import/{id}/scan` · `POST /api/analyze/{id}` | Ingest and analysis jobs |
 | `POST /api/propose/trim/{id}` · `POST /api/propose/speed/{id}` | The assists |
 | `GET /api/jobs/{job_id}` | Job status |
+| `GET /api/project/{id}/log` · `POST /api/project/{id}/log` | Read the retained sidecar; persist a path-scrubbed client-observed failure already shown by the optimistic UI |
 | `GET /api/media/proxy/{source_id}` · `thumb` · `peaks` | Preview media, computed on demand and cached |
 | `GET /api/music/peaks` | **Keyed by content hash**, because a track may be chosen before a project exists |
 | `POST /api/export/{id}` · `GET /api/export/{id}/download` | Render and retrieve. No `audio_mode` anywhere |
@@ -635,11 +666,18 @@ removed.**
 
 Optimistic, keyed on `updated_at`, `409` on mismatch.
 
+Bin, reject and link repair carry the caller's `updated_at` and return `409` on
+a stale project. The Log is a sidecar rather than project state, so appending a
+Log entry neither requires nor advances `Project.updated_at`.
+
 ### 8.2 · Saves are optimistic with a visible failure path
 
 A control responds the instant it is touched. If the write fails or conflicts,
 **the control visibly reverts and the Log says why** (N-9). A silent background
-save failure is worse than the 409 and is never acceptable.
+save failure is worse than the 409 and is never acceptable. The client adds the
+failure to the visible Log immediately; if the server cannot accept the sidecar
+append at that moment, the entry remains in the session buffer and is retried
+when communication resumes.
 
 ### 8.3 · Linking
 
@@ -648,6 +686,43 @@ The path is the primary link; a dead path is re-found by content hash under
 back **unlinked**, and its row's chain key carries the yellow ring. Link also
 repoints a **valid** clip at a different file — trim, order, speed and mute
 survive the change of source beneath them.
+
+Repair is a capability-protected `POST`, not a state-changing `GET`. The app
+invokes it automatically after opening a project. The server searches only
+beneath that project's `media_root`, preserves the existing `source_id` and
+every clip edit, and never follows a content match outside the root.
+
+### 8.4 · Corrective action bodies and responses
+
+The corrected seam is deliberately narrow:
+
+```
+ProjectActionBody
+  updated_at: str
+
+MusicProbeBody
+  track_ref: str
+
+ClientLogBody
+  kind: "warn" | "fault"       # client-observed failures only
+  text: str
+  code: str | null
+  source_id: str | null
+```
+
+- Bin, reject and repair-links accept `ProjectActionBody` and return the saved
+  `Project`. The server supplies every state transition; no internal field is
+  accepted from the client.
+- Music probe accepts `MusicProbeBody` and returns `Music`, with the hash and
+  duration computed from the local file. It may populate the session Log buffer
+  but does not require a project.
+- `GET …/log` returns the retained `[LogEntry]` sidecar in its canonical
+  oldest-first order. The frontend reverses that order for §7's newest-first
+  glass.
+- `POST …/log` accepts `ClientLogBody`, stamps `at`, forces
+  `standing: false`, scrubs paths, appends through the 500-entry retention
+  rule, and returns the accepted `LogEntry`. It cannot create `info` or standing
+  entries; known product events remain server-owned.
 
 ---
 
