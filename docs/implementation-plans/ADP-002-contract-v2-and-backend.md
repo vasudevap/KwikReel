@@ -3,9 +3,10 @@
 **Status:** **AUTHORIZED — owner, 2026-07-28, as drafted; amended 2026-07-28 to
 add WO-118a, to unhold WO-120, and to add WO-116a; amended 2026-07-29 to make
 WO-120 a closeout gate; amended 2026-07-30 to make test ownership executable,
-serialize renderer → QA, and add held WO-118b.** Scope: **WO-116a**, WO-117 –
-WO-124, **all unheld**, plus **WO-118b, held** pending the reject-semantics
-decision, under the §2 grant (local build to green on synthetic fixtures).
+serialize renderer → QA, add held WO-118b, and then unhold it after the reject
+decision.** Scope: **WO-116a**, WO-117 –
+WO-124, plus **WO-118b, all unheld** following the 2026-07-30 reject decision,
+under the §2 grant (local build to green on synthetic fixtures).
 Pushes, CI and real-media runs stay separately gated in §3.
 
 > **Amendment 1, owner, 2026-07-28 — WO-118a added.** As drafted, this ADP gave
@@ -62,6 +63,12 @@ Pushes, CI and real-media runs stay separately gated in §3.
 > does **not** choose among the three product readings in `handoff.md`. A dated
 > `DECISIONS.md` entry, any required `SPEC.md` amendment, and a later owner
 > amendment unholding WO-118b are still required before its implementation.
+
+> **Amendment 6, owner, 2026-07-30 — reject semantics decided; WO-118b
+> unheld.** The owner chose the second reading in `DECISIONS.md` §4: a rejected
+> trim remains retained with `disposition: "dismissed"`, but §3.1's derivation
+> skips it. `SPEC.md` §3.1 and §4.3 are amended to match. **WO-118b is unheld**
+> under the existing local synthetic-fixture grant and remains a closeout gate.
 
 **Program ID:** ADP-002
 **Type:** Autonomous Delivery Program
@@ -128,10 +135,6 @@ That is the whole grant: **local build to green, on synthetic fixtures.**
   exists. This is what holds WO-135 out of this ADP entirely.
 - **Any frontend work.** ADP-003 is a separate authorization gated on WO-124's
   numbers.
-- **WO-118b implementation.** Amendment 5 authorizes its place and scope, not
-  its product semantics. It remains held until the owner records the reject
-  decision, amends `SPEC.md` if the chosen reading requires it, and explicitly
-  unholds WO-118b in a later ADP amendment.
 
 **New governance (a new decision, a `SPEC.md` amendment, or a new WO):**
 - Amending `SPEC.md` — including closing SO-1 – SO-4. Acceptance froze it; an
@@ -154,7 +157,7 @@ There is no implicit permission to edit a matching test directory.
 | **WO-117 · Contract kernel v2** | `SPEC.md` §3 frozen as code: Pydantic models, regenerated TS types, updated service Protocols, the dependency manifest | `backend/contracts/`; `frontend/src/types/`; `pyproject.toml`; `frontend/package.json`; `tests/contracts/` | Models validate a §3.2 example; save→load byte-equivalent; `origin`/`proposals` retained across a round trip; TS and Pydantic are one source of truth. **Runs alone** |
 | **WO-118 · Store v2** | Drop `stage_approvals` and `included`; **retain `disposition`** (A-3) with its three writers; add `stashed_segment`, `AudioMix`, output resolution, the music in-point. The §3.1 derivation — `effective_trim` / `effective_speed` — lives here. **Plus the `log.json` sidecar** (`SPEC.md` §7.3): append, 500-entry eviction oldest-first, standing entries exempt | `backend/store/`; `tests/store/` | An assist never changes a field whose `origin` is `"user"` (§4.4), **with its own tests** — this is a correctness requirement, not a behaviour; toggle off restores exactly, hand-edits untouched; bin→restore exact; `out_s <= in_s` reads as out-of-reel with no `included` field anywhere; **the Log survives close→reopen, evicts at 500, and never evicts a standing entry** |
 | **WO-118a · Trim proposer v2** | `SPEC.md` §4.1 as code against the v2 shapes: one `Segment`, not a list. **Remove the 1.0 s floor** (DECISIONS A-6) and emit the sub-second and empty cases the Log has to warn about | `backend/propose/trim_proposer.py`; `tests/propose/test_proposer.py` | Proposals carry a single `Segment`; a clip whose best window is under a second **gets it**, and one where nothing clears the floors gets `NO_CLEAR_WINDOW` on the whole clip; an empty proposal is returned, not raised. The floor test is rewritten to assert A-6's behaviour rather than the rule it retired |
-| **WO-118b · Reject semantics correction** | Close the §3.1/§4.3 contradiction for reject and implement the missing `dismissed` writer exactly as the owner's recorded decision requires. **Held — Amendment 5 does not choose the semantics** | `backend/store/derive.py`; `backend/store/edits.py`; `backend/store/__init__.py`; `tests/store/test_derive.py`; `tests/store/test_edits.py` | **Held.** Once unheld: reject makes the effective trim revert as §4.3 promises; retained/deleted proposal data and C-03 counting match the recorded decision; toggle-on, toggle-off, existing user trim and re-run cases have regression tests |
+| **WO-118b · Reject semantics correction** | `DECISIONS.md` §4: retain the dismissed trim proposal for audit, but skip it in §3.1 derivation so reject reverts the effective trim without creating a user edit | `backend/store/derive.py`; `backend/store/edits.py`; `backend/store/__init__.py`; `tests/store/test_derive.py`; `tests/store/test_edits.py` | Reject makes the effective trim revert as §4.3 promises; retained proposal data and C-03 counting match the decision; toggle-on, toggle-off, existing user trim and re-run cases have regression tests |
 | **WO-119 · Media services** | Thumbnails and peaks on demand + cached; music probe and peaks **keyed by content hash**, working with no project in existence (§8 `GET /api/music/peaks`); `pick-file` via `osascript … choose file`, serving both track selection and relink | `backend/media/` (new); `tests/media/` (new) | Peaks for a track chosen before any project exists; cache hit on second call; picker returns a path or a clean cancel |
 | **WO-120 · Speed proposer** | `SPEC.md` §4.2 as code: multiple `SpeedRange`s per clip in **source time**, retained proposals for reversibility | `backend/propose/speed_proposer.py` (new); `backend/propose/__init__.py`; `tests/propose/test_speed_proposer.py` (new) | **Unheld — Amendment 2.** Gate: deterministic on a fixture; ranges survive a trim-handle move (§3.2); the assist never proposes above 2.0× |
 | **WO-121 · Renderer v2** | `amix` weighted by the two levels, replacing three non-composable mode branches. `setpts` + chained `atempo` per effective speed range. Skip out-of-reel clips. Resolution from the setting — `TARGET_W`/`TARGET_H` stop being constants. **Clamp every ramped clip to `-t (kept_duration / rate)`** — see below | `backend/render/`; `tests/render/` | Duration ±0.5 s of computed reel length; **a ramped clip's rendered duration matches `SPEC.md` §3.4's arithmetic exactly**, not 1–2 frames over; **upscaling past the source refused or flagged, never silent**; every-clip-out fails with a stated reason, not an empty concat; GPS and identifying metadata stripped |
@@ -190,7 +193,7 @@ WO-124 (spike) ─────────────────────�
 
 WO-117 (alone, contract freeze) ── DONE, merged
    │
-   ├── WO-118  store ── DONE ──► WO-118b reject (HELD — owner decision)
+   ├── WO-118  store ── DONE ──► WO-118b reject
    ├── WO-118a trim proposer ── DONE
    ├── WO-119  media ─────────────────────────────── lane M
    ├── WO-120  speed proposer ────────────────────── lane P
@@ -213,22 +216,19 @@ merge order and stop-and-asks; it does not edit lane-owned paths.
 | **P · speed** | WO-120 | `wo-120-speed` | May merge when WO-120's gate passes |
 | **RQ · render/QA** | WO-121 → WO-122 | `wo-121-renderer`, then refresh from local `main` and create `wo-122-qa` in the same lane worktree | WO-121 merges first; WO-122 starts from that merge and merges second |
 | **A · API** | WO-123 | `wo-123-api` | May merge when WO-123's gate passes |
-| **S · reject** | WO-118b | `wo-118b-reject` | **Do not create or launch while held.** After a later owner amendment unholds it, it may merge when its recorded-decision gate passes |
+| **S · reject** | WO-118b | `wo-118b-reject` | May merge when its recorded-decision gate passes |
 
-M, P, RQ and A may execute concurrently. S is absent from the fan-out until
-unheld. The final convergence barrier is §9: every lane merged, WO-118b green,
+M, P, RQ, A and S may execute concurrently. The final convergence barrier is
+§9: every lane merged, WO-118b green,
 and the closeout records updated together. A merge conflict or need to touch a
 path outside a row's *Owns* cell is a stop-and-ask, not permission to widen the
 lane.
 
-**Two gates interrupt autonomy by design:**
+**One gate interrupted autonomy by design:**
 
 1. **WO-117 runs alone.** Nothing else starts until the contract is merged, for
    the same reason WO-101 did: six lanes editing a schema in parallel is how a
    contract stops being one.
-2. **WO-118b is held.** Nothing in its implementation starts until the owner
-   records the reject semantics and explicitly unholds it. WO-119 – WO-123 are
-   not blocked by that decision, but ADP-002 cannot close without WO-118b.
 
 **WO-121 and WO-122 are one lane, in that order.** Their production directories
 are disjoint, but the legacy renderer/QA test surface is not, and QA's
@@ -280,14 +280,16 @@ Three options were available and the middle one is taken:
 ```
 Authorized:            2026-07-28   by  Repository Owner (via session chat)
 Scope granted:         WO-116a and WO-117 – WO-124, all unheld
-                       plus WO-118b, held pending an owner decision
-Narrowing / notes:     Authorized as drafted; amended five times —
+                       plus WO-118b, unheld by Amendment 6
+Narrowing / notes:     Authorized as drafted; amended six times —
                        Amendment 1 (2026-07-28) added WO-118a,
                        Amendment 2 (2026-07-28) unheld WO-120,
                        Amendment 3 (2026-07-28) added WO-116a,
                        Amendment 4 (2026-07-29) made WO-120 a closeout gate,
                        Amendment 5 (2026-07-30) made test ownership explicit,
                        serialized WO-121 → WO-122, and added held WO-118b.
+                       Amendment 6 (2026-07-30) recorded the reject decision,
+                       amended SPEC.md, and unheld WO-118b.
                        See the head of this file.
 ```
 
@@ -301,7 +303,7 @@ ADP-002 closes when **every §4 Work Order — WO-116a, WO-117, WO-118, WO-118a,
 WO-118b, WO-119, WO-120 and WO-121 – WO-123 — is merged green** on synthetic
 fixtures and **WO-124 has reported its numbers** (done, 2026-07-28). WO-120
 gates closeout under Amendment 4; **WO-118b gates closeout under Amendment 5
-and cannot start while held.** Closeout deletes the spike's code, updates
+and is unheld by Amendment 6.** Closeout deletes the spike's code, updates
 `handoff.md`, and writes ADP-003 — whose content depends on what WO-124 found.
 If WO-124 shows the Monitor cannot be made good enough to judge an edit on,
 **`SPEC.md` §6 and the v3z design change before ADP-003 is written**, which is

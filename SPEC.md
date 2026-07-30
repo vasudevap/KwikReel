@@ -105,7 +105,8 @@ most important structural decision in this document:
 ```
 effective_trim(clip):
     if clip.origin.segments == "user":  return clip.segment      # yours always wins
-    if project.trim_assist_on and clip.proposals.segments:
+    if project.trim_assist_on and clip.proposals.segments and
+       clip.proposals.segments.disposition != "dismissed":
                                         return the proposal's value
     return whole clip                                            # 0 .. duration_s
 
@@ -298,8 +299,9 @@ The assist never proposes above 2.0×. **Hand-set rates are uncapped** (N-6).
 
 ### 4.3 · The controls that act on a proposal
 
-- **Reject (✕)** discards this clip's proposal — `disposition: "dismissed"`. The
-  clip reverts to whole (or to the user's own trim, if there is one).
+- **Reject (✕)** retains this clip's proposal for the audit trail and writes
+  `disposition: "dismissed"`. The derivation skips it, so the clip reverts to
+  whole (or to the user's own trim, if there is one).
 - **Re-run (↻)** asks for a fresh proposal for this clip alone.
 - **Bin** sets the effective trim to zero length, **stashing the previous
   effective value first**. Pressing it again restores the stash. This is the only
@@ -333,6 +335,12 @@ stays in charge.
 Export writes one summary line to the Log: *"Kept 14 of 19 AI trims."* That line
 is the instrument for judging whether the assists earn their place, and it is
 what puts evidence claim **C-03** back within reach.
+
+> **Amended 2026-07-30 — reject semantics.** A dismissed trim proposal is
+> retained, rather than deleted or converted into a user trim, but §3.1 ignores
+> it while deriving the played trim. This resolves the former §3.1/§4.3
+> contradiction and preserves both reversibility and the C-03 audit denominator;
+> see `DECISIONS.md` §4.
 
 ---
 

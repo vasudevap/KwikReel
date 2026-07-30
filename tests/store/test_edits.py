@@ -19,6 +19,7 @@ from backend.store import (
     effective_trim,
     in_reel,
     mark_proposals_accepted,
+    reject_trim_proposal,
     restore_clip,
     set_clip_order,
     set_user_audio,
@@ -49,6 +50,33 @@ def test_a_hand_trim_takes_the_field_and_marks_the_proposal_adjusted() -> None:
 
     # Pure: the project handed in is untouched.
     assert _clip(project, "s1").segment is None
+
+
+def test_reject_retains_the_proposal_but_reverts_the_effective_trim() -> None:
+    project = build_example()
+    rejected = reject_trim_proposal(project, "s1")
+    clip = _clip(rejected, "s1")
+
+    assert clip.proposals.segments is not None
+    assert clip.proposals.segments.disposition == "dismissed"
+    assert clip.origin.segments == "proposed"
+    assert effective_trim(rejected, clip) == Segment(in_s=0.0, out_s=12.4)
+    assert _clip(project, "s1").proposals.segments.disposition == "pending"
+
+
+def test_reject_does_not_override_a_user_trim() -> None:
+    project = build_example()
+    rejected = reject_trim_proposal(project, "s2")
+    clip = _clip(rejected, "s2")
+
+    assert clip.proposals.segments is not None
+    assert clip.proposals.segments.disposition == "dismissed"
+    assert effective_trim(rejected, clip) == Segment(in_s=1.5, out_s=16.0)
+
+
+def test_rejecting_without_a_trim_proposal_is_refused() -> None:
+    with pytest.raises(EditError):
+        reject_trim_proposal(build_example(), "s3")
 
 
 def test_removing_every_ramp_by_hand_is_an_edit_not_a_no_op() -> None:

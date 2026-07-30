@@ -19,7 +19,9 @@ logic being inlined where it is needed:
 
 `effective_trim` and `effective_speed` are transcribed from `SPEC.md` §3.1
 line for line. **They are deliberately not clever** — if a case feels missing,
-the spec is what changes, not this file.
+the spec is what changes, not this file. The one explicit exception is a trim
+proposal the user rejected: it remains in state for the audit trail, but it is
+not an effective value (DECISIONS §4, 2026-07-30).
 
 ## The two field invariants these rely on
 
@@ -68,13 +70,18 @@ def effective_trim(project: Project, clip: Clip) -> Segment:
     """What actually renders for this clip. `SPEC.md` §3.1.
 
         if clip.origin.segments == "user":  return clip.segment
-        if project.trim_assist_on and clip.proposals.segments:
+        if project.trim_assist_on and clip.proposals.segments and
+           clip.proposals.segments.disposition != "dismissed":
                                             return the proposal's value
         return whole clip
     """
     if clip.origin.segments == "user" and clip.segment is not None:
         return clip.segment                                   # yours always wins
-    if project.trim_assist_on and clip.proposals.segments is not None:
+    if (
+        project.trim_assist_on
+        and clip.proposals.segments is not None
+        and clip.proposals.segments.disposition != "dismissed"
+    ):
         return clip.proposals.segments.value
     return whole_clip(project, clip)
 

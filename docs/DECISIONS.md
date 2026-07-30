@@ -100,3 +100,21 @@ measures nothing, so this is not an implementation detail.
 ---
 
 **Decided:** owner, 2026-07-28. `SPEC.md` may now be written.
+
+---
+
+## 4 · 2026-07-30 — reject preserves the audit record and removes its effect
+
+**Decision:** Reject (✕) retains this clip's trim proposal and writes
+`disposition: "dismissed"`; while Trim is on, `effective_trim` **skips a
+dismissed proposal** and therefore returns the whole clip, or the user's trim
+when `origin.segments == "user"`.
+
+This takes the second reading raised by WO-118. It preserves the disposition
+record and C-03's denominator, makes reject actually revert the played trim,
+and leaves re-run meaningful: a fresh proposal replaces the dismissed one and
+begins `pending`. The cost is a narrow amendment to frozen `SPEC.md` §3.1; it
+is accepted here rather than hidden in a store implementation.
+
+**Decided:** owner, 2026-07-30. `SPEC.md` and ADP-002 may be amended to match;
+WO-118b may be unheld under that amendment.

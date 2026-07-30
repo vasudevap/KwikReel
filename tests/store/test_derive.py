@@ -48,6 +48,16 @@ def test_the_whole_clip_renders_with_the_assist_off() -> None:
     assert effective_trim(project, _clip(project, "s1")) == Segment(in_s=0.0, out_s=12.4)
 
 
+def test_a_dismissed_proposal_is_retained_but_not_effective() -> None:
+    project = build_example()
+    proposal = _clip(project, "s1").proposals.segments
+    assert proposal is not None
+    proposal.disposition = "dismissed"
+
+    assert effective_trim(project, _clip(project, "s1")) == Segment(in_s=0.0, out_s=12.4)
+    assert _clip(project, "s1").proposals.segments is proposal
+
+
 def test_a_clip_with_no_proposal_renders_whole() -> None:
     project = build_example()
     s4 = _clip(project, "s4")

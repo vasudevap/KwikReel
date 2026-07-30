@@ -16,25 +16,12 @@ Two jobs, both of them named in ADP-002 §4:
   assists earn their place. A field with no writer measures nothing, so the
   writers are part of the contract.
 
-## `dismissed` is not written here, deliberately
+## Reject retains evidence and removes its effect
 
-§4.5's four values have three writers after `pending`. **Two are implemented:**
-`adjusted` (a handle moved) and `accepted` (at export). The third —
-`dismissed`, written by reject (✕) — is **not**, because §4.3 and §3.1 cannot
-both be satisfied as written and choosing between them is a product decision:
-
-    §4.3  "Reject (✕) discards this clip's proposal — disposition: 'dismissed'.
-           The clip reverts to whole (or to the user's own trim, if there is one)."
-    §3.1   if project.trim_assist_on and clip.proposals.segments:
-               return the proposal's value
-
-A *retained* proposal marked `dismissed` still satisfies §3.1's second line, so
-the clip does **not** revert to whole. At least three readings close the gap —
-null the proposal (losing the very count A-3 kept `disposition` for), have the
-derivation skip dismissed proposals (an amendment to a frozen §3.1), or have
-reject write the whole clip as a user segment (locking the assist out of that
-clip for good) — and they differ in what C-03 can later measure. Raised as a
-stop-and-ask rather than guessed; see `handoff.md`.
+DECISIONS §4 (2026-07-30) resolves the former §3.1/§4.3 contradiction:
+reject writes `dismissed` but keeps the proposal for the Log and C-03. The
+derivation skips dismissed trim proposals, so the effective trim reverts to the
+whole source unless the user already owns a trim.
 """
 
 from __future__ import annotations
@@ -83,6 +70,21 @@ def set_user_segment(project: Project, source_id: str, segment: Segment) -> Proj
     clip.segment = segment
     clip.origin.segments = "user"
     _mark_adjusted(clip, "segments")
+    return out
+
+
+def reject_trim_proposal(project: Project, source_id: str) -> Project:
+    """Reject this clip's trim proposal (§4.3, §4.5, DECISIONS §4).
+
+    The proposal stays retained and auditable, but `effective_trim` no longer
+    consults it. This intentionally does not set a user segment: rejection is
+    not a hand trim and must not permanently lock the assist out of the clip.
+    """
+    out, clip = _copy_with_clip(project, source_id)
+    proposal = clip.proposals.segments
+    if proposal is None:
+        raise EditError(f"clip {source_id!r} has no trim proposal to reject")
+    proposal.disposition = "dismissed"
     return out
 
 

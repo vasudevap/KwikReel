@@ -10,7 +10,7 @@ and a materially different product from the one M1 was built for. That old
 frontend is deleted; the superseded record lives in `docs/archive/`; the
 surviving guardrails are `docs/CONSTRAINTS.md`; the departures are decided in
 `docs/DECISIONS.md`. **ADP-002 is authorized** — WO-116a and WO-117 – WO-124,
-all unheld, plus held WO-118b, local on synthetic fixtures — and its first five
+all unheld, including WO-118b after Amendment 6, local on synthetic fixtures — and its first five
 Work Orders have merged. Amendment 5 makes every lane's test ownership explicit
 and sequences renderer → QA rather than pretending their mixed legacy test file
 is disjoint. The suite is deliberately partly red across the schema seam (the
@@ -99,10 +99,9 @@ ADP-002 closeout; the findings document is what survives.
    `backend/store/derive.py` before starting: `effective_trim`,
    `effective_speed` and `played_duration_s` are the arithmetic they render and
    check against, and `reel_length_s` is the number §9's ±0.5 s is measured from.
-2. **WO-118b reject semantics is held.** The owner chooses one of the three
-   readings below, records it in `docs/DECISIONS.md`, amends `SPEC.md` if needed,
-   and explicitly unholds WO-118b in a later ADP amendment. No other WO waits on
-   that decision, but ADP-002 closeout does.
+2. **WO-118b reject semantics is unheld.** The owner chose retained-but-skipped
+   dismissed proposals (DECISIONS §4); its implementation may now run alongside
+   the other backend lanes and still gates ADP-002 closeout.
 3. ADP-002 closes when **all §4 Work Orders, including WO-118b**, merge green —
    **per-WO green, not whole-suite green.** `tests/integration/` and parts of
    `tests/guards/` belong to WO-134 and WO-133, which are ADP-004's and not
@@ -110,7 +109,7 @@ ADP-002 closeout; the findings document is what survives.
 
 ## The stop-and-asks that are open
 
-**§4.5's `dismissed` writer is not implemented, because §4.3 and §3.1 disagree.**
+**Closed 2026-07-30 — §4.5's `dismissed` writer now has an owner decision.**
 Raised by WO-118, 2026-07-29. `SPEC.md` §4.3 says reject (✕) *"discards this
 clip's proposal — `disposition: "dismissed"`. The clip reverts to whole (or to
 the user's own trim, if there is one)."* But §3.1's derivation reads any
@@ -127,12 +126,9 @@ readings close the gap and they are not equivalent:
    as written, and locks the trim assist out of that clip permanently, which
    may be intended ("I rejected this, stop proposing") or may not.
 
-`adjusted` and `accepted` are implemented; only this one waits. Amendment 5
-records it as **WO-118b, held, and an ADP-002 closeout gate**. No other Work
-Order is blocked by it — the derivation, bin/restore, the invariants and the Log
-all landed. **A written `docs/DECISIONS.md` entry is how this closes**, and if
-the answer is (2), an accepted `SPEC.md` amendment with it; a later ADP
-amendment explicitly unholds WO-118b.
+The owner chose reading (2): retain the proposal for audit, but skip it in
+derivation. `DECISIONS.md` §4 and `SPEC.md` are amended; Amendment 6 unholds
+WO-118b. Its implementation remains required before ADP-002 closes.
 
 > **A smaller thing to know when reading the C-03 number, not a blocker.**
 > §4.5 read literally makes a **binned** clip's untouched proposal `accepted` at
@@ -160,11 +156,8 @@ apart, and the proxy path has three tests where it had one vacuous one.
 **`SPEC.md` §14 is empty.** Every item that stood here — the four §6 amendments,
 SO-1, SO-2, SO-3, SO-4 — is closed. Three remain, one of them new:
 
-1. **Decide how reject (✕) works**, so §4.5's `dismissed` writer can be built.
-   The three readings and what each costs are above; the decision lands as a
-   dated `docs/DECISIONS.md` entry, and as a `SPEC.md` amendment too if it is
-   reading (2), then a later ADP amendment unholds WO-118b. Nothing else is
-   waiting on it, but ADP-002 cannot close while WO-118b is held.
+1. **No reject decision remains.** Reading (2) is recorded in `DECISIONS.md`
+   §4, `SPEC.md` is amended, and WO-118b is unheld under Amendment 6.
 2. **Record an ADR-002-style consent** before anything runs against real footage.
    Nothing under ADP-002 may touch real media without it. **This now gates the
    end of the whole programme**: ADP-004's real-footage validation is the only

@@ -32,6 +32,7 @@ from backend.store.edits import (
     EditError,
     bin_clip,
     mark_proposals_accepted,
+    reject_trim_proposal,
     restore_clip,
     set_clip_order,
     set_user_audio,
@@ -93,6 +94,7 @@ __all__ = [
     "set_user_segment",
     "set_user_speed_ranges",
     "mark_proposals_accepted",
+    "reject_trim_proposal",
     # §7.3 Log sidecar
     "FileLogStore",
     "LogEntry",
