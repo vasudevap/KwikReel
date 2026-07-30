@@ -26,7 +26,7 @@ human reviews it and overrides anything.
 5. **[docs/implementation-plans/ADP-002-contract-v2-and-backend.md](docs/implementation-plans/ADP-002-contract-v2-and-backend.md)**
    — the live authorization, and the Work Order set with its gates. **Authorized
    2026-07-28, amended through 2026-07-30,** for **WO-116a and WO-117 – WO-124,
-   all unheld, plus WO-118b, held pending the reject-semantics decision** —
+   plus WO-118b, all unheld** —
    **local build to green on synthetic fixtures only.** Its §3 is the list of
    what is still withheld.
 6. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
@@ -70,13 +70,14 @@ behaviour — and cite that.
 in any document is a reference to history, never to authority — and if you find
 one being used as a rule, that document is stale.
 
-## Where the project is (2026-07-29)
+## Where the project is (2026-07-30)
 
 **The backend rebuild is mid-flight under ADP-002.** Contracts (WO-117), ingest
-(WO-116a), the trim proposer (WO-118a) and the store (WO-118) are v2 and merged;
-the WO-124 playback spike has reported its numbers and the v3z design survived
-them. Media, the speed proposer, the renderer, QA and the API are still v1 —
-WO-119, WO-120 and WO-121 – WO-123 are dependency-ready and unstarted.
+(WO-116a), the trim proposer (WO-118a), the store (WO-118), reject semantics
+(WO-118b), and the speed proposer (WO-120) are v2 and merged; the WO-124
+playback spike has reported its numbers and the v3z design survived them.
+Media, the renderer, QA and the API remain v1 — WO-119 and WO-121 – WO-123 are
+dependency-ready and unstarted.
 
 **In v2 what renders is derived, never stored.** `backend/store/derive.py` is
 `SPEC.md` §3.1 and §3.4 as code; `clip.segment` holds *the user's* trim and is
@@ -86,7 +87,7 @@ not what plays. Anything reading it as "the trim" has carried a v1 habit into v2
 different schema versions. Read the warning box in `handoff.md` before treating
 red as a regression, and run `pytest --continue-on-collection-errors` for the
 whole-suite count — a bare `pytest` halts at the five expected import errors.
-**Nothing fails; five modules cannot import.**
+**123 tests pass; five modules cannot import.**
 
 **`SPEC.md` §14 is fully closed** — SO-1 and SO-2 by owner decision, SO-3 and
 SO-4 by measurement. **No experiment has ever run and no real footage has ever
@@ -104,12 +105,13 @@ record for the rebuild, under `CONSTRAINTS.md`. Neither is to be amended backwar
 from the archived ES-001; amending inherits the ghosts the clean cut removed.
 
 **Implementation is authorized, narrowly.** ADP-002 grants WO-116a and
-WO-117 – WO-124, all unheld, plus **WO-118b held pending the reject-semantics
-decision**: **local build to green on synthetic fixtures.** Amendment 5 makes
-test ownership explicit and runs renderer → QA as one serial lane. Still
-withheld and still stop-and-ask — **every push to `origin`**, CI, **any run
-against real footage** (needs an ADR-002-style consent record first), amending
-`SPEC.md`, and **any frontend work** beyond WO-117's generated types.
+WO-117 – WO-124, plus **WO-118b, all unheld**: **local build to green on
+synthetic fixtures.** Amendment 5 makes test ownership explicit and runs
+renderer → QA as one serial lane; Amendment 6 resolved the reject semantics and
+unheld WO-118b. Still withheld and still stop-and-ask — **every push to
+`origin`**, CI, **any run against real footage** (needs an ADR-002-style consent
+record first), amending `SPEC.md`, and **any frontend work** beyond WO-117's
+generated types.
 
 ## Working discipline
 
