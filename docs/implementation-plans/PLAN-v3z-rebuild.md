@@ -10,8 +10,9 @@ only — the mockups are not in the public repo.)
 the **decision session** ([`DECISIONS.md`](../DECISIONS.md)), **`SPEC.md`
 accepted** (discharging S-1 and — within it — S-4, S-5, S-6, S-9 and S-10),
 **ADP-002 signed**, and **WO-117 merged**. WO-116/116a, WO-118, WO-118a,
-WO-118b, WO-119, WO-120, WO-121, WO-122, WO-123 and WO-124 have landed; ADP-002
-is ready for closeout.
+WO-118b, WO-119, WO-120, WO-121, WO-122, WO-123 and WO-124 have landed;
+**ADP-002 closed 2026-07-30** and
+[`ADP-003`](ADP-003-v3z-rack-frontend.md) is drafted but not authorized.
 
 **What this plan still holds that `SPEC.md` does not:** the ADP-003/ADP-004
 sequencing in §3 – §5. The four spec gaps it once held open — S-2 (SO-3), S-3
@@ -21,10 +22,11 @@ is a plan. §1's ADR framing is superseded by `DECISIONS.md`, which recorded the
 same eight departures in one session and **reversed A-3**: `disposition` is
 kept, not retired.
 
-**The live authorization is [ADP-002](ADP-002-contract-v2-and-backend.md)** —
-authorized 2026-07-28, amended through 2026-07-30. Amendment 5 makes test
-ownership explicit and serializes renderer → QA; Amendment 6 resolves the
-reject semantics, unholds WO-118b, and aligns `SPEC.md` with that decision.
+**No implementation program is currently authorized.**
+[ADP-002](ADP-002-contract-v2-and-backend.md) closed 2026-07-30 after seven
+amendments. Amendment 7 retains the WO-124 harness through WO-127 for the
+foreground rerun `SPEC.md` requires.
+[ADP-003](ADP-003-v3z-rack-frontend.md) is a draft with `Authorized: NO`.
 
 **One naming note that matters:** the new normative document is **`SPEC.md`**,
 written *forward from v3z*. It is not an amendment to the archived ES-001, and
@@ -250,8 +252,8 @@ orientation**, per the letterbox finding below.
 
 | ADP | Grants | Gated on | State |
 |---|---|---|---|
-| **[ADP-002](ADP-002-contract-v2-and-backend.md) · Contract v2 and backend realignment** | WO-116a, WO-117 – WO-124, plus WO-118b, all unheld. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | `DECISIONS.md` and `SPEC.md`, both landed; WO-118b's reject semantics are decided and implemented | **Authorized 2026-07-28, amended ×6** |
-| **ADP-003 · The v3z rack frontend** | WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 | Not written — its content depends on WO-124's numbers |
+| **[ADP-002](ADP-002-contract-v2-and-backend.md) · Contract v2 and backend realignment** | WO-116a, WO-117 – WO-124, plus WO-118b, all unheld. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | `DECISIONS.md` and `SPEC.md`, both landed; WO-118b's reject semantics are decided and implemented | **Closed 2026-07-30, amended ×7** |
+| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met | **Drafted 2026-07-30; not authorized** |
 | **ADP-004 · Verification and real-footage validation** | WO-133 – WO-135, and WO-115a/115b | ADP-002 + ADP-003 complete; **a recorded ADR-002 consent** for anything touching real footage | Not written |
 
 WO-124 (the spike) sits between ADP-002 and ADP-003 and should be authorized
@@ -291,15 +293,15 @@ manifests remain owned by the contract WO alone.
 
 | WO | Scope |
 |---|---|
-| **WO-124 · Playback engine spike** | **Throwaway code, deleted afterwards.** Answers S-2 with a measurement, not an opinion: can a browser sequence proxies through in/out points, apply variable rate, and hold a music bed in sync, smoothly enough that the Monitor is the thing the user judges the edit on? Records the transition gap, the seek error, and whether preview loudness matches export. **If it fails, the design changes before eight frontend Work Orders are built on it** |
+| **WO-124 · Playback engine spike** | **Throwaway code; Amendment 7 retains it through WO-127 only.** Answers S-2 with a measurement, not an opinion: can a browser sequence proxies through in/out points, apply variable rate, and hold a music bed in sync, smoothly enough that the Monitor is the thing the user judges the edit on? Records the transition gap, the seek error, and whether preview loudness matches export. WO-127 reruns it foregrounded, records the result, then deletes it. **If that rerun materially contradicts the finding, stop and ask before building on it** |
 
-### Frontend lanes — parallel after WO-125
+### Frontend barriers and lanes — WO-125, then WO-126, then six parallel lanes
 
 | WO | Scope | Owns |
 |---|---|---|
 | **WO-125 · Rack design system** | Extract v3z's CSS into a real stylesheet and component primitives — module/ears/screws, keys, LEDs, seven-segment, VFD and LCD glass, labelled housings, the CSS-drawn glyph set, the embedded fonts. Encodes S-8's invariants. **Runs first in this group; every other frontend WO consumes it** | `frontend/src/rack/` |
-| **WO-126 · App shell, state model, client v2** | The six states as **one live view**. PATCH mutation queue, optimistic UI, the 409 path (S-5). Mock and live clients | `frontend/src/app/` |
-| **WO-127 · Monitor and Transport** | Queue playback from the spike's proven approach; clip-scoped scrub; target length; the three-way resolution selector; Loop; the resolution box top-right | `frontend/src/monitor/` |
+| **WO-126 · App shell, state model, client v2** | The six states as **one live view**. Typed module slots, PATCH mutation queue, optimistic UI, the 409 path (S-5). Mock and live clients. **Runs second and alone; WO-127 – WO-132 consume its frozen interface** | `frontend/src/app/`; `frontend/src/main.tsx` |
+| **WO-127 · Monitor and Transport** | Queue playback from the spike's proven approach; clip-scoped scrub; target length; the three-way resolution selector; Loop; the resolution box top-right. Rerun the harness foregrounded, append the result to the findings, then delete the spike directory | `frontend/src/monitor/`; `spike/wo-124-playback/`; findings append |
 | **WO-128 · Sound** | The reel timeline — music in green above the centre line, every reel clip's audio in orange below, on the reel's own axis, windowed to the stretch that plays. Two vertical 0–100 % sliders driving both mix and brightness. Cursor, playing-clip wash, drag-to-set music in-point, track picker on the glass | `frontend/src/sound/` |
 | **WO-129 · Clip index** | Four-row window, scroll keys that move *which four clips the keys address*. Seven keys per row: play-next LED · edit · reorder ▲▼ · speaker · **link** · **bin**. The three out-of-reel states rendered as v3z specifies — bin lit green when trimmed out, chain ringed yellow when unlinked, neither when damaged. **Nothing greys out and nothing disappears** | `frontend/src/index/` |
 | **WO-130 · Editor** | In, out and rate — everything that acts on *time*. Trim bar with crossable handles; the speed lane in a **fixed-width well** whose light changes, not its size; the AI housing (✕ reject, ↻ re-run) acting on the **trim proposal only** (a known limit, N-12); the dark empty state | `frontend/src/editor/` |
@@ -333,8 +335,9 @@ Only four steps are serial before the work fans out.
    2026-07-28.** *(Added: the plan originally ran straight from the spec to the
    contract kernel, which skipped the authorization. Nothing may be built
    without it.)*
-4. ~~**WO-117 contract kernel, alone.**~~ **Done 2026-07-28.** Everything is
-   fanning out — this is where the build is now.
+4. ~~**WO-117 contract kernel, alone.**~~ **Done 2026-07-28.**
+5. ~~**Close ADP-002 and draft ADP-003.**~~ **Done 2026-07-30.** ADP-003 still
+   requires explicit authorization.
 
 **Two things run in parallel with all of the above**, because neither depends on
 any v3z decision:
@@ -345,9 +348,10 @@ any v3z decision:
   closed, the v3z design survived its own measurement, and the one defect it
   surfaced (silent proxies) was fixed the same day as WO-116a.
 
-Then: **ADP-002** (independent media and API lanes; serial renderer → QA lane;
-WO-118b and WO-120 done before closeout) → read the spike's numbers → **ADP-003**
-(WO-125 alone, then seven frontend lanes in parallel) → **ADP-004** (guards,
+Then: ~~**ADP-002** (independent media and API lanes; serial renderer → QA
+lane; WO-118b and WO-120 done before closeout)~~ **closed** → read the spike's
+numbers → **ADP-003** (drafted, not authorized; WO-125 then WO-126 as serial
+barriers, followed by six frontend lanes in parallel) → **ADP-004** (guards,
 integration, and — behind a consent record — real footage).
 
 ---

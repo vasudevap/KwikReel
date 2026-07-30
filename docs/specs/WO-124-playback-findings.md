@@ -3,8 +3,10 @@
 **Status: MEASURED, 2026-07-28.** Closes `SPEC.md` §14 **SO-3**, subject to the
 one limitation in §7. Run under [ADP-002](../implementation-plans/ADP-002-contract-v2-and-backend.md) §4.
 
-Raw numbers: `spike/wo-124-playback/results.json`. The code that produced them is
-throwaway and is deleted at ADP-002 closeout; **this document is what survives.**
+Raw numbers: `spike/wo-124-playback/results.json`. The code that produced them
+is throwaway. ADP-002 Amendment 7 retains it only through WO-127, which reruns
+the harness foregrounded as `SPEC.md` §6.7 requires, appends that result here,
+then deletes the spike directory; **this document is what survives.**
 
 **The verdict: the Monitor is buildable as `SPEC.md` §6 describes it, and the
 v3z design does not have to change.** Four of the five questions came back
@@ -345,8 +347,8 @@ two elements cross-swapped (§2), frame-accurate seeking at ~25 ms (§1),
 `playbackRate` exact with the renderer at fault (§3), and a plain `<audio>` bed
 that holds sync (§5).
 
-**ADP-003 is unblocked on this axis.** It still waits on SO-2 (the Log) and SO-4
-(the rack invariant), which this spike says nothing about.
+**ADP-003 is unblocked on this axis.** SO-2 (the Log) and SO-4 (the rack
+invariant) are also closed; ADP-003 is now drafted but not authorized.
 
 **Three amendments `SPEC.md` §6 now warrants** — proposed here, an owner's to
 accept. Each records something measured; none decides anything:

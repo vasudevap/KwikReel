@@ -3,10 +3,11 @@
 **Status:** **AUTHORIZED — owner, 2026-07-28, as drafted; amended 2026-07-28 to
 add WO-118a, to unhold WO-120, and to add WO-116a; amended 2026-07-29 to make
 WO-120 a closeout gate; amended 2026-07-30 to make test ownership executable,
-serialize renderer → QA, add held WO-118b, and then unhold it after the reject
-decision.** Scope: **WO-116a**, WO-117 –
-WO-124, plus **WO-118b, all unheld** following the 2026-07-30 reject decision,
-under the §2 grant (local build to green on synthetic fixtures).
+serialize renderer → QA, add held WO-118b, unhold it after the reject decision,
+and retain the playback harness through WO-127. **CLOSED 2026-07-30.** Scope:
+**WO-116a**, WO-117 – WO-124, plus **WO-118b, all unheld** following the
+2026-07-30 reject decision, under the §2 grant (local build to green on
+synthetic fixtures).
 Pushes, CI and real-media runs stay separately gated in §3.
 
 > **Amendment 1, owner, 2026-07-28 — WO-118a added.** As drafted, this ADP gave
@@ -69,6 +70,15 @@ Pushes, CI and real-media runs stay separately gated in §3.
 > trim remains retained with `disposition: "dismissed"`, but §3.1's derivation
 > skips it. `SPEC.md` §3.1 and §4.3 are amended to match. **WO-118b is unheld**
 > under the existing local synthetic-fixture grant and remains a closeout gate.
+
+> **Amendment 7, owner, 2026-07-30 — retain the playback harness through
+> WO-127.** Closeout originally required deleting all WO-124 spike code, while
+> accepted `SPEC.md` §6.7 requires the same harness rerun in a foregrounded
+> window before the Monitor ships. Deleting it here would make that required
+> check impossible. The owner authorized the narrow resolution: ADP-002 closes
+> with `spike/wo-124-playback/` retained; ADP-003 assigns WO-127 its foreground
+> rerun and deletion after the result is recorded. No product requirement or
+> `SPEC.md` text changes.
 
 **Program ID:** ADP-002
 **Type:** Autonomous Delivery Program
@@ -279,9 +289,10 @@ Three options were available and the middle one is taken:
 
 ```
 Authorized:            2026-07-28   by  Repository Owner (via session chat)
+Closed:                2026-07-30
 Scope granted:         WO-116a and WO-117 – WO-124, all unheld
                        plus WO-118b, unheld by Amendment 6
-Narrowing / notes:     Authorized as drafted; amended six times —
+Narrowing / notes:     Authorized as drafted; amended seven times —
                        Amendment 1 (2026-07-28) added WO-118a,
                        Amendment 2 (2026-07-28) unheld WO-120,
                        Amendment 3 (2026-07-28) added WO-116a,
@@ -290,6 +301,8 @@ Narrowing / notes:     Authorized as drafted; amended six times —
                        serialized WO-121 → WO-122, and added held WO-118b.
                        Amendment 6 (2026-07-30) recorded the reject decision,
                        amended SPEC.md, and unheld WO-118b.
+                       Amendment 7 (2026-07-30) retained the WO-124 harness
+                       through WO-127, which owns its rerun and deletion.
                        See the head of this file.
 ```
 
@@ -299,12 +312,14 @@ stop-and-asks in §3.
 
 ## 9. Closeout
 
-ADP-002 closes when **every §4 Work Order — WO-116a, WO-117, WO-118, WO-118a,
-WO-118b, WO-119, WO-120 and WO-121 – WO-123 — is merged green** on synthetic
-fixtures and **WO-124 has reported its numbers** (done, 2026-07-28). WO-120
+**CLOSED 2026-07-30.** Every §4 Work Order — WO-116a, WO-117, WO-118, WO-118a,
+WO-118b, WO-119, WO-120 and WO-121 – WO-123 — is **merged green** on synthetic
+fixtures, and **WO-124 has reported its numbers** (done, 2026-07-28). WO-120
 gates closeout under Amendment 4; **WO-118b gates closeout under Amendment 5
-and is unheld by Amendment 6.** Closeout deletes the spike's code, updates
-`handoff.md`, and writes ADP-003 — whose content depends on what WO-124 found.
+and is unheld by Amendment 6.** Closeout updates `handoff.md` and writes
+ADP-003 — whose content depends on what WO-124 found. Amendment 7 supersedes
+the deletion-at-closeout instruction: the spike survives only through WO-127,
+which reruns it foregrounded and deletes it after recording the result.
 If WO-124 shows the Monitor cannot be made good enough to judge an edit on,
 **`SPEC.md` §6 and the v3z design change before ADP-003 is written**, which is
 the entire reason the spike runs first.

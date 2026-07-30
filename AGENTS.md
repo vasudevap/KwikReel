@@ -37,16 +37,16 @@ human reviews it and overrides anything.
    2026-07-28.** The record `SPEC.md` was written against, and the append-only
    log where any future decision goes.
 5. **[docs/implementation-plans/ADP-002-contract-v2-and-backend.md](docs/implementation-plans/ADP-002-contract-v2-and-backend.md)**
-   — the live authorization, and the Work Order set with its gates. **Authorized
-   2026-07-28, amended through 2026-07-30,** for **WO-116a and WO-117 – WO-124,
-   plus WO-118b, all unheld** —
-   **local build to green on synthetic fixtures only.** Its §3 is the list of
-   what is still withheld.
-6. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
+   — the closed backend authorization and its Work Order gates. **Authorized
+   2026-07-28, amended seven times, closed 2026-07-30.** Amendment 7 retains the
+   WO-124 harness through WO-127 for the foreground rerun `SPEC.md` requires.
+6. **[docs/implementation-plans/ADP-003-v3z-rack-frontend.md](docs/implementation-plans/ADP-003-v3z-rack-frontend.md)**
+   — the proposed frontend program. **Drafted 2026-07-30; not authorized.**
+7. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
    — the plan that got us here. Largely discharged; kept for the ADP-003 and
    ADP-004 sequencing ADP-002 does not carry. Where it disagrees with `SPEC.md`,
    `SPEC.md` wins.
-7. **`docs/design-claude/README.md`** — the v3z design, which is the frozen
+8. **`docs/design-claude/README.md`** — the v3z design, which is the frozen
    frontend baseline. **Local only — gitignored and not in the public repo**
    (see below).
 
@@ -85,12 +85,14 @@ one being used as a rule, that document is stale.
 
 ## Where the project is (2026-07-30)
 
-**The backend rebuild is mid-flight under ADP-002.** Contracts (WO-117), ingest
-(WO-116a), the trim proposer (WO-118a), the store (WO-118), reject semantics
+**The backend rebuild is complete and ADP-002 closed 2026-07-30.** Contracts
+(WO-117), ingest (WO-116a), the trim proposer (WO-118a), the store (WO-118), reject semantics
 (WO-118b), the media services (WO-119), speed proposer (WO-120), renderer
 (WO-121), output QA (WO-122), and API (WO-123) are v2 and merged; the WO-124
 playback spike has reported its numbers and the v3z design survived them.
 Every ADP-002 implementation Work Order is complete on its own synthetic gate.
+Amendment 7 retains the spike harness only through WO-127 for `SPEC.md` §6.7's
+required foreground rerun and deletion.
 
 **In v2 what renders is derived, never stored.** `backend/store/derive.py` is
 `SPEC.md` §3.1 and §3.4 as code; `clip.segment` holds *the user's* trim and is
@@ -109,8 +111,8 @@ been processed** — every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded
 `assumed`, and only ADP-004's real-footage run can move one.
 
 **The frontend is a stub** — `main.tsx` and the generated types, nothing more.
-Its rebuild is ADP-003: unblocked on the spec side, **not yet written or
-authorized**. The 26-version design exploration ended at **v3z**, locked (A-8);
+Its rebuild is ADP-003: entry gates met, **drafted but not authorized**. The
+26-version design exploration ended at **v3z**, locked (A-8);
 `disposition` is the one v3z removal the owner reversed (DECISIONS A-3).
 
 **The decision session is done** ([docs/DECISIONS.md](docs/DECISIONS.md)) **and
@@ -118,14 +120,12 @@ authorized**. The 26-version design exploration ended at **v3z**, locked (A-8);
 record for the rebuild, under `CONSTRAINTS.md`. Neither is to be amended backward
 from the archived ES-001; amending inherits the ghosts the clean cut removed.
 
-**Implementation is authorized, narrowly.** ADP-002 grants WO-116a and
-WO-117 – WO-124, plus **WO-118b, all unheld**: **local build to green on
-synthetic fixtures.** Amendment 5 makes test ownership explicit and runs
-renderer → QA as one serial lane; Amendment 6 resolved the reject semantics and
-unheld WO-118b. Still withheld and still stop-and-ask — **every push to
-`origin`**, CI, **any run against real footage** (needs an ADR-002-style consent
-record first), amending `SPEC.md`, and **any frontend work** beyond WO-117's
-generated types.
+**No implementation program is currently authorized.** ADP-002's narrow local
+synthetic grant is discharged and closed. ADP-003 §8 says `Authorized: NO`, so
+**any frontend work**, the foreground harness rerun and its deletion remain
+withheld. Also still stop-and-ask: **every push to `origin`**, CI, **any run
+against real footage** (needs an ADR-002-style consent record first), and
+amending `SPEC.md`.
 
 ## Working discipline
 

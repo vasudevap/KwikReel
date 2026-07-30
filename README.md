@@ -10,18 +10,20 @@ the device.
 
 ## Status — honest version
 
-**A working backend exists and is being realigned to the accepted spec. The
-frontend rebuild is specified but not yet authorized. Nothing has ever run
-against real footage.**
+**The backend is realigned to the accepted spec and ADP-002 is closed. The
+frontend program is drafted but not authorized. Nothing has ever run against
+real footage.**
 
 - The pipe runs end to end **on synthetic fixtures**: ingest → analysis → trim
   proposal → render → QA → export, behind a local HTTP API with its security
-  guards. Mid-realignment, parts of the suite are **deliberately red** while the
-  two halves speak different schema versions — [handoff.md](handoff.md) has the
-  exact state.
+  guards. Every ADP-002 synthetic gate passes; parts of the whole suite are
+  **deliberately red** in legacy integration tests withheld to WO-134 —
+  [handoff.md](handoff.md) has the exact state.
 - The frontend was deleted on 2026-07-28 when a 26-version design exploration
   landed on a materially different product. Rebuilding it against that design is
-  specified, and is a separate authorization that has not been given.
+  proposed in
+  [ADP-003](docs/implementation-plans/ADP-003-v3z-rack-frontend.md), whose
+  authorization has not been given.
 - **No experiment has ever run and no real footage has ever been processed.**
   Every claim in [EVIDENCE-LEDGER.md](docs/specs/EVIDENCE-LEDGER.md) is graded
   `assumed`. That the code passes its tests establishes that it works, not that
