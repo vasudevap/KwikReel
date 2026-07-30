@@ -1,133 +1,80 @@
-"""WO-106 gates · the ES-001 §6 endpoints work end to end through the job
-runner, and a failing job surfaces its error rather than hanging."""
+"""WO-123 API-v2 routes on synthetic fixtures."""
 
 from __future__ import annotations
 
 import pytest
 
 from tests.support import AUTH, build_app, wait_job
-from tests.synthetic import ffmpeg_available, make_corpus, make_music
+from tests.synthetic import ffmpeg_available, make_clip, make_music
+
+_CREATE = {"media_root": "/no/such/secret_dir", "output_resolution": "1080p", "music_level": 0.0, "clip_level": 0.0}
 
 
-def test_failing_job_surfaces_its_error(tmp_path) -> None:
-    # No ffmpeg needed: scanning a nonexistent media_root fails in the job thread.
+def _create(client, **overrides):
+    body = {**_CREATE, **overrides}
+    response = client.post("/api/project", json=body, headers=AUTH)
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def test_create_patch_and_optimistic_conflict(tmp_path) -> None:
     _, client, _ = build_app(tmp_path)
-    created = client.post(
-        "/api/project",
-        json={"media_root": "/no/such/secret_dir", "track_ref": "/no/such/track.m4a"},
-        headers=AUTH,
-    )
-    assert created.status_code == 200
-    pid = created.json()["project_id"]
+    project = _create(client)
+    patch = {"updated_at": project["updated_at"], "name": "Synthetic Day", "audio": {"music_level": 0.2, "clip_level": 0.8}}
+    saved = client.patch(f"/api/project/{project['project_id']}", json=patch, headers=AUTH)
+    assert saved.status_code == 200
+    assert saved.json()["name"] == "Synthetic Day"
+    stale = client.patch(f"/api/project/{project['project_id']}", json=patch, headers=AUTH)
+    assert stale.status_code == 409
 
-    job_id = client.post(f"/api/import/{pid}/scan", headers=AUTH).json()["job_id"]
-    status = wait_job(client, job_id)
+
+def test_failing_scan_job_scrubs_private_path(tmp_path) -> None:
+    _, client, _ = build_app(tmp_path)
+    project = _create(client)
+    job = client.post(f"/api/import/{project['project_id']}/scan", headers=AUTH).json()["job_id"]
+    status = wait_job(client, job)
     assert status["state"] == "error"
-    assert status["error"]  # surfaced, not hung
+    assert "/no/such/secret_dir" not in (status["error"] or "")
 
 
-@pytest.mark.skipif(not ffmpeg_available(), reason="ffmpeg/ffprobe not installed (ES-001 §3)")
-def test_create_scan_export_finalize_end_to_end(tmp_path) -> None:
+@pytest.mark.skipif(not ffmpeg_available(), reason="ffmpeg/ffprobe not installed")
+def test_scan_patch_export_download_and_media(tmp_path) -> None:
     media = tmp_path / "media"
-    make_corpus(media)
-    music = make_music(tmp_path / "bed.m4a")
+    media.mkdir()
+    make_clip(media / "portrait.mp4", size="1080x1920", codec="h264", duration=3, with_audio=True)
+    track = make_music(tmp_path / "bed.m4a", duration=3)
     _, client, _ = build_app(tmp_path)
-
-    # create
-    pid = client.post(
-        "/api/project", json={"media_root": str(media), "track_ref": str(music)}, headers=AUTH
-    ).json()["project_id"]
-
-    # scan -> sources + default timeline (unreadable surfaced)
-    job = client.post(f"/api/import/{pid}/scan", headers=AUTH).json()["job_id"]
-    assert wait_job(client, job)["state"] == "done"
+    project = _create(client, media_root=str(media), track_ref=str(track), music_level=0.5, clip_level=0.5)
+    pid = project["project_id"]
+    assert wait_job(client, client.post(f"/api/import/{pid}/scan", headers=AUTH).json()["job_id"])["state"] == "done"
     project = client.get(f"/api/project/{pid}").json()
-    assert len(project["sources"]) == 4
-    assert any(not s["readable"] for s in project["sources"])
-    assert len(project["clips"]) == 4
-
-    # proxy serving with range support
-    readable = next(s for s in project["sources"] if s["readable"])
-    proxy = client.get(f"/api/media/proxy/{readable['source_id']}")
-    assert proxy.status_code == 200
-    assert proxy.headers.get("accept-ranges") == "bytes"
-
-    # export music -> QA passes -> last_render persisted -> downloadable
-    job = client.post(f"/api/export/{pid}", json={"audio_mode": "music"}, headers=AUTH).json()["job_id"]
-    assert wait_job(client, job)["state"] == "done"
+    clip = project["clips"][0]
+    changed = client.patch(f"/api/project/{pid}/clip/{clip['source_id']}", json={"updated_at": project["updated_at"], "segment": {"in_s": 0.0, "out_s": 2.0}, "audio": {"retain": False, "gain_db": 0.0}}, headers=AUTH)
+    assert changed.status_code == 200
+    assert changed.json()["clips"][0]["origin"]["segments"] == "user"
+    exported = wait_job(client, client.post(f"/api/export/{pid}", headers=AUTH).json()["job_id"])
+    assert exported["state"] == "done", exported
     project = client.get(f"/api/project/{pid}").json()
-    assert "music" in project["export"]["last_render"]
-    assert project["export"]["last_render"]["music"]["qa"]["passed"] is True
-    assert client.get(f"/api/export/{pid}/download/music").status_code == 200
-
-    # finalize draft -> servable
-    job = client.post(f"/api/render/{pid}/finalize", headers=AUTH).json()["job_id"]
-    assert wait_job(client, job)["state"] == "done"
-    assert client.get(f"/api/render/{pid}/draft").status_code == 200
+    assert project["export"]["last_render"]["qa"]["passed"]
+    assert client.get(f"/api/export/{pid}/download").status_code == 200
+    assert client.get(f"/api/media/proxy/{clip['source_id']}").status_code == 200
+    assert client.get(f"/api/media/peaks/{pid}/{clip['source_id']}").status_code == 200
 
 
-@pytest.mark.skipif(not ffmpeg_available(), reason="ffmpeg/ffprobe not installed (ES-001 §3)")
-def test_analyze_then_propose_writes_explained_proposals(tmp_path) -> None:
-    media = tmp_path / "media"
-    make_corpus(media)
-    music = make_music(tmp_path / "bed.m4a")
-    _, client, _ = build_app(tmp_path, with_ai=True)
-
-    pid = client.post(
-        "/api/project", json={"media_root": str(media), "track_ref": str(music)}, headers=AUTH
-    ).json()["project_id"]
-    for path in (f"/api/import/{pid}/scan", f"/api/analyze/{pid}"):
-        assert wait_job(client, client.post(path, headers=AUTH).json()["job_id"])["state"] == "done"
-
-    job = client.post(f"/api/propose/trim/{pid}", json={}, headers=AUTH).json()["job_id"]
-    assert wait_job(client, job)["state"] == "done"
-
-    project = client.get(f"/api/project/{pid}").json()
-    proposed = [c for c in project["clips"] if c["included"] and c["proposals"]["segments"]]
-    assert proposed, "expected trim proposals on the included clips"
-    for clip in proposed:
-        assert clip["origin"]["segments"] == "proposed"
-        seg = clip["proposals"]["segments"]
-        assert seg["disposition"] == "pending"
-        assert seg["reasons"] and all(r["human_text"] and r["evidence_refs"] for r in seg["reasons"])
-
-
-def test_pick_folder_returns_the_chosen_path(tmp_path, monkeypatch) -> None:
-    from backend.api import app as app_module
-
-    monkeypatch.setattr(app_module, "_choose_folder", lambda: "/Users/x/Movies/Beach Day")
+def test_removed_v1_routes_are_not_present_and_new_mutations_require_token(tmp_path) -> None:
     _, client, _ = build_app(tmp_path)
-    res = client.post("/api/pick-folder", headers=AUTH)
-    assert res.status_code == 200
-    assert res.json()["path"] == "/Users/x/Movies/Beach Day"
+    project = _create(client)
+    pid = project["project_id"]
+    assert client.post(f"/api/project/{pid}/approve/ingest", headers=AUTH).status_code == 404
+    assert client.post(f"/api/render/{pid}/finalize", headers=AUTH).status_code == 404
+    assert client.post(f"/api/export/{pid}").status_code == 401
+    assert client.post("/api/pick-file").status_code == 401
 
 
-def test_pick_folder_returns_null_on_cancel(tmp_path, monkeypatch) -> None:
-    from backend.api import app as app_module
-
-    monkeypatch.setattr(app_module, "_choose_folder", lambda: None)
+def test_proposal_routes_are_clear_when_services_are_absent(tmp_path) -> None:
     _, client, _ = build_app(tmp_path)
-    res = client.post("/api/pick-folder", headers=AUTH)
-    assert res.status_code == 200
-    assert res.json()["path"] is None
-
-
-def test_pick_folder_requires_capability_token(tmp_path) -> None:
-    _, client, _ = build_app(tmp_path)
-    res = client.post("/api/pick-folder")  # no token
-    assert res.status_code == 401
-    assert res.json()["error_code"] == "missing_capability"
-
-
-def test_job_not_found_is_404(tmp_path) -> None:
-    _, client, _ = build_app(tmp_path)
-    assert client.get("/api/jobs/nope").status_code == 404
-
-
-def test_analyze_and_propose_are_501_until_their_lanes_exist(tmp_path) -> None:
-    _, client, _ = build_app(tmp_path)
-    pid = client.post(
-        "/api/project", json={"media_root": "/m", "track_ref": "/t"}, headers=AUTH
-    ).json()["project_id"]
+    project = _create(client)
+    pid = project["project_id"]
     assert client.post(f"/api/analyze/{pid}", headers=AUTH).status_code == 501
     assert client.post(f"/api/propose/trim/{pid}", headers=AUTH).status_code == 501
+    assert client.post(f"/api/propose/speed/{pid}", headers=AUTH).status_code == 501

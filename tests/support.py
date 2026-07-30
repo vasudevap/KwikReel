@@ -9,6 +9,8 @@ from fastapi.testclient import TestClient
 
 from backend.api import ApiConfig, Services, create_app
 from backend.ingest import FFmpegIngest
+from backend.media import FFmpegMediaService
+from backend.propose import SpeedRuleProposer
 from backend.qa import FFmpegOutputQA
 from backend.render import FFmpegRenderer
 from backend.store import FileProjectStore
@@ -26,6 +28,8 @@ def build_app(tmp_path: Path, with_ai: bool = False):
         ingest=FFmpegIngest(proxy_root=proxy_root),
         renderer=FFmpegRenderer(output_root=output_root),
         qa=FFmpegOutputQA(),
+        media=FFmpegMediaService(tmp_path / "media-cache"),
+        speed_proposer=SpeedRuleProposer(),
     )
     if with_ai:  # WO-111/112 — injected only when a test needs the trim assist
         from backend.analysis import OpenCVAnalysis

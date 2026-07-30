@@ -10,8 +10,8 @@ only — the mockups are not in the public repo.)
 the **decision session** ([`DECISIONS.md`](../DECISIONS.md)), **`SPEC.md`
 accepted** (discharging S-1 and — within it — S-4, S-5, S-6, S-9 and S-10),
 **ADP-002 signed**, and **WO-117 merged**. WO-116/116a, WO-118, WO-118a,
-WO-118b, WO-119, WO-120, WO-121, WO-122 and WO-124 have landed; the remaining
-API lane is ready under ADP-002.
+WO-118b, WO-119, WO-120, WO-121, WO-122, WO-123 and WO-124 have landed; ADP-002
+is ready for closeout.
 
 **What this plan still holds that `SPEC.md` does not:** the ADP-003/ADP-004
 sequencing in §3 – §5. The four spec gaps it once held open — S-2 (SO-3), S-3

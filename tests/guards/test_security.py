@@ -10,7 +10,12 @@ from __future__ import annotations
 from backend.api.errors import scrub
 from tests.support import AUTH, build_app, wait_job
 
-_BODY = {"media_root": "/m", "track_ref": "/t"}
+_BODY = {
+    "media_root": "/m",
+    "output_resolution": "1080p",
+    "music_level": 0.0,
+    "clip_level": 0.0,
+}
 
 
 def test_scrub_removes_absolute_paths() -> None:
@@ -68,7 +73,7 @@ def test_error_envelope_carries_no_absolute_media_path(tmp_path) -> None:
     _, client, _ = build_app(tmp_path)
     pid = client.post(
         "/api/project",
-        json={"media_root": "/private/secret_dir", "track_ref": "/private/track.m4a"},
+        json={**_BODY, "media_root": "/private/secret_dir"},
         headers=AUTH,
     ).json()["project_id"]
     job_id = client.post(f"/api/import/{pid}/scan", headers=AUTH).json()["job_id"]

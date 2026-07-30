@@ -74,10 +74,10 @@ one being used as a rule, that document is stale.
 
 **The backend rebuild is mid-flight under ADP-002.** Contracts (WO-117), ingest
 (WO-116a), the trim proposer (WO-118a), the store (WO-118), reject semantics
-(WO-118b), the media services (WO-119), the speed proposer (WO-120), renderer
-(WO-121), and output QA (WO-122) are v2 and merged; the WO-124
+(WO-118b), the media services (WO-119), speed proposer (WO-120), renderer
+(WO-121), output QA (WO-122), and API (WO-123) are v2 and merged; the WO-124
 playback spike has reported its numbers and the v3z design survived them.
-The API remains v1 — WO-123 is dependency-ready and unstarted.
+Every ADP-002 implementation Work Order is complete on its own synthetic gate.
 
 **In v2 what renders is derived, never stored.** `backend/store/derive.py` is
 `SPEC.md` §3.1 and §3.4 as code; `clip.segment` holds *the user's* trim and is
@@ -86,8 +86,9 @@ not what plays. Anything reading it as "the trim" has carried a v1 habit into v2
 **The test suite is deliberately partly red** while the two halves speak
 different schema versions. Read the warning box in `handoff.md` before treating
 red as a regression, and run `pytest --continue-on-collection-errors` for the
-whole-suite count — a bare `pytest` halts at the four expected import errors.
-**142 tests pass; four modules cannot import.**
+whole-suite count. **156 tests pass; three legacy integration tests fail and one
+legacy integration module cannot import.** They are owned by withheld WO-134,
+not an ADP-002 lane.
 
 **`SPEC.md` §14 is fully closed** — SO-1 and SO-2 by owner decision, SO-3 and
 SO-4 by measurement. **No experiment has ever run and no real footage has ever

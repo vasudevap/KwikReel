@@ -10,7 +10,7 @@ and a materially different product from the one M1 was built for. That old
 frontend is deleted; the superseded record lives in `docs/archive/`; the
 surviving guardrails are `docs/CONSTRAINTS.md`; the departures are decided in
 `docs/DECISIONS.md`. **ADP-002 is authorized** — WO-116a and WO-117 – WO-124,
-all unheld, including WO-118b after Amendment 6, local on synthetic fixtures — and ten
+all unheld, including WO-118b after Amendment 6, local on synthetic fixtures — and eleven
 Work Orders have merged. Amendment 5 makes every lane's test ownership explicit
 and sequences renderer → QA rather than pretending their mixed legacy test file
 is disjoint. The suite is deliberately partly red across the schema seam (the
@@ -31,16 +31,20 @@ box below).
 | `backend/media/` | **v2 — WO-119, done.** Cached JPEG thumbnails and waveform peaks in a separate local cache; music peaks are content-hash keyed before a project exists; native folder/file pickers return a path or clean cancellation |
 | `backend/render/` | **v2 — WO-121, done.** One H.264/AAC export from originals and the derived timeline: effective trims and speed ranges, chained `atempo`, arithmetic duration clamps, project-selected resolution, weighted clip/music mix, out-of-reel skips, explicit upscale refusal, and source metadata stripping |
 | `backend/qa/` | **v2 — WO-122, done.** Checks the derived reel against the project's own resolution and audio levels; blocks bad exports with stated reasons, including a valid silent AAC requirement at a 0/0 mix |
-| `backend/api/` | FastAPI, job runner, and the local-delivery security guards, each proven to fail when removed |
+| `backend/api/` | **v2 — WO-123, done.** Frozen PATCH, relink, picker, proposal, media and single-export routes; no approval, finalize or `audio_mode` routes; every mutating route remains capability-token protected |
 
 Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
 `python3` has no pytest.)
 
 > **⚠️ The suite is partly red, deliberately, and this is not a regression.**
-> WO-117 froze schema v2 and merged; the API is still speaking v1.
-> **142 pass · 0 fail · 4 modules cannot import** (`tests/api`, `tests/guards`,
-> `tests/integration` ×2 — all v1-shape import errors,
-> WO-123/133/134's to clear). **Nothing fails any more**: WO-118 cleared
+> **156 pass · 3 fail · 1 module cannot import.** API, renderer and QA v2 gates
+> pass. The remaining `tests/integration/test_internal_checkpoint.py` cannot
+> import its retired v1 shapes, while the three failures in
+> `tests/integration/test_full_flow_api.py` assert removed approval and
+> audio-mode routes. Those tests are owned by withheld WO-134, not this ADP.
+> They were previously masked by the API's v1 import error; their exposure is a
+> scope finding, not a WO-123 regression. **Nothing in an authorized lane fails**:
+> WO-118 cleared
 > the ten `tests/store/test_store.py` failures that stood here and added 58
 > tests. A bare `pytest` halts at the four import errors — add
 > `--continue-on-collection-errors` for the whole-suite count.
@@ -59,11 +63,11 @@ not resolve on GitHub.
 
 ## What does not exist
 
-- **The API is still v1.**
+- **No remaining ADP-002 implementation lane.**
   Contracts (WO-117), ingest (WO-116a), the trim proposer (WO-118a), the store
   (WO-118), reject semantics (WO-118b), media services (WO-119), and the speed
-  proposer (WO-120), renderer (WO-121), and output QA (WO-122) are v2;
-  the remaining ADP-002 lane has not started.
+  proposer (WO-120), renderer (WO-121), output QA (WO-122), and API (WO-123)
+  are v2.
 - **No frontend at all**, and no authorization for one. **ADP-003 is now
   unblocked on the spec side** — it was gated on WO-124's numbers plus SO-2 and
   SO-4, and all three have landed. It still has to be written.
@@ -82,8 +86,8 @@ not resolve on GitHub.
 
 ## In flight right now
 
-**Nothing.** WO-122's output QA is now merged; WO-122 is the latest Work Order.
-The remaining authorized lane is WO-123 API.
+**Nothing.** WO-123's API migration is now merged; WO-123 is the latest Work
+Order. Every ADP-002 implementation Work Order is complete on its own gate.
 
 **WO-124 is done.** [`docs/specs/WO-124-playback-findings.md`](docs/specs/WO-124-playback-findings.md)
 — **SO-3 is answered and the v3z design survives.** The Monitor uses **two
@@ -95,9 +99,10 @@ ADP-002 closeout; the findings document is what survives.
 
 ## What happens next
 
-1. **WO-123 API is next.** The renderer → QA serial lane is complete. Its v2
-   routes must consume the frozen contracts and remove `audio_mode`, approval
-   gates, and path leaks; the API and its guard tests are its exclusive scope.
+1. **ADP-002 closeout is next.** Its implementation Work Orders are complete on
+   synthetic fixtures. The legacy integration suite is withheld to WO-134 and
+   must not be repaired under this ADP; its visible v1 failures are recorded in
+   the suite box above.
 2. **WO-118b reject semantics is done.** Rejected trim proposals remain in the
    audit record but are skipped in derivation, so reject reverts the effective
    trim without creating a user edit.

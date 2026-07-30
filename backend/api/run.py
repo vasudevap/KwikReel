@@ -15,7 +15,8 @@ from pathlib import Path
 from backend.analysis import OpenCVAnalysis
 from backend.api import ApiConfig, Services, create_app
 from backend.ingest import FFmpegIngest
-from backend.propose import TrimRuleProposer
+from backend.media import FFmpegMediaService
+from backend.propose import SpeedRuleProposer, TrimRuleProposer
 from backend.qa import FFmpegOutputQA
 from backend.render import FFmpegRenderer
 from backend.store import FileProjectStore
@@ -30,8 +31,10 @@ def build_app(data_root: Path):
         ingest=FFmpegIngest(proxy_root=proxy_root),
         renderer=FFmpegRenderer(output_root=output_root),
         qa=FFmpegOutputQA(),
+        media=FFmpegMediaService(data_root / "media-cache"),
         analysis=OpenCVAnalysis(),
         proposer=TrimRuleProposer(),
+        speed_proposer=SpeedRuleProposer(),
     )
     dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
     config = ApiConfig(

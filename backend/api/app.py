@@ -1,15 +1,4 @@
-"""FastAPI app for M1 (WO-106). Every ES-001 §6 route, ADR-011 security posture.
-
-Security (ES-001 §9 / ADR-011), enforced by `SecurityMiddleware`:
-  * Host allow-list  — Host must resolve to 127.0.0.1/localhost (anti DNS-rebinding)
-  * Origin allow-list — a cross-origin request (Origin host not local) is rejected
-  * Capability token — every state-changing method needs a valid per-launch token
-  * No permissive CORS — no CORS middleware, so no wildcard ACAO is ever emitted
-  * Path-scrubbed errors — via backend.api.errors
-
-The app codes against the WO-101 service interfaces; long operations run through
-the JobRunner. Bind to 127.0.0.1 only (see run.py); binding beyond is a stop-and-ask.
-"""
+"""WO-123 · Local HTTP API for the frozen v2 contract."""
 
 from __future__ import annotations
 
@@ -17,7 +6,6 @@ import hashlib
 import hmac
 import json
 import secrets
-import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,22 +22,15 @@ from backend.analysis import FileAnalysisStore
 from backend.api.errors import envelope, install_error_handlers, scrub
 from backend.api.jobs import JobRunner, ProgressFn
 from backend.api.services import Services
-from backend.contracts.models import (
-    AudioMode,
-    Clip,
-    Export,
-    Music,
-    Origin,
-    Project,
-    Proposals,
-    Segment,
-    StageApprovals,
-)
+from backend.contracts.models import AudioMix, AudioSettings, Clip, Export, Music, Project, Segment, SpeedRange
 from backend.render.ffmpeg_render import output_filename
+from backend.store import (
+    InvariantError, mark_proposals_accepted, set_clip_order, set_user_audio,
+    set_user_segment, set_user_speed_ranges,
+)
 
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.2.0"
 LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost"})
-STAGES = frozenset({"ingest", "trim", "selection", "speed", "finalize"})
 MUTATING = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 
 
@@ -61,295 +42,276 @@ class ApiConfig:
     frontend_dist: Path | None = None
     allowed_hosts: frozenset[str] = LOCAL_HOSTS
     allowed_origin_hosts: frozenset[str] = LOCAL_HOSTS
-    capability_token: str | None = None  # generated per launch if not supplied
+    capability_token: str | None = None
 
 
 class SecurityMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, *, token: str, allowed_hosts, allowed_origin_hosts) -> None:
         super().__init__(app)
-        self._token = token
-        self._hosts = allowed_hosts
-        self._origins = allowed_origin_hosts
+        self._token, self._hosts, self._origins = token, allowed_hosts, allowed_origin_hosts
 
     async def dispatch(self, request: Request, call_next):
         host = (request.headers.get("host", "") or "").rsplit(":", 1)[0].strip("[]")
         if host and host not in self._hosts:
             return envelope("forbidden_host", "Request host is not allowed.", "Reach the app at http://127.0.0.1.", 403)
-
         origin = request.headers.get("origin")
-        if origin is not None:
-            if (urlparse(origin).hostname or "") not in self._origins:
-                return envelope("forbidden_origin", "Cross-origin request rejected.", "Use the local app UI.", 403)
-
+        if origin is not None and (urlparse(origin).hostname or "") not in self._origins:
+            return envelope("forbidden_origin", "Cross-origin request rejected.", "Use the local app UI.", 403)
         if request.method in MUTATING:
-            token = request.headers.get("x-capability-token", "")
-            if not token or not hmac.compare_digest(token, self._token):
+            supplied = request.headers.get("x-capability-token", "")
+            if not supplied or not hmac.compare_digest(supplied, self._token):
                 return envelope("missing_capability", "Missing or invalid capability token.", "Reload the local app to obtain a fresh session.", 401)
-
         return await call_next(request)
 
 
 class CreateProjectBody(BaseModel):
     media_root: str
-    track_ref: str
+    output_resolution: str
+    music_level: float
+    clip_level: float
     target_duration_s: float = 75.0
+    track_ref: str | None = None
 
 
-class ExportBody(BaseModel):
-    audio_mode: AudioMode
+class ProjectPatch(BaseModel):
+    updated_at: str
+    name: str | None = None
+    target_duration_s: float | None = None
+    output_resolution: str | None = None
+    audio: AudioMix | None = None
+    trim_assist_on: bool | None = None
+    speed_assist_on: bool | None = None
+    music: Music | None = None
+
+
+class ClipPatch(BaseModel):
+    updated_at: str
+    order: int | None = None
+    segment: Segment | None = None
+    speed_ranges: list[SpeedRange] | None = None
+    audio: AudioSettings | None = None
+
+
+class RelinkBody(BaseModel):
+    updated_at: str
+    path: str
 
 
 class ProposeBody(BaseModel):
-    source_ids: list[str] | None = None  # omit for all included clips
+    source_ids: list[str] | None = None
 
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def _choose_folder() -> str | None:
-    """Launch the native macOS folder-choose dialog; None if canceled or unavailable.
-
-    Runs on the same Mac as the backend (ADR-005), so this never crosses a network
-    boundary — it is the local user picking a local path, same as typing one.
-    """
-    script = 'POSIX path of (choose folder with prompt "Select a folder of clips")'
-    try:
-        result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, timeout=600)
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        return None
-    if result.returncode != 0:  # user canceled, or no dialog available
-        return None
-    return result.stdout.strip()
-
-
-def _music_for(track_ref: str) -> Music:
-    p = Path(track_ref)
-    content_hash = ""
-    if p.exists() and p.is_file():
-        h = hashlib.sha256()
-        with p.open("rb") as fh:
-            for chunk in iter(lambda: fh.read(1 << 20), b""):
-                h.update(chunk)
-        content_hash = h.hexdigest()
-    return Music(track_ref=track_ref, content_hash=content_hash, duration_s=0.0)
+def _hash(path: str) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def create_app(services: Services, config: ApiConfig) -> FastAPI:
     token = config.capability_token or secrets.token_urlsafe(32)
     runner = JobRunner(scrub=scrub)
     analysis_store = FileAnalysisStore(config.analysis_root) if config.analysis_root else None
-
     app = FastAPI(title="KwikReel", version=APP_VERSION)
     app.state.capability_token = token
-    app.add_middleware(
-        SecurityMiddleware,
-        token=token,
-        allowed_hosts=config.allowed_hosts,
-        allowed_origin_hosts=config.allowed_origin_hosts,
-    )
+    app.add_middleware(SecurityMiddleware, token=token, allowed_hosts=config.allowed_hosts, allowed_origin_hosts=config.allowed_origin_hosts)
     install_error_handlers(app)
 
-    def _serve(path: Path) -> Response:
+    def source(project: Project, source_id: str):
+        found = next((item for item in project.sources if item.source_id == source_id), None)
+        if found is None:
+            raise InvariantError(f"unknown source_id {source_id!r}")
+        return found
+
+    def serve(path: Path, media_type: str = "video/mp4") -> Response:
         if not path.exists():
             return envelope("not_found", "No such file.", "Produce it first.", 404)
-        return FileResponse(str(path), media_type="video/mp4")  # Starlette handles Range
-
-    # --- projects ---------------------------------------------------------
+        return FileResponse(str(path), media_type=media_type)
 
     @app.post("/api/pick-folder")
     def pick_folder():
-        return {"path": _choose_folder()}
+        return {"path": services.media.pick_folder() if services.media else None}
+
+    @app.post("/api/pick-file")
+    def pick_file():
+        return {"path": services.media.pick_file() if services.media else None}
 
     @app.post("/api/project")
     def create_project(body: CreateProjectBody):
-        pid = str(uuid4())
         now = _now_iso()
-        project = Project(
-            schema_version=1, project_id=pid, created_at=now, updated_at=now,
-            app_version=APP_VERSION, name=None, media_root=body.media_root,
-            target_duration_s=body.target_duration_s, music=_music_for(body.track_ref),
-            sources=[], clips=[], stage_approvals=StageApprovals(),
-            export=Export(audio_modes=["music", "clip", "silent"], last_render={}),
-        )
+        music = Music(track_ref=body.track_ref, content_hash=_hash(body.track_ref), duration_s=0.0) if body.track_ref else None
+        project = Project(schema_version=2, project_id=str(uuid4()), created_at=now, updated_at=now,
+            app_version=APP_VERSION, media_root=body.media_root, target_duration_s=body.target_duration_s,
+            output_resolution=body.output_resolution, audio=AudioMix(music_level=body.music_level, clip_level=body.clip_level),
+            music=music, sources=[], clips=[], export=Export())
         return services.store.save(project).model_dump()
 
     @app.get("/api/project/{project_id}")
     def get_project(project_id: str):
         return services.store.load(project_id).model_dump()
 
-    @app.put("/api/project/{project_id}")
-    def save_project(project_id: str, project: Project):
-        from backend.store import InvariantError
-        if project.project_id != project_id:
-            raise InvariantError("project_id in body does not match the URL")
-        return services.store.save(project).model_dump()
-
-    @app.post("/api/project/{project_id}/approve/{stage}")
-    def approve(project_id: str, stage: str):
-        from backend.store import InvariantError
-        if stage not in STAGES:
-            raise InvariantError(f"unknown stage {stage!r}")
+    @app.patch("/api/project/{project_id}")
+    def patch_project(project_id: str, body: ProjectPatch):
         project = services.store.load(project_id)
-        setattr(project.stage_approvals, stage, _now_iso())
+        if project.updated_at != body.updated_at:
+            from backend.store import ConflictError
+            raise ConflictError("stale updated_at")
+        changed = body.model_fields_set - {"updated_at"}
+        if not changed:
+            raise InvariantError("patch contains no changes")
+        for field in changed:
+            setattr(project, field, getattr(body, field))
         return services.store.save(project).model_dump()
 
-    # --- import / analyze / propose --------------------------------------
+    @app.patch("/api/project/{project_id}/clip/{source_id}")
+    def patch_clip(project_id: str, source_id: str, body: ClipPatch):
+        project = services.store.load(project_id)
+        if project.updated_at != body.updated_at:
+            from backend.store import ConflictError
+            raise ConflictError("stale updated_at")
+        if "segment" in body.model_fields_set:
+            if body.segment is None:
+                raise InvariantError("segment may not be null")
+            project = set_user_segment(project, source_id, body.segment)
+        if "speed_ranges" in body.model_fields_set:
+            project = set_user_speed_ranges(project, source_id, body.speed_ranges or [])
+        if "audio" in body.model_fields_set:
+            if body.audio is None:
+                raise InvariantError("audio may not be null")
+            project = set_user_audio(project, source_id, retain=body.audio.retain, gain_db=body.audio.gain_db)
+        if "order" in body.model_fields_set:
+            if body.order is None or not 1 <= body.order <= len(project.clips):
+                raise InvariantError("order must be within the project clip range")
+            ordering = [clip.source_id for clip in sorted(project.clips, key=lambda item: item.order) if clip.source_id != source_id]
+            ordering.insert(body.order - 1, source_id)
+            project = set_clip_order(project, ordering)
+        return services.store.save(project).model_dump()
+
+    @app.post("/api/project/{project_id}/relink/{source_id}")
+    def relink(project_id: str, source_id: str, body: RelinkBody):
+        project = services.store.load(project_id)
+        if project.updated_at != body.updated_at:
+            from backend.store import ConflictError
+            raise ConflictError("stale updated_at")
+        replacement = services.ingest.probe_clip(body.path)
+        replacement.source_id = source_id
+        replacement.proxy_path = services.ingest.make_proxy(replacement) if replacement.readable else None
+        for index, item in enumerate(project.sources):
+            if item.source_id == source_id:
+                project.sources[index] = replacement
+                break
+        else:
+            raise InvariantError(f"unknown source_id {source_id!r}")
+        return services.store.save(project).model_dump()
 
     @app.post("/api/import/{project_id}/scan")
     def scan(project_id: str):
-        services.store.load(project_id)  # 404 if missing
-
+        services.store.load(project_id)
         def work(progress: ProgressFn) -> None:
             project = services.store.load(project_id)
             sources = services.ingest.build_source_index(project.media_root)
-            for i, s in enumerate(sources):
-                if s.readable:
-                    s.proxy_path = services.ingest.make_proxy(s)
-                progress((i + 1) / max(len(sources), 1) * 0.9)
-            # Default timeline for curation: capture-time order (§5.4), include readable.
-            ordered = sorted(sources, key=lambda s: (s.captured_at or "", s.path))
-            project.clips = [
-                Clip(
-                    source_id=s.source_id, included=s.readable, order=i + 1, deleted=False,
-                    segments=[Segment(in_s=0.0, out_s=max(s.duration_s, 0.0), speed=[])],
-                    origin=Origin(), proposals=Proposals(),
-                )
-                for i, s in enumerate(ordered)
-            ]
+            for index, item in enumerate(sources):
+                if item.readable:
+                    item.proxy_path = services.ingest.make_proxy(item)
+                progress((index + 1) / max(len(sources), 1) * 0.9)
             project.sources = sources
-            project.stage_approvals.ingest = _now_iso()
+            project.clips = [Clip(source_id=item.source_id, order=index) for index, item in enumerate(sorted(sources, key=lambda item: (item.captured_at or "", item.path)), 1)]
             services.store.save(project)
-
         return {"job_id": runner.submit(work)}
 
     @app.post("/api/analyze/{project_id}")
     def analyze(project_id: str):
         services.store.load(project_id)
         if services.analysis is None:
-            return envelope("not_implemented", "Per-clip analysis arrives in WO-111.", "Not available in this build.", 501)
-
+            return envelope("not_implemented", "Analysis is not available.", "Enable the local analysis service.", 501)
         def work(progress: ProgressFn) -> None:
             project = services.store.load(project_id)
-            readable = [s for s in project.sources if s.readable]
-            for i, s in enumerate(readable):
-                analysis = services.analysis.analyze(s)
-                if analysis_store is not None:
-                    analysis_store.save(project_id, analysis)
-                progress((i + 1) / max(len(readable), 1))
+            readable = [item for item in project.sources if item.readable]
+            for index, item in enumerate(readable):
+                analysis = services.analysis.analyze(item)
+                if analysis_store: analysis_store.save(project_id, analysis)
+                progress((index + 1) / max(len(readable), 1))
+        return {"job_id": runner.submit(work)}
 
+    def propose(project_id: str, body: ProposeBody | None, kind: str):
+        services.store.load(project_id)
+        proposer = services.proposer if kind == "trim" else services.speed_proposer
+        if proposer is None or services.analysis is None:
+            return envelope("not_implemented", f"{kind.title()} proposals are not available.", "Enable the local proposal service.", 501)
+        wanted = set(body.source_ids) if body and body.source_ids else None
+        def work(progress: ProgressFn) -> None:
+            project = services.store.load(project_id)
+            targets = [clip for clip in project.clips if source(project, clip.source_id).readable and (wanted is None or clip.source_id in wanted)]
+            for index, clip in enumerate(targets):
+                item = source(project, clip.source_id)
+                analysis = analysis_store.load(project_id, item.source_id) if analysis_store and analysis_store.exists(project_id, item.source_id) else services.analysis.analyze(item)
+                if analysis_store: analysis_store.save(project_id, analysis)
+                proposal = proposer.propose_trim(item, analysis) if kind == "trim" else proposer.propose_speed(item, analysis)
+                if kind == "trim":
+                    clip.proposals.segments, clip.origin.segments = proposal, "proposed"
+                else:
+                    clip.proposals.speed, clip.origin.speed = proposal, "proposed"
+                progress((index + 1) / max(len(targets), 1))
+            services.store.save(project)
         return {"job_id": runner.submit(work)}
 
     @app.post("/api/propose/trim/{project_id}")
-    def propose_trim(project_id: str, body: ProposeBody | None = None):
-        services.store.load(project_id)
-        if services.proposer is None or services.analysis is None:
-            return envelope("not_implemented", "The trim proposer arrives in WO-112.", "Not available in this build.", 501)
-        wanted = set(body.source_ids) if body and body.source_ids else None
-
-        def work(progress: ProgressFn) -> None:
-            project = services.store.load(project_id)
-            by_id = {s.source_id: s for s in project.sources}
-            targets = [
-                c for c in project.clips
-                if c.included and not c.deleted and by_id.get(c.source_id) and by_id[c.source_id].readable
-                and (wanted is None or c.source_id in wanted)
-            ]
-            for i, clip in enumerate(targets):
-                src = by_id[clip.source_id]
-                if analysis_store is not None and analysis_store.exists(project_id, src.source_id):
-                    analysis = analysis_store.load(project_id, src.source_id)
-                else:
-                    analysis = services.analysis.analyze(src)
-                    if analysis_store is not None:
-                        analysis_store.save(project_id, analysis)
-                proposal = services.proposer.propose_trim(src, analysis)
-                # Apply the proposal as the effective trim, pending the user's review
-                # (§5.3): segments become the proposal, origin -> "proposed", the
-                # proposal is retained with disposition "pending".
-                clip.segments = list(proposal.value)
-                clip.origin.segments = "proposed"
-                clip.proposals.segments = proposal
-                progress((i + 1) / max(len(targets), 1))
-            services.store.save(project)
-
-        return {"job_id": runner.submit(work)}
-
-    # --- jobs -------------------------------------------------------------
+    def propose_trim(project_id: str, body: ProposeBody | None = None): return propose(project_id, body, "trim")
+    @app.post("/api/propose/speed/{project_id}")
+    def propose_speed(project_id: str, body: ProposeBody | None = None): return propose(project_id, body, "speed")
 
     @app.get("/api/jobs/{job_id}")
     def job_status(job_id: str):
         from backend.store import ProjectNotFoundError
         job = runner.get(job_id)
-        if job is None:
-            raise ProjectNotFoundError(job_id)
+        if job is None: raise ProjectNotFoundError(job_id)
         return {"state": job.state, "progress": job.progress, "error": job.error}
 
-    # --- media serving ----------------------------------------------------
-
     @app.get("/api/media/proxy/{source_id}")
-    def serve_proxy(source_id: str):
-        return _serve(config.proxy_root / f"{source_id}.mp4")
-
-    @app.get("/api/render/{project_id}/draft")
-    def serve_draft(project_id: str):
-        project = services.store.load(project_id)
-        return _serve(config.output_root / project_id / output_filename(project, "draft"))
-
-    @app.get("/api/export/{project_id}/download/{audio_mode}")
-    def download_export(project_id: str, audio_mode: str):
-        project = services.store.load(project_id)
-        record = project.export.last_render.get(audio_mode)
-        if record is None:
-            return envelope("not_found", "That audio mode has not been exported.", "Export it first.", 404)
-        return _serve(Path(record.path))
-
-    # --- render / export --------------------------------------------------
-
-    @app.post("/api/render/{project_id}/finalize")
-    def finalize(project_id: str):
-        services.store.load(project_id)
-
-        def work(progress: ProgressFn) -> None:
-            project = services.store.load(project_id)
-            progress(0.1)
-            services.renderer.render_draft(project)
-
-        return {"job_id": runner.submit(work)}
+    def serve_proxy(source_id: str): return serve(config.proxy_root / f"{source_id}.mp4")
+    @app.get("/api/media/thumb/{project_id}/{source_id}")
+    def thumbnail(project_id: str, source_id: str, at_s: float = 0.0):
+        if services.media is None: return envelope("not_implemented", "Preview media is not available.", "Enable the local media service.", 501)
+        return Response(content=services.media.thumbnail(source(services.store.load(project_id), source_id), at_s), media_type="image/jpeg")
+    @app.get("/api/media/peaks/{project_id}/{source_id}")
+    def peaks(project_id: str, source_id: str):
+        if services.media is None: return envelope("not_implemented", "Preview media is not available.", "Enable the local media service.", 501)
+        return {"peaks": services.media.peaks(source(services.store.load(project_id), source_id))}
+    @app.get("/api/music/peaks")
+    def music_peaks(track_ref: str, content_hash: str):
+        if services.media is None: return envelope("not_implemented", "Preview media is not available.", "Enable the local media service.", 501)
+        return {"peaks": services.media.music_peaks(track_ref, content_hash)}
 
     @app.post("/api/export/{project_id}")
-    def export(project_id: str, body: ExportBody):
+    def export(project_id: str):
         services.store.load(project_id)
-        mode = body.audio_mode
-
         def work(progress: ProgressFn) -> None:
             from backend.render import RenderError
             project = services.store.load(project_id)
-            progress(0.1)
-            record = services.renderer.export(project, mode)
-            progress(0.7)
-            report = services.qa.validate_render(record.path, project, mode)
-            if not report.passed:  # QA blocks export with a stated reason (§8.3)
-                raise RenderError("output QA failed: " + "; ".join(report.reasons))
-            fresh = services.store.load(project_id)
-            fresh.export.last_render[mode] = record.model_copy(update={"qa": report})
+            progress(0.1); record = services.renderer.export(project); progress(0.7)
+            report = services.qa.validate_render(record.path, project)
+            if not report.passed: raise RenderError("output QA failed: " + "; ".join(report.reasons))
+            fresh, _ = mark_proposals_accepted(services.store.load(project_id))
+            fresh.export.last_render = record.model_copy(update={"qa": report})
             services.store.save(fresh)
-
         return {"job_id": runner.submit(work)}
 
-    # Serve the built frontend as one local web app (ADR-005). The per-launch
-    # capability token is injected into index.html here, at serve time — the
-    # frontend never fetches it from an unauthenticated endpoint.
-    if config.frontend_dist:
-        dist = Path(config.frontend_dist)
-        assets = dist / "assets"
-        if assets.is_dir():
-            app.mount("/assets", StaticFiles(directory=str(assets)), name="assets")
+    @app.get("/api/export/{project_id}/download")
+    def download_export(project_id: str):
+        record = services.store.load(project_id).export.last_render
+        if record is None: return envelope("not_found", "No export is available.", "Export the reel first.", 404)
+        return serve(Path(record.path))
 
+    if config.frontend_dist:
+        dist, assets = Path(config.frontend_dist), Path(config.frontend_dist) / "assets"
+        if assets.is_dir(): app.mount("/assets", StaticFiles(directory=str(assets)), name="assets")
         @app.get("/")
         def index() -> Response:
             html = (dist / "index.html").read_text(encoding="utf-8")
-            inject = f"<script>window.__REEL_TOKEN__={json.dumps(token)}</script>"
-            return HTMLResponse(html.replace("</head>", inject + "</head>"))
-
+            return HTMLResponse(html.replace("</head>", f"<script>window.__REEL_TOKEN__={json.dumps(token)}</script></head>"))
     return app
