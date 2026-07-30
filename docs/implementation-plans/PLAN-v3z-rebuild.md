@@ -12,7 +12,7 @@ accepted** (discharging S-1 and — within it — S-4, S-5, S-6, S-9 and S-10),
 **ADP-002 signed**, and **WO-117 merged**. WO-116/116a, WO-118, WO-118a,
 WO-118b, WO-119, WO-120, WO-121, WO-122, WO-123 and WO-124 have landed;
 **ADP-002 closed 2026-07-30** and
-[`ADP-003`](ADP-003-v3z-rack-frontend.md) is drafted but not authorized.
+[`ADP-003`](ADP-003-v3z-rack-frontend.md) is authorized; WO-125 has not begun.
 
 **What this plan still holds that `SPEC.md` does not:** the ADP-003/ADP-004
 sequencing in §3 – §5. The four spec gaps it once held open — S-2 (SO-3), S-3
@@ -22,11 +22,12 @@ is a plan. §1's ADR framing is superseded by `DECISIONS.md`, which recorded the
 same eight departures in one session and **reversed A-3**: `disposition` is
 kept, not retired.
 
-**No implementation program is currently authorized.**
+**The live authorization is
+[ADP-003](ADP-003-v3z-rack-frontend.md)** — authorized 2026-07-30 as drafted
+for WO-125 – WO-132, local mock/synthetic implementation only.
 [ADP-002](ADP-002-contract-v2-and-backend.md) closed 2026-07-30 after seven
-amendments. Amendment 7 retains the WO-124 harness through WO-127 for the
+amendments; Amendment 7 retains the WO-124 harness through WO-127 for the
 foreground rerun `SPEC.md` requires.
-[ADP-003](ADP-003-v3z-rack-frontend.md) is a draft with `Authorized: NO`.
 
 **One naming note that matters:** the new normative document is **`SPEC.md`**,
 written *forward from v3z*. It is not an amendment to the archived ES-001, and
@@ -253,7 +254,7 @@ orientation**, per the letterbox finding below.
 | ADP | Grants | Gated on | State |
 |---|---|---|---|
 | **[ADP-002](ADP-002-contract-v2-and-backend.md) · Contract v2 and backend realignment** | WO-116a, WO-117 – WO-124, plus WO-118b, all unheld. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | `DECISIONS.md` and `SPEC.md`, both landed; WO-118b's reject semantics are decided and implemented | **Closed 2026-07-30, amended ×7** |
-| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met | **Drafted 2026-07-30; not authorized** |
+| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met | **Authorized 2026-07-30 as drafted; WO-125 not begun** |
 | **ADP-004 · Verification and real-footage validation** | WO-133 – WO-135, and WO-115a/115b | ADP-002 + ADP-003 complete; **a recorded ADR-002 consent** for anything touching real footage | Not written |
 
 WO-124 (the spike) sits between ADP-002 and ADP-003 and should be authorized
@@ -336,8 +337,8 @@ Only four steps are serial before the work fans out.
    contract kernel, which skipped the authorization. Nothing may be built
    without it.)*
 4. ~~**WO-117 contract kernel, alone.**~~ **Done 2026-07-28.**
-5. ~~**Close ADP-002 and draft ADP-003.**~~ **Done 2026-07-30.** ADP-003 still
-   requires explicit authorization.
+5. ~~**Close ADP-002 and draft ADP-003.**~~ **Done 2026-07-30.**
+6. ~~**Authorize ADP-003.**~~ **Done 2026-07-30.** WO-125 is next.
 
 **Two things run in parallel with all of the above**, because neither depends on
 any v3z decision:
@@ -350,8 +351,8 @@ any v3z decision:
 
 Then: ~~**ADP-002** (independent media and API lanes; serial renderer → QA
 lane; WO-118b and WO-120 done before closeout)~~ **closed** → read the spike's
-numbers → **ADP-003** (drafted, not authorized; WO-125 then WO-126 as serial
-barriers, followed by six frontend lanes in parallel) → **ADP-004** (guards,
+numbers → **ADP-003** (authorized; WO-125 then WO-126 as serial barriers,
+followed by six frontend lanes in parallel) → **ADP-004** (guards,
 integration, and — behind a consent record — real footage).
 
 ---

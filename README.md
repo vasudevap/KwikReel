@@ -11,7 +11,7 @@ the device.
 ## Status — honest version
 
 **The backend is realigned to the accepted spec and ADP-002 is closed. The
-frontend program is drafted but not authorized. Nothing has ever run against
+frontend program is authorized but has not begun. Nothing has ever run against
 real footage.**
 
 - The pipe runs end to end **on synthetic fixtures**: ingest → analysis → trim
@@ -21,9 +21,9 @@ real footage.**
   [handoff.md](handoff.md) has the exact state.
 - The frontend was deleted on 2026-07-28 when a 26-version design exploration
   landed on a materially different product. Rebuilding it against that design is
-  proposed in
-  [ADP-003](docs/implementation-plans/ADP-003-v3z-rack-frontend.md), whose
-  authorization has not been given.
+  authorized locally on mock/synthetic state under
+  [ADP-003](docs/implementation-plans/ADP-003-v3z-rack-frontend.md). WO-125 is
+  the first barrier and has not begun.
 - **No experiment has ever run and no real footage has ever been processed.**
   Every claim in [EVIDENCE-LEDGER.md](docs/specs/EVIDENCE-LEDGER.md) is graded
   `assumed`. That the code passes its tests establishes that it works, not that

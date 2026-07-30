@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated 2026-07-30**, ADP-002 closed; ADP-003 drafted but not authorized.
+**Updated 2026-07-30**, ADP-002 closed; ADP-003 authorized, WO-125 not begun.
 
 ## The one-paragraph version
 
@@ -12,7 +12,8 @@ surviving guardrails are `docs/CONSTRAINTS.md`; the departures are decided in
 `docs/DECISIONS.md`. **ADP-002 closed 2026-07-30** after all eleven Work Orders
 met their synthetic gates. Amendment 7 narrowly retains the WO-124 harness
 through WO-127 because accepted `SPEC.md` §6.7 requires one foreground rerun
-before the Monitor ships. **ADP-003 is drafted and not authorized**; no frontend
+before the Monitor ships. **ADP-003 was authorized 2026-07-30 as drafted** for
+WO-125 – WO-132, local mock/synthetic implementation only; no frontend
 implementation has begun. The suite is deliberately partly red across the
 schema seam (the box below).
 
@@ -68,9 +69,8 @@ not resolve on GitHub.
   (WO-118), reject semantics (WO-118b), media services (WO-119), and the speed
   proposer (WO-120), renderer (WO-121), output QA (WO-122), and API (WO-123)
   are v2.
-- **No frontend app**, and no authorization for one. **ADP-003 is now
-  written but not authorized** — its entry gates (WO-124's numbers plus SO-2
-  and SO-4) are met, and its §8 still says `Authorized: NO`.
+- **No frontend app yet. ADP-003 is authorized** — its entry gates (WO-124's
+  numbers plus SO-2 and SO-4) are met, but WO-125 has not begun.
 - **`SPEC.md` owes nothing.** All four §14 items are closed: SO-1 2026-07-28,
   SO-2/SO-3/SO-4 2026-07-29. Two things the closures leave open are tracked as
   correction-pass risks rather than spec gaps — the unmeasured black-frame
@@ -86,8 +86,8 @@ not resolve on GitHub.
 
 ## In flight right now
 
-**Nothing.** ADP-002 is closed. ADP-003 exists only as a draft and grants no
-frontend work, harness rerun, deletion, branch, push or CI action.
+**Nothing.** ADP-002 is closed. ADP-003 is authorized, but WO-125 has not begun.
+The harness rerun and deletion belong later to WO-127.
 
 **WO-124 is done.** [`docs/specs/WO-124-playback-findings.md`](docs/specs/WO-124-playback-findings.md)
 — **SO-3 is answered and the v3z design survives.** The Monitor uses **two
@@ -100,11 +100,11 @@ WO-127 closeout. Amendment 7 retains it only long enough to satisfy `SPEC.md`
 
 ## What happens next
 
-1. **Owner review and explicit authorization of
-   [ADP-003](docs/implementation-plans/ADP-003-v3z-rack-frontend.md).** Until
-   §8 changes, no WO-125 – WO-132 work may begin.
-2. If authorized, **WO-125 then WO-126 run as serial barriers** to establish
-   the rack system and app kernel. WO-127 – WO-132 fan out only after both merge.
+1. **Begin WO-125 alone** under
+   [ADP-003](docs/implementation-plans/ADP-003-v3z-rack-frontend.md) to establish
+   the rack design system.
+2. **WO-126 runs as the second serial barrier** to establish the app kernel.
+   WO-127 – WO-132 fan out only after both barriers merge.
 3. The legacy integration suite remains withheld to WO-134. Its visible v1
    failures are recorded in the suite box above and are not frontend work.
 
@@ -157,19 +157,18 @@ apart, and the proxy path has three tests where it had one vacuous one.
 ## Owner actions required
 
 **`SPEC.md` §14 is empty.** Every item that stood here — the four §6 amendments,
-SO-1, SO-2, SO-3, SO-4 — is closed. Three owner actions remain:
+SO-1, SO-2, SO-3, SO-4 — is closed. Two owner actions remain:
 
-1. **Review and explicitly authorize ADP-003** before any frontend Work Order
-   or the required foreground harness rerun begins.
-2. **Record an ADR-002-style consent** before anything runs against real
-   footage. No closed or proposed program grants that run. **This now gates the
-   end of the whole programme**: ADP-004's real-footage validation is the only
-   thing that can move a ledger claim off `assumed`, and every claim is still
-   `assumed`.
-3. **Authorize pushes individually.** As of 2026-07-29 `origin/main` sits at
+1. **Record an ADR-002-style consent** before anything runs against real
+   footage. No closed or authorized program grants that run. **This now gates
+   the end of the whole programme**: ADP-004's real-footage validation is the
+   only thing that can move a ledger claim off `assumed`, and every claim is
+   still `assumed`.
+2. **Authorize pushes individually.** As of 2026-07-29 `origin/main` sits at
    `d64b256` — the last pre-acceptance commit — and everything since (the
    accepted spec, ADP-002, every Work Order merge) is local only. Nothing built
-   under ADP-002 is pushed until you say otherwise, one push at a time.
+   under ADP-002 or ADP-003 is pushed until you say otherwise, one push at a
+   time.
 
 > **Withdrawn, and recorded so it does not come back.** A §9 QA-tolerance
 > stop-and-ask stood here, raised on a percentage measured at one clip length.
@@ -191,5 +190,5 @@ SO-1, SO-2, SO-3, SO-4 — is closed. Three owner actions remain:
   behaviour.
 - **`frontend/package.json` has one known stale sentence.** Its description
   still says ADP-003 waits on WO-124. The entry gate is now met, but the file
-  remains untouched while frontend work is withheld; proposed WO-126 owns the
+  remains untouched until its authorized owner runs; WO-126 owns the
   description-only correction.

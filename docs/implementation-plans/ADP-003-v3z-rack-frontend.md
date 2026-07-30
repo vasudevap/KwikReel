@@ -1,8 +1,9 @@
 # ADP-003: The v3z Rack Frontend
 
-**Status: DRAFT — NOT AUTHORIZED.** Prepared at ADP-002 closeout, 2026-07-30.
-No frontend implementation, harness rerun, spike deletion, branch, push or CI
-action is granted until the owner explicitly authorizes §8.
+**Status: AUTHORIZED — owner, 2026-07-30, as drafted.** Scope: WO-125 – WO-132,
+local implementation, tests, builds and browser smoke on mock/synthetic state
+under §2 and §4. Push, CI, real-media, dependency and contract/design changes
+remain withheld.
 
 **Program ID:** ADP-003
 
@@ -20,19 +21,19 @@ action is granted until the owner explicitly authorizes §8.
 
 Build the accepted v3z rack as one live React view against the v2 API. The
 entry gate is met: ADP-002 is closed; SO-2 and SO-4 are closed; WO-124 measured
-the playback engine and the design survived. This document is still only a
-proposal until §8 is authorized.
+the playback engine and the design survived. The owner authorized this program
+on 2026-07-30; §8 records the grant.
 
 WO-125 runs alone. WO-126 then runs alone to establish the app kernel, typed
 module slots and client. After both barriers merge, WO-127 – WO-132 may run in
 parallel because their write scopes are disjoint and they consume those frozen
 interfaces. WO-127 uses the measured two-video strategy.
 
-## 2. Proposed execution authority
+## 2. Execution authority
 
-If authorized, the program grants local implementation, tests, typecheck and
-build on synthetic/mock data; small local commits; and local merges in the
-dependency order below. It grants no push, CI, real-media run, `SPEC.md`
+The program grants local implementation, tests, typecheck and build on
+synthetic/mock data; small local commits; and local merges in the dependency
+order below. It grants no push, CI, real-media run, `SPEC.md`
 amendment, new dependency, or change outside §4.
 
 ## 3. Stop-and-ask triggers
@@ -106,8 +107,8 @@ ADP-004 remains held until a consent record exists.
 ## 8. Authorization
 
 ```text
-Authorized:            NO
-Scope proposed:        WO-125 – WO-132, local mock/synthetic build only
+Authorized:            2026-07-30 by Repository Owner (via session chat)
+Scope granted:         WO-125 – WO-132, local mock/synthetic build only
 Still withheld:        pushes, CI, real media, new dependencies, SPEC/design changes
-Owner action needed:   explicit authorization of this ADP
+Narrowing / notes:     Authorized as drafted
 ```

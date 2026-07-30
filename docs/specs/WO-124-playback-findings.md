@@ -348,7 +348,7 @@ two elements cross-swapped (§2), frame-accurate seeking at ~25 ms (§1),
 that holds sync (§5).
 
 **ADP-003 is unblocked on this axis.** SO-2 (the Log) and SO-4 (the rack
-invariant) are also closed; ADP-003 is now drafted but not authorized.
+invariant) are also closed; ADP-003 was authorized 2026-07-30.
 
 **Three amendments `SPEC.md` §6 now warrants** — proposed here, an owner's to
 accept. Each records something measured; none decides anything:

@@ -28,7 +28,8 @@ human reviews it and overrides anything.
    2026-07-28, amended seven times, closed 2026-07-30.** Amendment 7 retains the
    WO-124 harness through WO-127 for the foreground rerun `SPEC.md` requires.
 6. **[docs/implementation-plans/ADP-003-v3z-rack-frontend.md](docs/implementation-plans/ADP-003-v3z-rack-frontend.md)**
-   — the proposed frontend program. **Drafted 2026-07-30; not authorized.**
+   — the live frontend authorization. **Authorized 2026-07-30 as drafted** for
+   WO-125 – WO-132, local mock/synthetic implementation only.
 7. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
    — the plan that got us here. Largely discharged; kept for the ADP-003 and
    ADP-004 sequencing ADP-002 does not carry. Where it disagrees with `SPEC.md`,
@@ -98,8 +99,8 @@ been processed** — every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded
 `assumed`, and only ADP-004's real-footage run can move one.
 
 **The frontend is a stub** — `main.tsx` and the generated types, nothing more.
-Its rebuild is ADP-003: entry gates met, **drafted but not authorized**. The
-26-version design exploration ended at **v3z**, locked (A-8);
+Its rebuild is ADP-003: entry gates met, **authorized 2026-07-30 but not yet
+begun**. The 26-version design exploration ended at **v3z**, locked (A-8);
 `disposition` is the one v3z removal the owner reversed (DECISIONS A-3).
 
 **The decision session is done** ([docs/DECISIONS.md](docs/DECISIONS.md)) **and
@@ -107,12 +108,12 @@ Its rebuild is ADP-003: entry gates met, **drafted but not authorized**. The
 record for the rebuild, under `CONSTRAINTS.md`. Neither is to be amended backward
 from the archived ES-001; amending inherits the ghosts the clean cut removed.
 
-**No implementation program is currently authorized.** ADP-002's narrow local
-synthetic grant is discharged and closed. ADP-003 §8 says `Authorized: NO`, so
-**any frontend work**, the foreground harness rerun and its deletion remain
-withheld. Also still stop-and-ask: **every push to `origin`**, CI, **any run
-against real footage** (needs an ADR-002-style consent record first), and
-amending `SPEC.md`.
+**Implementation is authorized narrowly under ADP-003.** WO-125 – WO-132 may
+build locally on mock/synthetic state in the §5 dependency order. The
+foreground harness rerun and deletion are authorized only inside WO-127.
+Still stop-and-ask: **every push to `origin`**, CI, **any run against real
+footage** (needs an ADR-002-style consent record first), new dependencies,
+amending `SPEC.md`, changing the frozen contract/design, or leaving §4's scopes.
 
 ## Working discipline
 
