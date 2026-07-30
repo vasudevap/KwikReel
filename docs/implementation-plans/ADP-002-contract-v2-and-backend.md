@@ -195,7 +195,7 @@ WO-117 (alone, contract freeze) ── DONE, merged
    │
    ├── WO-118  store ── DONE ──► WO-118b reject ── DONE
    ├── WO-118a trim proposer ── DONE
-   ├── WO-119  media ─────────────────────────────── lane M
+   ├── WO-119  media ── DONE
    ├── WO-120  speed proposer ── DONE
    ├── WO-121  renderer ──► WO-122 QA ────────────── lane RQ (serial)
    └── WO-123  API ───────────────────────────────── lane A
@@ -212,7 +212,7 @@ merge order and stop-and-asks; it does not edit lane-owned paths.
 
 | Lane | Work Orders | Branch order | Merge barrier |
 |---|---|---|---|
-| **M · media** | WO-119 | `wo-119-media` | May merge when WO-119's gate passes |
+| **M · media** | WO-119 — done | `wo-119-media` | Merged locally in this Work Order commit |
 | **P · speed** | WO-120 — done | `wo-120-speed` | Merged locally at `3d776ba` |
 | **RQ · render/QA** | WO-121 → WO-122 | `wo-121-renderer`, then refresh from local `main` and create `wo-122-qa` in the same lane worktree | WO-121 merges first; WO-122 starts from that merge and merges second |
 | **A · API** | WO-123 | `wo-123-api` | May merge when WO-123's gate passes |

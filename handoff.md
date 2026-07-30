@@ -10,7 +10,7 @@ and a materially different product from the one M1 was built for. That old
 frontend is deleted; the superseded record lives in `docs/archive/`; the
 surviving guardrails are `docs/CONSTRAINTS.md`; the departures are decided in
 `docs/DECISIONS.md`. **ADP-002 is authorized** — WO-116a and WO-117 – WO-124,
-all unheld, including WO-118b after Amendment 6, local on synthetic fixtures — and seven
+all unheld, including WO-118b after Amendment 6, local on synthetic fixtures — and eight
 Work Orders have merged. Amendment 5 makes every lane's test ownership explicit
 and sequences renderer → QA rather than pretending their mixed legacy test file
 is disjoint. The suite is deliberately partly red across the schema seam (the
@@ -28,6 +28,7 @@ box below).
 | `backend/propose/` (trim) | **v2 — WO-118a, done.** `SegmentsProposal.value` is one `Segment`, not a list; the 1.0 s floor is retired (A-6) — a proposal may be sub-second or empty, neither padded nor raised |
 | `backend/propose/` (speed) | **v2 — WO-120, done.** Deterministic dull-stretch proposals in source time, retained for reversibility; the completion tests cover the threshold, duration, rate and trim-stability boundaries |
 | `backend/store/` | **Schema v2 — WO-118, done.** Four modules: `project_store` (lossless save/load, optimistic concurrency, the §3 invariants), **`derive`** (§3.1's `effective_trim`/`effective_speed` and §3.4's membership, precedence, played duration and reel length — **what renders is derived here, never read off `clip.segment`**), `edits` (§4.3's bin/restore and hand edits, §4.5's disposition writers) and `log_store` (§7.3's `log.json`) |
+| `backend/media/` | **v2 — WO-119, done.** Cached JPEG thumbnails and waveform peaks in a separate local cache; music peaks are content-hash keyed before a project exists; native folder/file pickers return a path or clean cancellation |
 | `backend/render/`, `backend/qa/` | FFmpeg render + output QA |
 | `backend/api/` | FastAPI, job runner, and the local-delivery security guards, each proven to fail when removed |
 
@@ -36,7 +37,7 @@ Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
 
 > **⚠️ The suite is partly red, deliberately, and this is not a regression.**
 > WO-117 froze schema v2 and merged; render, QA and API are still speaking v1.
-> **123 pass · 0 fail · 5 modules cannot import** (`tests/api`, `tests/guards`,
+> **129 pass · 0 fail · 5 modules cannot import** (`tests/api`, `tests/guards`,
 > `tests/integration` ×2, `tests/render` — all v1-shape import errors,
 > WO-121/122/123/133/134's to clear). **Nothing fails any more**: WO-118 cleared
 > the ten `tests/store/test_store.py` failures that stood here and added 58
@@ -57,9 +58,10 @@ not resolve on GitHub.
 
 ## What does not exist
 
-- **Media, render, QA and the API are still v1.**
+- **Render, QA and the API are still v1.**
   Contracts (WO-117), ingest (WO-116a), the trim proposer (WO-118a), the store
-  (WO-118), reject semantics (WO-118b), and the speed proposer (WO-120) are v2;
+  (WO-118), reject semantics (WO-118b), media services (WO-119), and the speed
+  proposer (WO-120) are v2;
   the remaining ADP-002 lanes have not started.
 - **No frontend at all**, and no authorization for one. **ADP-003 is now
   unblocked on the spec side** — it was gated on WO-124's numbers plus SO-2 and
@@ -79,9 +81,8 @@ not resolve on GitHub.
 
 ## In flight right now
 
-**Nothing.** WO-118b's reject correction and WO-120's speed proposer are now
-merged; WO-120 (`3d776ba`) is the latest Work Order. The remaining authorized
-lanes are WO-119, WO-121 → WO-122, and WO-123.
+**Nothing.** WO-119's media services are now merged; WO-119 is the latest Work
+Order. The remaining authorized lanes are WO-121 → WO-122 and WO-123.
 
 **WO-124 is done.** [`docs/specs/WO-124-playback-findings.md`](docs/specs/WO-124-playback-findings.md)
 — **SO-3 is answered and the v3z design survives.** The Monitor uses **two
@@ -93,10 +94,10 @@ ADP-002 closeout; the findings document is what survives.
 
 ## What happens next
 
-1. **WO-119 media · WO-123 API** may run as independent lanes. **WO-121 renderer
-   → WO-122 QA** is one serial lane under Amendment 5:
+1. **WO-123 API** may run independently. **WO-121 renderer → WO-122 QA** is one
+   serial lane under Amendment 5:
    the production directories are disjoint, but the legacy renderer/QA test
-   surface is not. All four Work Orders are dependency-ready. WO-121 and WO-122 read
+   surface is not. All three Work Orders are dependency-ready. WO-121 and WO-122 read
    `backend/store/derive.py` before starting: `effective_trim`,
    `effective_speed` and `played_duration_s` are the arithmetic they render and
    check against, and `reel_length_s` is the number §9's ±0.5 s is measured from.
