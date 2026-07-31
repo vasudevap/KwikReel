@@ -2,19 +2,6 @@
 
 Read `../_oversight/DELIVERY-PLAYBOOK.md`. We follow it for this project.
 
-This file mirrors `CLAUDE.md` so that Codex, Antigravity, and Claude Code
-sessions operate under identical constraints. **If the two diverge, `CLAUDE.md`
-is authoritative and this file is stale — say so rather than picking one.**
-
-> **This file used to restate the constraints, and drifted.** It carried a "Hard
-> constraints" list asserting five approval gates, staged progression, and "no
-> assist may act without user approval" — all retired by
-> [`docs/DECISIONS.md`](docs/DECISIONS.md) on 2026-07-28 — plus "no code and no
-> media exist", which was false while a complete backend sat beside it. Sessions
-> reading this file were being briefed on a product that no longer exists. The
-> constraints are **not** repeated here any more; they are cited. Duplicating
-> them is what allowed them to rot.
-
 An **explainable, local-first, human-directed first-draft reel editor** for
 private family footage — not a claim of autonomous editorial intelligence. It
 runs as a local web app on a Mac. The AI proposes a first pass at the edit; the
@@ -160,8 +147,8 @@ Two points bear repeating here because they shape how sessions run:
 
 The record rotted once — 24 commits of build while the briefing docs still
 described the pre-build world (found and fixed 2026-07-29). These obligations
-exist so that cannot happen quietly again. This list is single-sourced in
-`CLAUDE.md`; this file mirrors it.
+exist so that cannot happen quietly again. This list is single-sourced here in
+`CLAUDE.md`; `AGENTS.md` mirrors it.
 
 **When state changes, the record changes in the same commit:**
 
@@ -178,7 +165,7 @@ exist so that cannot happen quietly again. This list is single-sourced in
   `docs/specs/EVIDENCE-LEDGER.md`: the affected rows plus a dated log line.
   Grades move only as the ledger's own rules allow.
 - **An ADP closes** → `handoff.md`, the ledger log, `README.md`'s status
-  section, and the *Where the project is* sections here and in `CLAUDE.md`.
+  section, and the *Where the project is* sections here and in `AGENTS.md`.
   Closeout writes the next ADP, which **inherits ADP-002 §7's execution rules
   and this recording discipline** unless it explicitly says otherwise.
 

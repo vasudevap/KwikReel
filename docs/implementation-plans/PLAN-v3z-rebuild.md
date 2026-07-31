@@ -408,10 +408,11 @@ integration, and — behind a consent record — real footage).
 - **Speed in M1 reopens settled ground.** `atempo` contradicts ES-001 §8.2's
   reasoning, which assumed no ramps. Chained `atempo` beyond ~2× audibly
   degrades; N-6 is not a detail.
-- **C-03 is currently unsupported.** The letterbox bug means the trim proposer
-  mislabels every landscape clip, and no test catches it because the assertion
-  only checks that *a* reason exists, never that it is *right*. **A confidently
-  wrong `OVEREXPOSED` passes every gate in the suite today.** WO-116 first.
+- **C-03 is instrumented but still unvalidated.** WO-116 fixed the letterbox
+  defect that mislabelled landscape clips and added two regression tests;
+  WO-118 and WO-123a complete the retained-disposition and persistent-Log
+  export instrument. The claim remains `assumed` until ADP-004 runs on recorded
+  real footage.
 - **Every claim in the evidence ledger is still `assumed`.** No experiment has
   run. Owner approval of the v3z design is a build gate, not evidence the
   product is good.

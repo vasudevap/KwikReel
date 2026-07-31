@@ -485,17 +485,20 @@ failure that survives every test and appears only in real use.
 > `timeupdate` wait reported 297 ms against 266 ms, hiding §6.1's 45× difference
 > behind that event's ~250 ms cadence.
 
-### 6.7 · What is still unmeasured
+### 6.7 · Foreground presentation rerun — measured 2026-07-31
 
-**The visible black-frame duration at a cut.** §6.1's figures are time-to-
-`playing`, which is what the two strategies differ by; they are not the length
-of any gap a viewer perceives. Presentation-accurate timing needs
-`requestVideoFrameCallback`, which §6.6 explains does not fire in a hidden page,
-and no available browser surface was foregrounded.
+WO-127 reran the retained harness in a visible, focused Chromium page, with
+`requestVideoFrameCallback` firing and current audio-bearing proxies. The
+presentation-accurate median gap was **25.8 ms** for two elements cross-swapped
+(24.4–50.0 ms), versus **58.3 ms** for one element reloaded and re-sought
+(57.3–74.9 ms). The same run retained zero frame error across eleven seeks,
+exact 1.5×–2.5× playback rates, and music drift within 3.4 ms across a cut.
 
-This does not weaken §6.1 — both strategies were measured identically and the
-gap is far outside any plausible error — but the absolute number is missing.
-**Re-run the spike harness in a foregrounded window before the Monitor ships.**
+The foreground result confirms §6.1 rather than contradicting it: the
+two-element strategy remains the implementation requirement and the v3z design
+does not need to change. The retained harness and its synthetic fixtures were
+then deleted as required. Full method and results:
+[`WO-124-playback-findings.md` §10](docs/specs/WO-124-playback-findings.md).
 
 ---
 
@@ -903,10 +906,9 @@ acceptance, and how each gap was shut, is part of the record.
 |---|---|---|---|
 | **SO-1** | ~~The speed assist's parameters~~ — **closed 2026-07-28**, see §4.2 | §4.2 | Closed. WO-120 is unheld as of ADP-002 Amendment 2 |
 | **SO-2** | ~~The Log's retention, persistence and pinning~~ — **closed 2026-07-29**, see §7.2 and §7.3 | §7.2 | Closed. The Log unit is unblocked. The *design* risk it carries is not closed — §7.2's last note |
-| **SO-3** | ~~The playback engine~~ — **closed 2026-07-29**, measured by WO-124 and written into §6.1 – §6.7 | §6 | Closed. The Monitor is unblocked, and the v3z design survived the measurement. One number is still missing — §6.7 |
+| **SO-3** | ~~The playback engine~~ — **closed 2026-07-29**, measured by WO-124; its foreground presentation rerun closed 2026-07-31 by WO-127, all written into §6.1 – §6.7 | §6 | Closed. The Monitor is unblocked, and the v3z design survived both measurements. |
 | **SO-4** | ~~The rack layout invariant under real data~~ — **closed 2026-07-29**, see §10.1 | §10.1 | Closed. The rack design system and the clip index are unblocked |
 
-Nothing here is outstanding. Two things the closures leave open are **not** spec
-gaps and are tracked elsewhere: the visible black-frame duration at a cut
-(§6.7), and whether one three-line strip can carry the Log's eight jobs (§7.2) —
-both for the correction pass A-8 anticipates.
+Nothing here is outstanding. One thing the closures leave open is **not** a spec
+gap and is tracked elsewhere: whether one three-line strip can carry the Log's
+eight jobs (§7.2), for the correction pass A-8 anticipates.
