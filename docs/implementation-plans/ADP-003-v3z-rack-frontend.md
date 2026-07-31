@@ -25,6 +25,15 @@ design changes remain withheld.
 > link repair pass; the known WO-134 legacy failures did not worsen. WO-125 is
 > now the next serial barrier.
 
+> **Execution, 2026-07-30 — WO-125 merged locally.** The typed v3z rack
+> foundation now encodes the accepted fixed-size causes and renders modules,
+> ears, screws, keys, state lamps/rings, seven-segment/VFD/LCD glass, locked
+> housings, the CSS-drawn glyph set and embedded fonts. Its 13 contract tests,
+> typecheck, production build and local-browser smoke pass. At an 800 px
+> viewport the rack remains 960 px wide with horizontal overflow; the 465 px
+> monitor column and 26 px keys do not reflow. WO-126 is now the next serial
+> barrier.
+
 **Program ID:** ADP-003
 
 **Owner:** Repository Owner

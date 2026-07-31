@@ -11,8 +11,9 @@ the device.
 ## Status — honest version
 
 **The ADP-002 backend is realigned to the accepted spec and closed. The narrow
-WO-123a frontend-operability API correction is merged locally; the frontend
-itself has not begun. Nothing has ever run against real footage.**
+WO-123a frontend-operability API correction and WO-125 rack design system are
+merged locally; the frontend app itself has not begun. Nothing has ever run
+against real footage.**
 
 - The pipe runs end to end **on synthetic fixtures**: ingest → analysis → trim
   proposal → render → QA → export, behind a local HTTP API with its security
@@ -25,7 +26,8 @@ itself has not begun. Nothing has ever run against real footage.**
   [ADP-003](docs/implementation-plans/ADP-003-v3z-rack-frontend.md). Amendment 1
   added WO-123a as the first barrier; it now exposes and guards the required
   reject, reversible-bin, Log, music-probe and root-confined link-repair
-  operations. WO-125 is next.
+  operations. WO-125 now provides the typed v3z rack primitives, fixed geometry
+  and embedded visual assets; WO-126's app shell and client are next.
 - **No experiment has ever run and no real footage has ever been processed.**
   Every claim in [EVIDENCE-LEDGER.md](docs/specs/EVIDENCE-LEDGER.md) is graded
   `assumed`. That the code passes its tests establishes that it works, not that

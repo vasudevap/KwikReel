@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated 2026-07-30**, WO-123a merged locally; WO-125 is next.
+**Updated 2026-07-30**, WO-125 merged locally; WO-126 is next.
 
 ## The one-paragraph version
 
@@ -19,9 +19,11 @@ frontend-to-server path. `DECISIONS.md` §5 and amended `SPEC.md` §8 make those
 server-owned actions; ADP-003 Amendment 1 adds **WO-123a as the first serial
 barrier**, before WO-125. **WO-123a is now implemented and merged locally**:
 the corrected actions, persistent Log wiring, music probe, root-confined repair
-and `Referer` guard pass their focused and synthetic end-to-end gates. No
-frontend implementation has begun. The suite is deliberately partly red across
-the schema seam (the box below).
+and `Referer` guard pass their focused and synthetic end-to-end gates.
+**WO-125 has now established the frontend's typed v3z rack design system**:
+fixed geometry, modules, hardware controls, displays, housings, glyphs and
+embedded fonts. The app shell and product surfaces have not begun. The suite is
+deliberately partly red across the schema seam (the box below).
 
 ## What exists
 
@@ -59,9 +61,14 @@ Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
 > `--continue-on-collection-errors` for the whole-suite count.
 > **If you are reading this and the numbers are worse, that IS a regression.**
 
-**Frontend — a placeholder.** `frontend/src/` holds only `main.tsx` (a stub that
-keeps the build green) and `types/contracts.ts` (generated). The WO-107–110 app
-was deleted in the clean cut.
+**Frontend — rack foundation only.** `frontend/src/rack/` is the WO-125 typed
+design system extracted from v3z: frozen geometry tokens, modules/ears/screws,
+physical keys and state lamps/rings, seven-segment/VFD/LCD glass, locked
+housings, CSS-drawn glyphs and embedded local fonts. Its 13 contract tests,
+typecheck, production build and browser smoke pass; the browser gate confirmed
+465 px monitor geometry and 26 px keys, plus a fixed 960 px rack with horizontal
+overflow rather than reflow below the minimum. `main.tsx` remains a stub and
+`types/contracts.ts` remains generated; WO-126 owns the app shell and client.
 
 **Design — v3z is frozen, and lives outside the repo.**
 `docs/design-claude/mockup-v3z.html`, plus its generator, whose state model is a
@@ -77,8 +84,9 @@ not resolve on GitHub.
   (WO-118), reject semantics (WO-118b), media services (WO-119), and the speed
   proposer (WO-120), renderer (WO-121), output QA (WO-122), and API (WO-123)
   are v2.
-- **No frontend app yet. ADP-003 is authorized and amended once.** WO-123a
-  cleared the first serial barrier; WO-125 has not begun.
+- **No frontend app yet. ADP-003 is authorized and amended once.** WO-123a and
+  WO-125 cleared the first two serial barriers. The rack foundation exists;
+  WO-126's app shell, state and client have not begun.
 - **`SPEC.md` owes nothing.** All four §14 items are closed: SO-1 2026-07-28,
   SO-2/SO-3/SO-4 2026-07-29. Two things the closures leave open are tracked as
   correction-pass risks rather than spec gaps — the unmeasured black-frame
@@ -94,7 +102,7 @@ not resolve on GitHub.
 
 ## In flight right now
 
-**Nothing.** WO-123a is merged locally and its branch gate is clear. WO-125 is
+**Nothing.** WO-125 is merged locally and its branch gate is clear. WO-126 is
 the next serial barrier. The harness rerun and deletion still belong later to
 WO-127.
 
@@ -109,12 +117,10 @@ WO-127 closeout. Amendment 7 retains it only long enough to satisfy `SPEC.md`
 
 ## What happens next
 
-1. **WO-125 establishes the rack design system** against the frozen local v3z
-   baseline.
-2. **WO-126 is the next serial barrier** and freezes the app kernel/client
+1. **WO-126 is the next serial barrier** and freezes the app kernel/client
    against the corrected live API. WO-127 – WO-132 fan out only after all three
    barriers merge.
-3. The legacy integration suite remains withheld to WO-134. Its visible v1
+2. The legacy integration suite remains withheld to WO-134. Its visible v1
    failures are recorded in the suite box above and are not frontend work.
 
 ## The stop-and-asks that are open

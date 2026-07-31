@@ -119,9 +119,12 @@ SO-4 by measurement. **No experiment has ever run and no real footage has ever
 been processed** — every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded
 `assumed`, and only ADP-004's real-footage run can move one.
 
-**The frontend is a stub** — `main.tsx` and the generated types, nothing more.
-Its rebuild is ADP-003: entry gates met, **authorized 2026-07-30, amended once,
-with WO-123a merged locally and frontend work not yet begun**. WO-125 is next.
+**The frontend has its rack foundation, not an app.** WO-125 merged locally:
+`frontend/src/rack/` now holds typed v3z tokens and primitives for the fixed
+geometry, modules, hardware controls, displays, housings, glyphs and embedded
+fonts; its 13 contract tests, typecheck, build and browser smoke pass.
+`main.tsx` remains a stub. ADP-003 is authorized and amended once; WO-126 is the
+next serial barrier.
 The 26-version design exploration ended at **v3z**, locked (A-8);
 `disposition` is the one v3z removal the owner reversed (DECISIONS A-3).
 
@@ -132,7 +135,7 @@ from the archived ES-001; amending inherits the ghosts the clean cut removed.
 
 **Implementation is authorized narrowly under ADP-003.** WO-123a and
 WO-125 – WO-132 may build locally on mock/synthetic state in the §5 dependency
-order; WO-123a is complete and WO-125 is next. The foreground harness rerun and
+order; WO-123a and WO-125 are complete and WO-126 is next. The foreground harness rerun and
 deletion are authorized only inside WO-127.
 Still stop-and-ask: **every push to `origin`**, CI, **any run against real
 footage** (needs an ADR-002-style consent record first), new dependencies,
