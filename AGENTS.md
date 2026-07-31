@@ -38,12 +38,14 @@ human reviews it and overrides anything.
    log where any future decision goes.
 5. **[docs/implementation-plans/ADP-002-contract-v2-and-backend.md](docs/implementation-plans/ADP-002-contract-v2-and-backend.md)**
    — the closed backend authorization and its Work Order gates. **Authorized
-   2026-07-28, amended seven times, closed 2026-07-30.** Amendment 7 retains the
-   WO-124 harness through WO-127 for the foreground rerun `SPEC.md` requires.
+   2026-07-28, amended seven times, closed 2026-07-30.** Amendment 7 retained the
+   WO-124 harness through WO-127 for the foreground rerun `SPEC.md` requires;
+   WO-127 completed the rerun and deleted it.
 6. **[docs/implementation-plans/ADP-003-v3z-rack-frontend.md](docs/implementation-plans/ADP-003-v3z-rack-frontend.md)**
-   — the live frontend authorization. **Authorized 2026-07-30 and amended once**
-   to add WO-123a before WO-125; scope is WO-123a and WO-125 – WO-132, local
-   mock/synthetic implementation only.
+   — the live frontend authorization. **Authorized 2026-07-30 and amended twice**:
+   Amendment 1 added WO-123a before WO-125; Amendment 2 repaired WO-126's
+   session-only preview-queue seam. Scope is WO-123a and WO-125 – WO-132,
+   local mock/synthetic implementation only.
 7. **[docs/implementation-plans/PLAN-v3z-rebuild.md](docs/implementation-plans/PLAN-v3z-rebuild.md)**
    — the plan that got us here. Largely discharged; kept for the ADP-003 and
    ADP-004 sequencing ADP-002 does not carry. Where it disagrees with `SPEC.md`,
@@ -85,7 +87,7 @@ behaviour — and cite that.
 in any document is a reference to history, never to authority — and if you find
 one being used as a rule, that document is stale.
 
-## Where the project is (2026-07-30)
+## Where the project is (2026-07-31)
 
 **The ADP-002 backend rebuild is complete and ADP-002 closed 2026-07-30.** Contracts
 (WO-117), ingest (WO-116a), the trim proposer (WO-118a), the store (WO-118), reject semantics
@@ -93,8 +95,8 @@ one being used as a rule, that document is stale.
 (WO-121), output QA (WO-122), and API (WO-123) are v2 and merged; the WO-124
 playback spike has reported its numbers and the v3z design survived them.
 Every ADP-002 implementation Work Order is complete on its own synthetic gate.
-Amendment 7 retains the spike harness only through WO-127 for `SPEC.md` §6.7's
-required foreground rerun and deletion.
+Amendment 7 retained the spike harness only through WO-127 for `SPEC.md` §6.7's
+required foreground rerun; WO-127 recorded the passing result and deleted it.
 
 **WO-123a has closed the post-authorization frontend-operability seam.** Reject,
 reversible binning, the persistent Log, music probing and root-confined
@@ -119,12 +121,13 @@ SO-4 by measurement. **No experiment has ever run and no real footage has ever
 been processed** — every claim in `docs/specs/EVIDENCE-LEDGER.md` is graded
 `assumed`, and only ADP-004's real-footage run can move one.
 
-**The frontend has its rack foundation and shared app kernel, not its product
-modules.** WO-125's typed v3z tokens/primitives and WO-126's six-state one-view
-shell, typed module slots, mock/live client boundary and ordered optimistic
-write queue are merged locally. All 30 frontend contract tests, typecheck,
-build and six-state browser smoke pass; the six product modules remain honest
-placeholders. ADP-003 is authorized and amended once; WO-127 – WO-132 are open.
+**The frontend has its rack foundation, shared app kernel and Monitor/Transport.**
+WO-125's typed v3z system, WO-126's six-state app/client kernel, Amendment 2's
+session-only preview queue and WO-127's dual-video media-event playback and
+fixed transport are merged locally. All 45 frontend contract tests, typecheck,
+build and six-state browser smoke pass; Sound, Clip index, Editor, Log and
+Reel/HUD remain honest placeholders. ADP-003 is authorized and amended twice;
+WO-128 is next in the required local merge order.
 The 26-version design exploration ended at **v3z**, locked (A-8);
 `disposition` is the one v3z removal the owner reversed (DECISIONS A-3).
 
@@ -135,9 +138,9 @@ from the archived ES-001; amending inherits the ghosts the clean cut removed.
 
 **Implementation is authorized narrowly under ADP-003.** WO-123a and
 WO-125 – WO-132 may build locally on mock/synthetic state in the §5 dependency
-order; WO-123a, WO-125 and WO-126 are complete, so WO-127 – WO-132 may run in
-their isolated lanes. The foreground harness rerun and deletion are authorized
-only inside WO-127.
+order; WO-123a and WO-125 – WO-127 are complete, so WO-128 – WO-132 may run in
+their isolated lanes. The foreground harness rerun and deletion were completed
+inside WO-127.
 Still stop-and-ask: **every push to `origin`**, CI, **any run against real
 footage** (needs an ADR-002-style consent record first), new dependencies,
 amending `SPEC.md`, changing the frozen contract/design, or leaving §4's scopes.

@@ -1,0 +1,227 @@
+.kr-monitor .kr-module__body {
+  display: flex;
+  justify-content: center;
+  padding-top: 0;
+}
+
+.kr-monitor__screen {
+  position: relative;
+  width: 338px;
+  height: 600px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid #000;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px #060706, inset 0 0 22px #000;
+}
+
+.kr-monitor__video,
+.kr-monitor__synthetic {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+
+.kr-monitor__video--active {
+  z-index: 2;
+  opacity: 1;
+}
+
+.kr-monitor__synthetic {
+  z-index: 1;
+  opacity: 1;
+  background: linear-gradient(145deg, #233f63, #8cb8cf);
+}
+
+.kr-monitor__synthetic--1 {
+  background: linear-gradient(145deg, #315f50, #91c5a6);
+}
+
+.kr-monitor__video--active[src] + .kr-monitor__synthetic {
+  opacity: 0;
+}
+
+.kr-monitor__queue,
+.kr-monitor__resolution {
+  position: absolute;
+  z-index: 4;
+  top: 8px;
+  overflow: hidden;
+  color: #fff;
+  font: 600 9px/15px 'IBM Plex Mono', monospace;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.58);
+  text-overflow: ellipsis;
+}
+
+.kr-monitor__queue {
+  right: 47px;
+  left: 8px;
+  padding: 0 7px;
+  color: #4ce497;
+  border: 1px solid #3ddc84;
+  border-radius: 2px;
+}
+
+.kr-monitor__resolution {
+  right: 8px;
+  padding: 0 5px;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+}
+
+.kr-monitor__screen-toggle {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  place-items: center;
+  color: #fff;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.43);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.kr-monitor__screen-toggle:focus-visible {
+  outline: 1px solid #ffc02e;
+  outline-offset: 2px;
+}
+
+.kr-monitor__empty {
+  z-index: 4;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #4d5257;
+  font: 600 13px/1 'Barlow Semi Condensed', sans-serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.kr-transport .kr-module__body {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.kr-transport__deck {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.kr-transport__deck + .kr-transport__deck {
+  margin-top: 4px;
+}
+
+.kr-transport__target,
+.kr-transport__output {
+  margin-left: auto;
+}
+
+.kr-transport__target .kr-housing__body {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.kr-transport__target-number {
+  width: 30px;
+  height: 20px;
+  padding: 1px 4px;
+  color: #ffc42e;
+  font: 14px/16px 'DSEG7 Classic', monospace;
+  text-align: right;
+  caret-color: #ffc42e;
+  background: #0a0b0c;
+  border: 1px solid #000;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.85);
+}
+
+.kr-transport__target-number:focus {
+  outline: 1px solid rgba(255, 196, 46, 0.6);
+}
+
+.kr-transport__unit {
+  color: #73777d;
+  font: 600 8px/1 'Barlow Semi Condensed', sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.kr-transport__scrub {
+  position: relative;
+  height: 20px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  background: #0a0b0c;
+  border: 1px solid #000;
+  border-radius: 2px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.kr-transport__keep,
+.kr-transport__cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.kr-transport__keep {
+  background: rgba(255, 165, 58, 0.16);
+  border-right: 2px solid #ffa53a;
+  border-left: 2px solid #ffa53a;
+}
+
+.kr-transport__cursor {
+  z-index: 2;
+  width: 2px;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+}
+
+.kr-transport__scrub-input {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: ew-resize;
+  opacity: 0;
+}
+
+.kr-transport__resolutions {
+  display: flex;
+  gap: 2px;
+}
+
+.kr-transport__resolution-key {
+  min-width: 48px;
+  height: 20px;
+  padding: 0 5px;
+  font-size: 8px;
+}
+
+.kr-transport__resolution-key .kr-lamp {
+  width: 4px;
+  height: 4px;
+}
+
+.kr-transport__loop {
+  min-width: 52px;
+}

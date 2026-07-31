@@ -129,6 +129,19 @@ export class AppController implements AppActions {
     this.updateSnapshot({ loadedSourceId: sourceId })
   }
 
+  togglePreviewQueue(sourceId: string): void {
+    const project = this.snapshot.project
+    if (!project?.clips.some((clip) => clip.source_id === sourceId)) return
+    const selected = new Set(this.snapshot.previewQueueSourceIds)
+    if (selected.has(sourceId)) selected.delete(sourceId)
+    else selected.add(sourceId)
+    this.snapshot = createSnapshot({
+      ...this.snapshot,
+      previewQueueSourceIds: [...selected],
+    })
+    this.emit()
+  }
+
   setPlaying(playing: boolean): void {
     this.updateSnapshot({ playing })
   }

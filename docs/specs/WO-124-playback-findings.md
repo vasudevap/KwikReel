@@ -367,3 +367,34 @@ accept. Each records something measured; none decides anything:
 > written**, and the remedy is an ADP-002 §4 lane instruction for WO-121 and
 > WO-122 rather than a spec change. Withdrawing it is the finding, not an
 > oversight — see §3.4.
+
+---
+
+## 10 · WO-127 foreground rerun — 2026-07-31
+
+The retained harness was rerun in a **visible, focused Chromium 150 page** with
+`requestVideoFrameCallback` firing, after rebuilding its synthetic fixtures
+through the current `FFmpegIngest.make_proxy`. The current proxies had a 1.0 s
+maximum keyframe gap and carried audio.
+
+The presentation-accurate cut result:
+
+| Strategy | Presentation gap, median | Range |
+|---|---:|---:|
+| **Two elements, cross-swapped** | **25.8 ms** | 24.4–50.0 ms |
+| One element, reloaded and re-sought | 58.3 ms | 57.3–74.9 ms |
+
+The same run's event-driven critical-path measurement was **1.0 ms** median for
+the prepared dual-element swap versus **33.4 ms** for one element. Across the
+eleven seek targets, the maximum frame error remained **0 frames**; mean seek
+latency was 13.4 ms and the maximum was 36.6 ms. All four tested playback rates
+remained exact. Music startup offset was 194.2 ms; drift was −3.4 ms across a
+cut and +0.5 ms across a seek.
+
+**Verdict: the foreground result confirms WO-124 rather than contradicting
+it.** The two-element strategy remains the implementation requirement, the
+current proxy recipe improves its preparation inputs, and the v3z design still
+does not need to change. The presentation gap is now measured; `SPEC.md` §6.7's
+last engineering unknown is closed. WO-127 then deleted the retained spike
+code and synthetic fixtures as ADP-002 Amendment 7 and ADP-003 required; this
+findings document is the surviving record.

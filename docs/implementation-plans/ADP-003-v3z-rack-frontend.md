@@ -1,10 +1,11 @@
 # ADP-003: The v3z Rack Frontend
 
 **Status: AUTHORIZED — owner, 2026-07-30, as drafted; amended 2026-07-30 to add
-the serial WO-123a frontend-operability correction.** Scope: WO-123a and
-WO-125 – WO-132, local implementation, tests, builds and browser smoke on
-mock/synthetic state under §2 and §4. Push, CI, real-media, dependency and
-design changes remain withheld.
+the serial WO-123a frontend-operability correction, and amended 2026-07-31 to
+narrowly reopen WO-126's frozen app interface for the missing ephemeral preview
+queue seam.** Scope: WO-123a and WO-125 – WO-132, local implementation, tests,
+builds and browser smoke on mock/synthetic state under §2 and §4. Push, CI,
+real-media, dependency and design changes remain withheld.
 
 > **Amendment 1, owner, 2026-07-30 — add WO-123a before frontend work.** A
 > post-authorization review found that the frozen §8 route table could not
@@ -18,6 +19,20 @@ design changes remain withheld.
 > before WO-125.** This amendment authorizes that local correction on synthetic
 > fixtures; it does not authorize any other backend, dependency, design, push,
 > CI or real-media change.
+
+> **Amendment 2, owner, 2026-07-31 — narrowly reopen WO-126 for the preview
+> queue seam.** WO-127's pre-build interface audit found that the frozen slot
+> contract exposed a loaded clip and persisted project actions, but not
+> `SPEC.md` §3.5's session-only multi-select preview queue. WO-127 must play that
+> queue and WO-129 must control it; inventing a DOM event or a direct lane
+> dependency would violate the frozen cross-lane boundary. **WO-126 is reopened
+> only for typed, non-persisted queue source IDs on `AppSnapshot`, one toggle
+> action on `AppActions`, their controller/mock initialization, and focused
+> tests.** Exact additional write scope:
+> `frontend/src/app/types.ts`, `frontend/src/app/state.ts`,
+> `frontend/src/app/controller.ts`, `frontend/src/app/mock-data.ts`, and
+> `frontend/tests/wo-126/preview-queue.test.mjs`. No other WO-126 file, package,
+> generated contract, backend, `SPEC.md` or design change is authorized.
 
 > **Execution, 2026-07-30 — WO-123a merged locally.** Its focused API and
 > security gates pass; the full synthetic frontend-operability flow reaches the
@@ -42,8 +57,21 @@ design changes remain withheld.
 > production build and six-state local-browser smoke pass. Both columns remain
 > 662 px high across all states, and the 800 px viewport preserves the fixed
 > 960 px rack with horizontal overflow. The manifest description is corrected
-> without dependency, script, version or lockfile drift. WO-127 – WO-132 are
-> now open in their isolated lanes.
+> without dependency, script, version or lockfile drift. WO-127 – WO-132 were
+> then opened in their isolated lanes.
+
+> **Execution, 2026-07-31 — Amendment 2 and WO-127 merged locally.** The narrow
+> WO-126 reopening adds §3.5's typed session-only preview queue without
+> persisted-state, contract or dependency drift; WO-126 now passes 20 focused
+> tests. WO-127 implements the fixed Monitor/Transport with two cross-swapped
+> video slots, a media-event playback clock, source-time rate changes,
+> clip-scoped scrub, target length, resolution and Loop controls. Its required
+> visible, focused WO-124 rerun measured a 25.8 ms median prepared presentation
+> gap against 58.3 ms for one reloaded element, zero seek frame error, exact
+> 1.5×–2.5× rates and music drift within 3.4 ms across a cut; the result did not
+> trigger a stop. Twelve WO-127 tests (45 frontend tests combined), typecheck,
+> build and six-state local-browser smoke pass. The throwaway spike and generated
+> fixtures are deleted as required. WO-128 is next in the local merge order.
 
 **Program ID:** ADP-003
 
@@ -67,9 +95,10 @@ before any frontend interface is frozen.
 
 WO-123a ran alone. WO-125 then established the rack system, and WO-126 ran
 alone after it to establish the app kernel, typed module slots and client.
-All three barriers are merged locally, so WO-127 – WO-132 may run in parallel
-because their write scopes are disjoint and they consume those frozen
-interfaces. WO-127 uses the measured two-video strategy.
+All three barriers are merged locally. Amendment 2 repaired the frozen preview
+queue seam and WO-127 then used the measured two-video strategy. WO-128 –
+WO-132 may run in parallel because their write scopes are disjoint and they
+consume those frozen interfaces; WO-128 is next in the required merge order.
 
 ## 2. Execution authority
 
@@ -97,7 +126,7 @@ real-media run, further `SPEC.md` amendment, new dependency, or change outside
 |---|---|---|
 | **WO-123a · Frontend-operability API completion** | Implement `DECISIONS.md` §5 and amended `SPEC.md` §4.3, §7 and §8: protected server actions for bin/restore and trim reject; server-owned Log creation/writers/read plus constrained path-scrubbed client-failure append; server-side music probe returning content hash and duration before a project; protected content-hash repair beneath `media_root`; and the missing cross-site `Referer` guard. Gate: each new mutation has a capability-token guard test; bin/restore and reject preserve the store semantics exactly; Log standing lines, proposal detail, warnings, transitions, failures and export summary survive reopen; music probe→peaks works with no project; link repair preserves edit state and never searches outside `media_root`; a v2 synthetic flow covers create→scan→analyze→propose→control actions→export→Log; the known WO-134 legacy failures do not worsen | `backend/api/`; `backend/contracts/interfaces.py`; `backend/store/log_store.py`; `tests/api/`; `tests/guards/test_security.py`; `tests/integration/test_frontend_operability.py` (new) |
 | **WO-125 · Rack design system** | Extract v3z tokens and primitives: modules, ears, screws, keys, LEDs, seven-segment/VFD/LCD glass, housings, glyphs and embedded fonts. Gate: all primitives render from typed props; the fixed-size causes in `SPEC.md` §10.1 are encoded; token tests, typecheck, build and local-browser smoke pass | `frontend/src/rack/`; `frontend/tests/wo-125/` |
-| **WO-126 · App shell, state and client v2** | Six states as one view; typed module-slot interface with honest placeholders; mock/live clients; optimistic PATCH queue; visible 409 revert and Log message; correct the manifest's stale description without touching dependencies or scripts. Gate: queued writes preserve order, conflicts revert visibly, mock/live shapes agree, and the empty shell builds | `frontend/src/app/`; `frontend/src/main.tsx`; `frontend/tests/wo-126/`; `frontend/package.json` description field only |
+| **WO-126 · App shell, state and client v2** | Six states as one view; typed module-slot interface with honest placeholders; mock/live clients; optimistic PATCH queue; visible 409 revert and Log message; correct the manifest's stale description without touching dependencies or scripts. **Amendment 2 narrowly reopens the frozen interface for §3.5's typed, session-only preview queue IDs and toggle action.** Gate: queued writes preserve order, conflicts revert visibly, mock/live shapes agree, the preview queue never enters persisted state, and the empty shell builds | Original scope: `frontend/src/app/`; `frontend/src/main.tsx`; `frontend/tests/wo-126/`; `frontend/package.json` description field only. Amendment 2 exact reopening: `frontend/src/app/types.ts`; `frontend/src/app/state.ts`; `frontend/src/app/controller.ts`; `frontend/src/app/mock-data.ts`; `frontend/tests/wo-126/preview-queue.test.mjs` |
 | **WO-127 · Monitor and Transport** | Dual-video queue, clip scrub, target length, resolution selector and Loop. **Before completion:** rerun the WO-124 harness foregrounded, record the result in the findings, then delete the spike directory. Gate: measured strategy used; preview rate/queue tests, typecheck, build and local-browser smoke pass | `frontend/src/monitor/`; `frontend/tests/wo-127/`; `spike/wo-124-playback/` (rerun, then delete); `docs/specs/WO-124-playback-findings.md` (append result only) |
 | **WO-128 · Sound** | Reel-axis music/clip waveforms, two level sliders, cursor, playing wash, music in-point and track picker. Gate: both levels and in-point PATCH correctly; 0/0 remains representable; pure logic tests, typecheck, build and local-browser smoke pass | `frontend/src/sound/`; `frontend/tests/wo-128/` |
 | **WO-129 · Clip index** | Four-row window, row controls and the three derived out states. Gate: exactly four addressable rows at any clip count; reorder/link/bin/mute actions map to v2 routes; nothing disappears or greys out; pure logic tests, typecheck, build and local-browser smoke pass | `frontend/src/index/`; `frontend/tests/wo-129/` |
@@ -125,7 +154,7 @@ WO-123a corrected live API seam
 ```
 
 WO-123a, WO-125 and WO-126 are serial barriers, in that order. Each of
-WO-127 – WO-132 runs in its own write-isolated branch/worktree after all three
+Each of WO-127 – WO-132 runs in its own write-isolated branch/worktree after all three
 are on local `main`. Merge order after the barriers is WO-127 through WO-132,
 followed by clean tests, typecheck, build and local-browser smoke. WO-123a owns
 only the correction that makes the live frontend possible; ADP-004's broader
@@ -148,7 +177,7 @@ program.
   WO-123a's declared paths are the only backend exception, and WO-126's
   description-only correction is the sole manifest change.
 - No tracked design files, media, private paths or consent artifacts.
-- WO-127 records the foreground measurement and deletes the spike code.
+- WO-127 recorded the foreground measurement and deleted the spike code.
 - State remains honest: this ADP proves implementation on mock/synthetic data,
   not usability or product quality.
 
@@ -168,5 +197,7 @@ Still withheld:        pushes, CI, real media, new dependencies,
                        further SPEC changes and design changes
 Narrowing / notes:     Authorized as drafted; Amendment 1 (2026-07-30)
                        added WO-123a as the first serial barrier after
-                       DECISIONS §5 and SPEC.md §8 closed the operability gap
+                       DECISIONS §5 and SPEC.md §8 closed the operability gap;
+                       Amendment 2 (2026-07-31) narrowly reopened WO-126's
+                       app interface for the typed, non-persisted preview queue
 ```

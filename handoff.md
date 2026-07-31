@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated 2026-07-30**, WO-126 merged locally; the six frontend lanes are open.
+**Updated 2026-07-31**, ADP-003 Amendment 2 and WO-127 merged locally; WO-128 is next.
 
 ## The one-paragraph version
 
@@ -10,9 +10,9 @@ and a materially different product from the one M1 was built for. That old
 frontend is deleted; the superseded record lives in `docs/archive/`; the
 surviving guardrails are `docs/CONSTRAINTS.md`; the departures are decided in
 `docs/DECISIONS.md`. **ADP-002 closed 2026-07-30** after all eleven Work Orders
-met their synthetic gates. Amendment 7 narrowly retains the WO-124 harness
-through WO-127 because accepted `SPEC.md` §6.7 requires one foreground rerun
-before the Monitor ships. **ADP-003 was authorized 2026-07-30 and amended the
+met their synthetic gates. Amendment 7 retained the WO-124 harness through
+WO-127 for accepted `SPEC.md` §6.7's foreground rerun; the rerun passed and the
+harness is now deleted. **ADP-003 was authorized 2026-07-30 and amended the
 same day** after a contract audit found that reject, reversible binning, the
 persistent Log, music probing and automatic link repair had no complete
 frontend-to-server path. `DECISIONS.md` §5 and amended `SPEC.md` §8 make those
@@ -24,8 +24,12 @@ and `Referer` guard pass their focused and synthetic end-to-end gates.
 **WO-126 has now established the shared app kernel**: the six accepted states
 render as one fixed view through typed module slots; mock and live clients share
 one interface; and ordered optimistic writes visibly revert and report a Log
-message on conflict. The six product modules remain honest placeholders. The
-suite is deliberately partly red across the schema seam (the box below).
+message on conflict. The owner authorized Amendment 2 on 2026-07-31 to add the
+missing session-only preview queue to that frozen interface. **WO-127 has now implemented Monitor
+and Transport** with a dual-video cross-swap, media-event playback clock,
+clip-scoped scrub, target length, resolution and Loop controls. Five product
+modules remain honest placeholders. The suite is deliberately partly red
+across the schema seam (the box below).
 
 ## What exists
 
@@ -63,15 +67,18 @@ Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
 > `--continue-on-collection-errors` for the whole-suite count.
 > **If you are reading this and the numbers are worse, that IS a regression.**
 
-**Frontend — rack foundation and app kernel, product modules still
-placeholders.** `frontend/src/rack/` is the WO-125 typed design system extracted
+**Frontend — rack foundation, app kernel, Monitor and Transport.**
+`frontend/src/rack/` is the WO-125 typed design system extracted
 from v3z. `frontend/src/app/` is WO-126's one-view state model, typed slot
-registry, mock/live client boundary and ordered optimistic write queue;
-`main.tsx` discovers future slot providers without changing the kernel. All 30
-WO-125/WO-126 contract tests, typecheck and production build pass. Browser smoke
-covered all six states with equal 662 px columns, the 465 px Monitor, and honest
-placeholders; at 800 px the 960 px rack overflows horizontally instead of
-reflowing. `types/contracts.ts` remains generated and unchanged.
+registry, mock/live client boundary, ordered optimistic write queue and
+Amendment 2's session-only preview queue. `frontend/src/monitor/` provides the
+two-slot media-event playback engine and fixed Monitor/Transport controls;
+`main.tsx` discovers slot providers without changing the kernel. All 45
+frontend contract tests, typecheck and production build pass. Browser smoke
+covered all six states with equal 662 px columns, the 465 px Monitor, two video
+elements and working transport controls without browser warnings or errors;
+at 800 px the 960 px rack overflows horizontally instead of reflowing.
+`types/contracts.ts` remains generated and unchanged.
 
 **Design — v3z is frozen, and lives outside the repo.**
 `docs/design-claude/mockup-v3z.html`, plus its generator, whose state model is a
@@ -87,15 +94,16 @@ not resolve on GitHub.
   (WO-118), reject semantics (WO-118b), media services (WO-119), and the speed
   proposer (WO-120), renderer (WO-121), output QA (WO-122), and API (WO-123)
   are v2.
-- **No implemented product module yet. ADP-003 is authorized and amended
-  once.** WO-123a, WO-125 and WO-126 cleared all three serial barriers. The rack
-  and shared app kernel exist; Monitor, Sound, Clip index, Editor, Log and
-  Reel/HUD remain honest placeholders owned by WO-127 – WO-132.
+- **Five product modules remain. ADP-003 is authorized and amended twice.**
+  WO-123a, WO-125 and WO-126 cleared all three serial barriers; Amendment 2
+  repaired the preview-queue seam and WO-127 implemented Monitor/Transport.
+  Sound, Clip index, Editor, Log and Reel/HUD remain honest placeholders owned
+  by WO-128 – WO-132.
 - **`SPEC.md` owes nothing.** All four §14 items are closed: SO-1 2026-07-28,
   SO-2/SO-3/SO-4 2026-07-29. Two things the closures leave open are tracked as
-  correction-pass risks rather than spec gaps — the unmeasured black-frame
-  duration (§6.7) and whether one three-line strip can carry the Log's eight
-  jobs (§7.2).
+  correction-pass risks rather than spec gaps. WO-127 measured and closed the
+  foreground presentation-gap risk (§6.7); whether one three-line strip can
+  carry the Log's eight jobs (§7.2) remains for WO-131.
 - **No frontend Log surface yet.** The backend sidecar is now complete:
   standing lines, ingest/proposal/assist/disposition/export events, warnings and
   job failures persist and survive reopen; the constrained client-failure route
@@ -106,30 +114,42 @@ not resolve on GitHub.
 
 ## In flight right now
 
-**Nothing.** WO-126 is merged locally and its branch gate is clear. WO-127 –
-WO-132 may now run in isolated lanes; their required local merge order remains
-WO-127 through WO-132. The harness rerun and deletion belong to WO-127.
+**Nothing. WO-127 · Monitor and Transport is merged locally.** Its required
+foreground harness rerun passed: the prepared dual-video presentation gap was
+25.8 ms median versus 58.3 ms for one element, with zero seek frame error. The
+Amendment 2 preview-queue seam and WO-127 implementation pass 15 new focused
+tests (45 frontend tests combined), typecheck, build and six-state browser
+smoke. The retained WO-124 harness and its generated synthetic fixtures were
+then deleted as required.
 
 **WO-124 is done.** [`docs/specs/WO-124-playback-findings.md`](docs/specs/WO-124-playback-findings.md)
 — **SO-3 is answered and the v3z design survives.** The Monitor uses **two
-`<video>` elements cross-swapped** (0.8 ms at the cut, against 36.3 ms for one
-element reloaded — a 45× difference). Seeking is **frame-accurate** despite an
-8.3 s GOP; `playbackRate` is exact; a plain `<audio>` music bed holds sync to
-within 3.4 ms across a cut. The spike code is throwaway and is deleted at
-WO-127 closeout. Amendment 7 retains it only long enough to satisfy `SPEC.md`
-§6.7's required foreground rerun; WO-127 records that result before deletion.
+`<video>` elements cross-swapped**. The original background run measured 0.8 ms
+at the cut against 36.3 ms for one element reloaded. WO-127's required visible,
+focused rerun on current audio-bearing proxies measured the presentation gap at
+25.8 ms median against 58.3 ms, with zero seek frame error; exact 1.5×–2.5×
+rates; and music drift within 3.4 ms across a cut. The throwaway harness and
+generated fixtures are now deleted, fulfilling Amendment 7.
 
 ## What happens next
 
-1. **WO-127 – WO-132 may now fan out** against WO-126's frozen app/client
-   interface. WO-127 is first in the required local merge order and owns the
-   foreground playback-harness rerun, result append and harness deletion.
+1. **WO-128 is next in the required local merge order.** WO-128 – WO-132 retain
+   isolated scopes against the now-complete rack, app and Monitor interfaces.
 2. The legacy integration suite remains withheld to WO-134. Its visible v1
    failures are recorded in the suite box above and are not frontend work.
 
 ## The stop-and-asks that are open
 
 **None.** The newest one was closed as follows.
+
+**Closed 2026-07-31 — WO-126's frozen slot contract omitted the preview
+queue.** Raised by WO-127 before Monitor implementation. The app snapshot
+carried the loaded clip and playback flag, but no session-only multi-select
+queue for WO-127 to play and WO-129 to control. The owner authorized the
+recommended ADP-003 Amendment 2: narrowly reopen five exact WO-126 paths for
+typed queue source IDs, one toggle action, controller/mock initialization and a
+focused test. No persisted state, backend, dependency, `SPEC.md` or design
+change is permitted.
 
 **Closed 2026-07-30 — the frozen HTTP seam could not operate the frozen
 frontend.** Raised by the post-authorization project review. The store already
@@ -217,7 +237,7 @@ SO-1, SO-2, SO-3, SO-4 — is closed. Two owner actions remain:
   documents contradict each other by design of their own history.
 - **Owner approval is a build gate, not proof the product is good.** Real users
   other than the owner are deferred, not deleted.
-- **The product modules have never been operated.** WO-126 proves the six-state
-  fixed shell and its client/write behaviour, but Monitor, Sound, Clip index,
-  Editor, Log and Reel/HUD are still placeholders. Their interaction risks
-  remain for WO-127 – WO-132.
+- **Five product modules have never been operated.** WO-127 exercised Monitor
+  and Transport on synthetic/mock state, but Sound, Clip index, Editor, Log and
+  Reel/HUD are still placeholders. Their interaction risks remain for
+  WO-128 – WO-132.

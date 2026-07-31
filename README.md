@@ -12,8 +12,9 @@ the device.
 
 **The ADP-002 backend is realigned to the accepted spec and closed. The narrow
 WO-123a frontend-operability API correction, WO-125 rack design system and
-WO-126 shared app kernel are merged locally; the six product modules remain
-honest placeholders. Nothing has ever run against real footage.**
+WO-126 shared app kernel and WO-127 Monitor/Transport are merged locally; five
+product modules remain honest placeholders. Nothing has ever run against real
+footage.**
 
 - The pipe runs end to end **on synthetic fixtures**: ingest → analysis → trim
   proposal → render → QA → export, behind a local HTTP API with its security
@@ -29,7 +30,9 @@ honest placeholders. Nothing has ever run against real footage.**
   operations. WO-125 provides the typed v3z rack primitives, fixed geometry and
   embedded visual assets. WO-126 adds the six-state one-view shell, typed module
   slots, mock/live client boundary and ordered optimistic writes with visible
-  conflict recovery. WO-127 – WO-132 now own the actual product modules.
+  conflict recovery. ADP-003 Amendment 2 adds the missing session-only preview
+  queue. WO-127 implements the dual-video Monitor and its clip-scoped Transport;
+  WO-128 – WO-132 own the five remaining product modules.
 - **No experiment has ever run and no real footage has ever been processed.**
   Every claim in [EVIDENCE-LEDGER.md](docs/specs/EVIDENCE-LEDGER.md) is graded
   `assumed`. That the code passes its tests establishes that it works, not that

@@ -130,7 +130,7 @@ export function createMockLog(): LogEntry[] {
 
 export function mockSnapshotForView(view: AppViewState): AppSnapshot {
   if (view === 'empty') {
-    return createSnapshot({ log: createMockLog() })
+    return createSnapshot({ log: createMockLog(), previewQueueSourceIds: [] })
   }
   const project = createMockProject({
     trim_assist_on: view === 'trim-on' || view === 'speed-on' || view === 'playing',
@@ -140,6 +140,7 @@ export function mockSnapshotForView(view: AppViewState): AppSnapshot {
     project,
     log: createMockLog(),
     loadedSourceId: project.clips[0]?.source_id ?? null,
+    previewQueueSourceIds: project.clips.map((clip) => clip.source_id),
     playing: view === 'playing',
     trimWasReverted: view === 'trim-off',
   })

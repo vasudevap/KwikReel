@@ -6,16 +6,16 @@ to take the product from what exists today to what
 `docs/design-claude/mockup-v3z.html` draws. (That folder is gitignored and local
 only — the mockups are not in the public repo.)
 
-**Progress, 2026-07-30.** The original §5 serial steps through ADP-003
+**Progress, 2026-07-31.** The original §5 serial steps through ADP-003
 authorization are done — the **clean cut**, the **decision session**
 ([`DECISIONS.md`](../DECISIONS.md)), **`SPEC.md`
 accepted** (discharging S-1 and — within it — S-4, S-5, S-6, S-9 and S-10),
 **ADP-002 signed**, and **WO-117 merged**. WO-116/116a, WO-118, WO-118a,
 WO-118b, WO-119, WO-120, WO-121, WO-122, WO-123 and WO-124 have landed;
 **ADP-002 closed 2026-07-30** and
-[`ADP-003`](ADP-003-v3z-rack-frontend.md) is authorized and amended once;
-WO-123a, WO-125 and WO-126, all three serial barriers, are merged locally;
-WO-127 – WO-132 may now run in isolated lanes.
+[`ADP-003`](ADP-003-v3z-rack-frontend.md) is authorized and amended twice;
+WO-123a, WO-125 and WO-126, all three serial barriers, plus WO-127 are merged
+locally; WO-128 – WO-132 may now run in isolated lanes.
 
 **What this plan still holds that `SPEC.md` does not:** the ADP-003/ADP-004
 sequencing in §3 – §5. The four spec gaps it once held open — S-2 (SO-3), S-3
@@ -27,11 +27,12 @@ kept, not retired.
 
 **The live authorization is
 [ADP-003](ADP-003-v3z-rack-frontend.md)** — authorized 2026-07-30 and amended
-the same day to add WO-123a before WO-125. Scope is WO-123a and WO-125 – WO-132,
-local mock/synthetic implementation only.
+twice: Amendment 1 added WO-123a before WO-125; Amendment 2 on 2026-07-31
+repaired WO-126's missing session-only preview queue. Scope is WO-123a and
+WO-125 – WO-132, local mock/synthetic implementation only.
 [ADP-002](ADP-002-contract-v2-and-backend.md) closed 2026-07-30 after seven
-amendments; Amendment 7 retains the WO-124 harness through WO-127 for the
-foreground rerun `SPEC.md` requires.
+amendments; Amendment 7 retained the WO-124 harness through WO-127 for the
+foreground rerun `SPEC.md` requires. That rerun passed and the harness is deleted.
 
 **One naming note that matters:** the new normative document is **`SPEC.md`**,
 written *forward from v3z*. It is not an amendment to the archived ES-001, and
@@ -258,7 +259,7 @@ orientation**, per the letterbox finding below.
 | ADP | Grants | Gated on | State |
 |---|---|---|---|
 | **[ADP-002](ADP-002-contract-v2-and-backend.md) · Contract v2 and backend realignment** | WO-116a, WO-117 – WO-124, plus WO-118b, all unheld. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | `DECISIONS.md` and `SPEC.md`, both landed; WO-118b's reject semantics are decided and implemented | **Closed 2026-07-30, amended ×7** |
-| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-123a and WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met; Amendment 1 inserts the corrected live API seam before frontend work | **Authorized 2026-07-30, amended ×1; all three serial barriers merged locally, WO-127 – WO-132 open** |
+| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-123a and WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met; Amendment 1 inserts the corrected live API seam before frontend work | **Authorized 2026-07-30, amended ×2; all three serial barriers and WO-127 merged locally, WO-128 – WO-132 open** |
 | **ADP-004 · Verification and real-footage validation** | WO-133 – WO-135, and WO-115a/115b | ADP-002 + ADP-003 complete; **a recorded ADR-002 consent** for anything touching real footage | Not written |
 
 WO-124 (the spike) sits between ADP-002 and ADP-003 and should be authorized
@@ -361,8 +362,12 @@ Only four steps are serial before the work fans out.
    primitives, fixed geometry, embedded fonts and local-browser gate pass.
 9. ~~**WO-126 app shell, state model and client v2.**~~ **Done 2026-07-30.**
    The six-state one-view shell, typed slots, mock/live client and ordered
-   optimistic write/conflict path pass 17 focused tests and browser smoke;
-   WO-127 – WO-132 are open.
+   optimistic write/conflict path pass 17 focused tests and browser smoke.
+10. ~~**ADP-003 Amendment 2 / WO-127 Monitor and Transport.**~~ **Done
+    2026-07-31.** The narrow preview-queue repair brings WO-126 to 20 focused
+    tests. Monitor/Transport uses two cross-swapped video elements and a
+    media-event clock; its foreground harness rerun passed, 12 WO-127 tests
+    pass, and the throwaway spike is deleted. WO-128 – WO-132 are open.
 
 **Two things run in parallel with all of the above**, because neither depends on
 any v3z decision:
@@ -371,7 +376,8 @@ any v3z decision:
 - ~~**WO-124, the playback-engine spike.**~~ **Done 2026-07-28** — findings in
   [`WO-124-playback-findings.md`](../specs/WO-124-playback-findings.md). SO-3
   closed, the v3z design survived its own measurement, and the one defect it
-  surfaced (silent proxies) was fixed the same day as WO-116a.
+  surfaced (silent proxies) was fixed the same day as WO-116a. WO-127 completed
+  the required foreground rerun and deleted the retained harness on 2026-07-31.
 
 Then: ~~**ADP-002** (independent media and API lanes; serial renderer → QA
 lane; WO-118b and WO-120 done before closeout)~~ **closed** → read the spike's
@@ -383,12 +389,13 @@ integration, and — behind a consent record — real footage).
 
 ## 6 · Risks recorded honestly, not argued around
 
-- **The product modules have never been operated.** WO-126 proves the fixed
-  six-state shell, but the behaviours that feel right in v3z's screenshots —
+- **Five product modules have never been operated.** WO-127 exercised Monitor
+  and Transport on mock/synthetic state, but the behaviours that feel right in
+  v3z's remaining screenshots —
   the four-row window at 200 clips, scroll keys instead of a scrollbar, seven
   26px keys on every row, no greying and no disappearing — remain untested as
   *interaction*. Some may not survive contact, so the plan should expect a v4
-  pass after WO-127 – WO-132 make them live.
+  pass after WO-128 – WO-132 make them live.
 - **A clip can vanish silently.** A-2 takes reasons off the screen, A-6 lets the
   proposer return nothing. The Log (S-7, WO-131) is the *only* thing standing
   between that combination and a silent surprise. Treat it as a correctness

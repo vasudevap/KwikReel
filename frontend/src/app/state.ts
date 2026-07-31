@@ -24,9 +24,24 @@ export interface SnapshotInput {
   project?: Project | null
   log?: readonly LogEntry[]
   loadedSourceId?: string | null
+  previewQueueSourceIds?: readonly string[]
   playing?: boolean
   trimWasReverted?: boolean
   pendingWrites?: number
+}
+
+export function normalizePreviewQueue(
+  project: Project | null,
+  sourceIds?: readonly string[],
+): readonly string[] {
+  if (!project) return Object.freeze([])
+  const selected = sourceIds ? new Set(sourceIds) : null
+  return Object.freeze(
+    [...project.clips]
+      .sort((left, right) => left.order - right.order)
+      .filter((clip) => selected === null || selected.has(clip.source_id))
+      .map((clip) => clip.source_id),
+  )
 }
 
 export function createSnapshot(input: SnapshotInput = {}): AppSnapshot {
@@ -38,6 +53,10 @@ export function createSnapshot(input: SnapshotInput = {}): AppSnapshot {
     project,
     log: Object.freeze([...(input.log ?? [])]),
     loadedSourceId: input.loadedSourceId ?? null,
+    previewQueueSourceIds: normalizePreviewQueue(
+      project,
+      input.previewQueueSourceIds,
+    ),
     playing,
     trimWasReverted,
     pendingWrites: input.pendingWrites ?? 0,

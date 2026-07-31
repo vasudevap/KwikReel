@@ -128,6 +128,7 @@ export interface AppSnapshot {
   project: Project | null
   log: readonly LogEntry[]
   loadedSourceId: string | null
+  previewQueueSourceIds: readonly string[]
   playing: boolean
   trimWasReverted: boolean
   pendingWrites: number
@@ -155,6 +156,7 @@ export interface AppActions {
   enqueue(operation: ProjectWriteOperation): Promise<WriteOutcome>
   appendFailure(input: ClientLogInput): void
   loadClip(sourceId: string | null): void
+  togglePreviewQueue(sourceId: string): void
   setPlaying(playing: boolean): void
 }
 
