@@ -14,8 +14,8 @@ accepted** (discharging S-1 and — within it — S-4, S-5, S-6, S-9 and S-10),
 WO-118b, WO-119, WO-120, WO-121, WO-122, WO-123 and WO-124 have landed;
 **ADP-002 closed 2026-07-30** and
 [`ADP-003`](ADP-003-v3z-rack-frontend.md) is authorized and amended once;
-WO-123a and WO-125, the first two serial barriers, are merged locally; WO-126
-is next.
+WO-123a, WO-125 and WO-126, all three serial barriers, are merged locally;
+WO-127 – WO-132 may now run in isolated lanes.
 
 **What this plan still holds that `SPEC.md` does not:** the ADP-003/ADP-004
 sequencing in §3 – §5. The four spec gaps it once held open — S-2 (SO-3), S-3
@@ -258,7 +258,7 @@ orientation**, per the letterbox finding below.
 | ADP | Grants | Gated on | State |
 |---|---|---|---|
 | **[ADP-002](ADP-002-contract-v2-and-backend.md) · Contract v2 and backend realignment** | WO-116a, WO-117 – WO-124, plus WO-118b, all unheld. Local build only; pushes, CI and real-media runs stay separately gated, as ADP-001 §3 | `DECISIONS.md` and `SPEC.md`, both landed; WO-118b's reject semantics are decided and implemented | **Closed 2026-07-30, amended ×7** |
-| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-123a and WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met; Amendment 1 inserts the corrected live API seam before frontend work | **Authorized 2026-07-30, amended ×1; WO-123a and WO-125 merged locally, WO-126 next** |
+| **[ADP-003](ADP-003-v3z-rack-frontend.md) · The v3z rack frontend** | WO-123a and WO-125 – WO-132 | **WO-124's spike passing**, plus SO-2 and SO-4 — all met; Amendment 1 inserts the corrected live API seam before frontend work | **Authorized 2026-07-30, amended ×1; all three serial barriers merged locally, WO-127 – WO-132 open** |
 | **ADP-004 · Verification and real-footage validation** | WO-133 – WO-135, and WO-115a/115b | ADP-002 + ADP-003 complete; **a recorded ADR-002 consent** for anything touching real footage | Not written |
 
 WO-124 (the spike) sits between ADP-002 and ADP-003 and should be authorized
@@ -358,8 +358,11 @@ Only four steps are serial before the work fans out.
 7. ~~**ADP-003 Amendment 1 / WO-123a.**~~ **Done 2026-07-30.** The corrected
    frontend-operability seam passed its focused and synthetic flow gates.
 8. ~~**WO-125 rack design system.**~~ **Done 2026-07-30.** The typed v3z
-   primitives, fixed geometry, embedded fonts and local-browser gate pass;
-   WO-126 is next.
+   primitives, fixed geometry, embedded fonts and local-browser gate pass.
+9. ~~**WO-126 app shell, state model and client v2.**~~ **Done 2026-07-30.**
+   The six-state one-view shell, typed slots, mock/live client and ordered
+   optimistic write/conflict path pass 17 focused tests and browser smoke;
+   WO-127 – WO-132 are open.
 
 **Two things run in parallel with all of the above**, because neither depends on
 any v3z decision:
@@ -380,11 +383,12 @@ integration, and — behind a consent record — real footage).
 
 ## 6 · Risks recorded honestly, not argued around
 
-- **The design has never been operated.** v3z is six static renders. Everything
-  that feels right in a screenshot — the four-row window at 200 clips, scroll
-  keys instead of a scrollbar, seven 26px keys on every row, no greying and no
-  disappearing — is untested as *interaction*. Some of it will not survive
-  contact and the plan should expect a v4 pass after WO-126 makes it live.
+- **The product modules have never been operated.** WO-126 proves the fixed
+  six-state shell, but the behaviours that feel right in v3z's screenshots —
+  the four-row window at 200 clips, scroll keys instead of a scrollbar, seven
+  26px keys on every row, no greying and no disappearing — remain untested as
+  *interaction*. Some may not survive contact, so the plan should expect a v4
+  pass after WO-127 – WO-132 make them live.
 - **A clip can vanish silently.** A-2 takes reasons off the screen, A-6 lets the
   proposer return nothing. The Log (S-7, WO-131) is the *only* thing standing
   between that combination and a silent surprise. Treat it as a correctness

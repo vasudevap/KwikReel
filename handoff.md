@@ -1,6 +1,6 @@
 # Handoff
 
-**Updated 2026-07-30**, WO-125 merged locally; WO-126 is next.
+**Updated 2026-07-30**, WO-126 merged locally; the six frontend lanes are open.
 
 ## The one-paragraph version
 
@@ -20,10 +20,12 @@ server-owned actions; ADP-003 Amendment 1 adds **WO-123a as the first serial
 barrier**, before WO-125. **WO-123a is now implemented and merged locally**:
 the corrected actions, persistent Log wiring, music probe, root-confined repair
 and `Referer` guard pass their focused and synthetic end-to-end gates.
-**WO-125 has now established the frontend's typed v3z rack design system**:
-fixed geometry, modules, hardware controls, displays, housings, glyphs and
-embedded fonts. The app shell and product surfaces have not begun. The suite is
-deliberately partly red across the schema seam (the box below).
+**WO-125 established the frontend's typed v3z rack design system**, and
+**WO-126 has now established the shared app kernel**: the six accepted states
+render as one fixed view through typed module slots; mock and live clients share
+one interface; and ordered optimistic writes visibly revert and report a Log
+message on conflict. The six product modules remain honest placeholders. The
+suite is deliberately partly red across the schema seam (the box below).
 
 ## What exists
 
@@ -61,14 +63,15 @@ Run it: `python -m backend.api.run`. (Use the repo's `.venv`; the system
 > `--continue-on-collection-errors` for the whole-suite count.
 > **If you are reading this and the numbers are worse, that IS a regression.**
 
-**Frontend — rack foundation only.** `frontend/src/rack/` is the WO-125 typed
-design system extracted from v3z: frozen geometry tokens, modules/ears/screws,
-physical keys and state lamps/rings, seven-segment/VFD/LCD glass, locked
-housings, CSS-drawn glyphs and embedded local fonts. Its 13 contract tests,
-typecheck, production build and browser smoke pass; the browser gate confirmed
-465 px monitor geometry and 26 px keys, plus a fixed 960 px rack with horizontal
-overflow rather than reflow below the minimum. `main.tsx` remains a stub and
-`types/contracts.ts` remains generated; WO-126 owns the app shell and client.
+**Frontend — rack foundation and app kernel, product modules still
+placeholders.** `frontend/src/rack/` is the WO-125 typed design system extracted
+from v3z. `frontend/src/app/` is WO-126's one-view state model, typed slot
+registry, mock/live client boundary and ordered optimistic write queue;
+`main.tsx` discovers future slot providers without changing the kernel. All 30
+WO-125/WO-126 contract tests, typecheck and production build pass. Browser smoke
+covered all six states with equal 662 px columns, the 465 px Monitor, and honest
+placeholders; at 800 px the 960 px rack overflows horizontally instead of
+reflowing. `types/contracts.ts` remains generated and unchanged.
 
 **Design — v3z is frozen, and lives outside the repo.**
 `docs/design-claude/mockup-v3z.html`, plus its generator, whose state model is a
@@ -84,9 +87,10 @@ not resolve on GitHub.
   (WO-118), reject semantics (WO-118b), media services (WO-119), and the speed
   proposer (WO-120), renderer (WO-121), output QA (WO-122), and API (WO-123)
   are v2.
-- **No frontend app yet. ADP-003 is authorized and amended once.** WO-123a and
-  WO-125 cleared the first two serial barriers. The rack foundation exists;
-  WO-126's app shell, state and client have not begun.
+- **No implemented product module yet. ADP-003 is authorized and amended
+  once.** WO-123a, WO-125 and WO-126 cleared all three serial barriers. The rack
+  and shared app kernel exist; Monitor, Sound, Clip index, Editor, Log and
+  Reel/HUD remain honest placeholders owned by WO-127 – WO-132.
 - **`SPEC.md` owes nothing.** All four §14 items are closed: SO-1 2026-07-28,
   SO-2/SO-3/SO-4 2026-07-29. Two things the closures leave open are tracked as
   correction-pass risks rather than spec gaps — the unmeasured black-frame
@@ -102,9 +106,9 @@ not resolve on GitHub.
 
 ## In flight right now
 
-**Nothing.** WO-125 is merged locally and its branch gate is clear. WO-126 is
-the next serial barrier. The harness rerun and deletion still belong later to
-WO-127.
+**Nothing.** WO-126 is merged locally and its branch gate is clear. WO-127 –
+WO-132 may now run in isolated lanes; their required local merge order remains
+WO-127 through WO-132. The harness rerun and deletion belong to WO-127.
 
 **WO-124 is done.** [`docs/specs/WO-124-playback-findings.md`](docs/specs/WO-124-playback-findings.md)
 — **SO-3 is answered and the v3z design survives.** The Monitor uses **two
@@ -117,9 +121,9 @@ WO-127 closeout. Amendment 7 retains it only long enough to satisfy `SPEC.md`
 
 ## What happens next
 
-1. **WO-126 is the next serial barrier** and freezes the app kernel/client
-   against the corrected live API. WO-127 – WO-132 fan out only after all three
-   barriers merge.
+1. **WO-127 – WO-132 may now fan out** against WO-126's frozen app/client
+   interface. WO-127 is first in the required local merge order and owns the
+   foreground playback-harness rerun, result append and harness deletion.
 2. The legacy integration suite remains withheld to WO-134. Its visible v1
    failures are recorded in the suite box above and are not frontend work.
 
@@ -213,10 +217,7 @@ SO-1, SO-2, SO-3, SO-4 — is closed. Two owner actions remain:
   documents contradict each other by design of their own history.
 - **Owner approval is a build gate, not proof the product is good.** Real users
   other than the owner are deferred, not deleted.
-- **The design has never been operated.** v3z is six static renders with no
-  interaction logic. Everything that reads well as a screenshot is untested as
-  behaviour.
-- **`frontend/package.json` has one known stale sentence.** Its description
-  still says ADP-003 waits on WO-124. The entry gate is now met, but the file
-  remains untouched until its authorized owner runs; WO-126 owns the
-  description-only correction.
+- **The product modules have never been operated.** WO-126 proves the six-state
+  fixed shell and its client/write behaviour, but Monitor, Sound, Clip index,
+  Editor, Log and Reel/HUD are still placeholders. Their interaction risks
+  remain for WO-127 – WO-132.

@@ -1,0 +1,122 @@
+.kr-app__hud {
+  min-width: 938px;
+}
+
+.kr-app__hud-note {
+  margin-left: 18px;
+  color: #676b71;
+  font: 600 8px/1 'IBM Plex Mono', monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.kr-app__instruments {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.kr-app__slot {
+  flex: 0 0 auto;
+}
+
+.kr-app__slot--monitor {
+  height: 662px;
+}
+
+.kr-app__slot--reel {
+  height: 84px;
+}
+
+.kr-app__slot--transport {
+  height: 95px;
+}
+
+.kr-app__slot--sound {
+  height: 105px;
+}
+
+.kr-app__slot--editor {
+  height: 130px;
+}
+
+.kr-app__slot--index {
+  height: 145px;
+}
+
+.kr-app__slot--log {
+  height: 88px;
+}
+
+.kr-app__placeholder-glass {
+  position: relative;
+  display: grid;
+  min-height: 34px;
+  padding: 6px 8px;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.kr-app__slot--monitor .kr-app__placeholder-glass {
+  height: 600px;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-content: center;
+  gap: 10px;
+  color: #565b58;
+  background:
+    radial-gradient(circle at 50% 42%, #181c1b, #080a09 68%),
+    #080a09;
+}
+
+.kr-app__placeholder-title {
+  color: #9ca29f;
+  font-family: 'Barlow Semi Condensed', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.kr-app__placeholder-copy {
+  color: #5f7569;
+}
+
+.kr-app__placeholder-state {
+  color: #ffc42e;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.kr-app__placeholder-log {
+  display: flex;
+  height: 51px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 2px;
+  padding: 4px 6px;
+}
+
+.kr-app__log-line {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 6px;
+  overflow: hidden;
+  color: #63f7a4;
+  white-space: nowrap;
+}
+
+.kr-app__log-line span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kr-app__log-line--warn {
+  color: #ffc02e;
+}
+
+.kr-app__log-line--fault {
+  color: #ff6a5e;
+}

@@ -34,6 +34,17 @@ design changes remain withheld.
 > monitor column and 26 px keys do not reflow. WO-126 is now the next serial
 > barrier.
 
+> **Execution, 2026-07-30 — WO-126 merged locally.** The six accepted states
+> render as one fixed view through typed module slots with honest placeholders.
+> Mock and live clients implement one interface; ordered optimistic writes
+> preserve later intent, and a 409 visibly reverts the rejected write and adds
+> its Log message. All 30 combined frontend contract tests, typecheck,
+> production build and six-state local-browser smoke pass. Both columns remain
+> 662 px high across all states, and the 800 px viewport preserves the fixed
+> 960 px rack with horizontal overflow. The manifest description is corrected
+> without dependency, script, version or lockfile drift. WO-127 – WO-132 are
+> now open in their isolated lanes.
+
 **Program ID:** ADP-003
 
 **Owner:** Repository Owner
@@ -54,11 +65,11 @@ the playback engine and the design survived. The owner authorized this program
 on 2026-07-30; §8 records the grant. Amendment 1 corrects the live API seam
 before any frontend interface is frozen.
 
-WO-123a runs alone. WO-125 then establishes the rack system, and WO-126 runs
+WO-123a ran alone. WO-125 then established the rack system, and WO-126 ran
 alone after it to establish the app kernel, typed module slots and client.
-After all three barriers merge, WO-127 – WO-132 may run in parallel because
-their write scopes are disjoint and they consume those frozen interfaces.
-WO-127 uses the measured two-video strategy.
+All three barriers are merged locally, so WO-127 – WO-132 may run in parallel
+because their write scopes are disjoint and they consume those frozen
+interfaces. WO-127 uses the measured two-video strategy.
 
 ## 2. Execution authority
 
